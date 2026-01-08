@@ -24,9 +24,9 @@ namespace Check.Views
         #endregion
     }
 
-    #region FieldToColorConverter
+    #region FieldToColorConverterFill
 
-    public class FieldToColorConverter : IValueConverter
+    public class FieldToColorConverterFill : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -53,6 +53,42 @@ namespace Check.Views
                         break;
                     default:
                         throw new Exception("Invalid Field value");
+                }
+            }
+            else
+            {
+                result = Brushes.White;
+            }
+
+            return result;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
+
+    #region FieldToColorConverterStroke
+
+    public class FieldToColorConverterStroke : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Brush result;
+
+            if (value is Position.Field field)
+            {
+                switch (field)
+                {
+                    case Position.Field.Empty:
+                        result = Brushes.Transparent;
+                        break;
+                    default:
+                        result = Brushes.Black;
+                        break;
                 }
             }
             else
