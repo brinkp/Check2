@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -34,6 +36,8 @@ namespace Check.Views
         {
             InitializeComponent();
 
+            
+
             Ellipse = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
             Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(  Fill)) { Source = this } );
@@ -41,10 +45,7 @@ namespace Check.Views
 
             Content = Ellipse;
 
-            MouseDown += PieceView_MouseDown;
-
-            DragOver += PieceView_DragOver;
-            Drop     += PieceView_Drop    ;
+            Loaded += (sender, args) => { Panel = VisualTreeHelper.GetParent(this) as Panel; Debug.Assert(Panel != null); };
         }
 
         #endregion
@@ -56,168 +57,80 @@ namespace Check.Views
 
         #endregion
 
-        #region Override methods
+        #region Dragging
+
+        protected override void OnMouseDown(MouseButtonEventArgs ea)
+        {
+            base.OnMouseDown(ea);
+
+            if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
+            {
+                DragInProgress  = true;
+                DragStartPoint  = ea.GetPosition(Panel);
+                DragStartZIndex = Panel.GetZIndex(this);
+
+                Panel.SetZIndex(this, int.MaxValue);
+
+                CaptureMouse();
+
+                ea.Handled = true;
+            }
+        }
 
         protected override void OnMouseMove(MouseEventArgs ea)
         {
             base.OnMouseMove(ea);
 
-            if (ea.LeftButton == MouseButtonState.Pressed)
+            if (DragInProgress)
             {
-                // Package the data.
-                DataObject data = new DataObject();
+                Point newPosition = ea.GetPosition(Panel);
 
-                data.SetData(DataFormats.StringFormat, Ellipse.Fill.ToString());
-                data.SetData("Double", Ellipse.Height);
-                data.SetData("Object", this);
+                RenderTransform   = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
 
-                // Initiate the drag-and-drop operation.
-                DragDrop.DoDragDrop(this, data, DragDropEffects.Copy | DragDropEffects.Move);
+                ea.Handled = true;
             }
         }
 
-        protected override void OnGiveFeedback(GiveFeedbackEventArgs ea)
+        protected override void OnMouseUp(MouseButtonEventArgs ea)
         {
-            base.OnGiveFeedback(ea);
+            base.OnMouseUp(ea);
 
-            // These Effects values are set in the drop target's
-            // DragOver event handler.
-            if (ea.Effects.HasFlag(DragDropEffects.Copy))
+            if (DragInProgress)
             {
-                Mouse.SetCursor(Cursors.Cross);
-            }
-            else if (ea.Effects.HasFlag(DragDropEffects.Move))
-            {
-                Mouse.SetCursor(Cursors.Pen);
-            }
-            else
-            {
-                Mouse.SetCursor(Cursors.No);
-            }
+                OnMouseUp();
 
-            ea.Handled = true;
-        }
-
-        protected override void OnDrop(DragEventArgs e)
-        {
-            base.OnDrop(e);
-
-            // If the DataObject contains string data, extract it.
-            if (e.Data.GetDataPresent(DataFormats.StringFormat))
-            {
-                string dataString = (string)e.Data.GetData(DataFormats.StringFormat);
-
-                // If the string can be converted into a Brush,
-                // convert it and apply it to the ellipse.
-                BrushConverter converter = new BrushConverter();
-                if (converter.IsValid(dataString))
-                {
-                    Brush newFill = (Brush)converter.ConvertFromString(dataString);
-                    Ellipse.Fill = newFill;
-
-                    // Set Effects to notify the drag source what effect
-                    // the drag-and-drop operation had.
-                    // (Copy if CTRL is pressed; otherwise, move.)
-                    if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
-                    {
-                        e.Effects = DragDropEffects.Copy;
-                    }
-                    else
-                    {
-                        e.Effects = DragDropEffects.Move;
-                    }
-                }
-            }
-
-            e.Handled = true;
-        }
-
-        protected override void OnDragOver(DragEventArgs e)
-        {
-            base.OnDragOver(e);
-            e.Effects = DragDropEffects.None;
-
-            // If the DataObject contains string data, extract it.
-            if (e.Data.GetDataPresent(DataFormats.StringFormat))
-            {
-                string dataString = (string)e.Data.GetData(DataFormats.StringFormat);
-
-                // If the string can be converted into a Brush, allow copying or moving.
-                BrushConverter converter = new BrushConverter();
-                if (converter.IsValid(dataString))
-                {
-                    // Set Effects to notify the drag source what effect
-                    // the drag-and-drop operation will have. These values are
-                    // used by the drag source's GiveFeedback event handler.
-                    // (Copy if CTRL is pressed; otherwise, move.)
-                    if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
-                    {
-                        e.Effects = DragDropEffects.Copy;
-                    }
-                    else
-                    {
-                        e.Effects = DragDropEffects.Move;
-                    }
-                }
-            }
-            e.Handled = true;
-        }
-
-        private Brush _previousFill;
-
-        protected override void OnDragEnter(DragEventArgs e)
-        {
-            base.OnDragEnter(e);
-
-            // Save the current Fill brush so that you can revert back to this value in DragLeave.
-            _previousFill = Ellipse.Fill;
-
-            // If the DataObject contains string data, extract it.
-            if (e.Data.GetDataPresent(DataFormats.StringFormat))
-            {
-                string dataString = (string)e.Data.GetData(DataFormats.StringFormat);
-
-                // If the string can be converted into a Brush, convert it.
-                BrushConverter converter = new BrushConverter();
-                if (converter.IsValid(dataString))
-                {
-                    Brush newFill = (Brush)converter.ConvertFromString(dataString.ToString());
-                    Ellipse.Fill = newFill;
-                }
+                ea.Handled = true;
             }
         }
 
-        protected override void OnDragLeave(DragEventArgs e)
+        protected override void OnLostMouseCapture(MouseEventArgs ea)
         {
-            base.OnDragLeave(e);
-            // Undo the preview that was applied in OnDragEnter.
-            Ellipse.Fill = _previousFill;
+            base.OnLostMouseCapture(ea);
+
+            if (DragInProgress)
+            {
+                OnMouseUp();
+
+                ea.Handled = true;
+            }
+        }
+
+        private void OnMouseUp()
+        {
+            RenderTransform = null;
+
+            Panel.SetZIndex(this, DragStartZIndex);
+
+            // Do this...
+            DragInProgress  = false;
+
+            // ... before this
+            ReleaseMouseCapture();
         }
 
         #endregion
 
         #region Event handlers
-
-        private void PieceView_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is PieceView pieceView)
-            {
-                DragDrop.DoDragDrop(pieceView, pieceView, DragDropEffects.Move);
-            }
-        }
-
-        private void PieceView_DragOver(object sender, DragEventArgs e)
-        {
-            if (sender.GetType() == typeof(PieceView))
-            {
-                Cursor = Cursors.Pen;
-            }
-        }
-
-        private void PieceView_Drop(object sender, DragEventArgs e)
-        {
-
-        }
 
         #endregion
 
@@ -255,7 +168,13 @@ namespace Check.Views
 
         #region Private properties
 
-        private Ellipse Ellipse { get; set; }
+        private Panel   Panel           { get; set; }
+
+        private Ellipse Ellipse         { get;      }
+
+        private bool    DragInProgress  { get; set; }
+        private Point   DragStartPoint  { get; set; }
+        private int     DragStartZIndex { get; set; }
 
         #endregion
     }

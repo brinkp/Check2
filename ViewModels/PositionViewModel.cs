@@ -76,6 +76,5 @@ namespace Check.ViewModels
         public Position.Field F50 { get => _position.F50; set { if (_position.F50 != value) { _position.F50 = value; NotifyPropertyChanged(x => F50); } } }
 
         #endregion
-
     }
 }
