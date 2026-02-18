@@ -69,9 +69,9 @@ namespace Check.Views
             {
                 DragInProgress  = true;
                 DragStartPoint  = ea.GetPosition(Panel);
-                DragStartZIndex = Panel.GetZIndex(this);
+                DragStartZIndex = Panel.GetZIndex(Ellipse);
 
-                Panel.SetZIndex(this, int.MaxValue);
+                Panel.SetZIndex(Ellipse, int.MaxValue);
 
                 CaptureMouse();
 
@@ -87,7 +87,7 @@ namespace Check.Views
             {
                 Point newPosition = ea.GetPosition(Panel);
 
-                RenderTransform   = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
+                Ellipse.RenderTransform = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
 
                 ea.Handled = true;
             }
@@ -119,9 +119,9 @@ namespace Check.Views
 
         private void OnMouseUp()
         {
-            RenderTransform = null;
+            Ellipse.RenderTransform = null;
 
-            Panel.SetZIndex(this, DragStartZIndex);
+            Panel.SetZIndex(Ellipse, DragStartZIndex);
 
             // Do this...
             DragInProgress  = false;
