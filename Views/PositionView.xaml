@@ -81,7 +81,7 @@
         <Border       Grid.Row="9" Grid.Column="7" Background="White"      BorderBrush="Black" BorderThickness="1,1,0,1" />
         <Border       Grid.Row="9" Grid.Column="9" Background="White"      BorderBrush="Black" BorderThickness="1,1,1,1" />
 
-        <Border       Grid.Row="0" Grid.Column="1" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,0" />
+        <!--<Border       Grid.Row="0" Grid.Column="1" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,0" />
         <Border       Grid.Row="0" Grid.Column="3" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,0" />
         <Border       Grid.Row="0" Grid.Column="5" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,0" />
         <Border       Grid.Row="0" Grid.Column="7" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,0" />
@@ -130,7 +130,7 @@
         <Border       Grid.Row="9" Grid.Column="2" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,1" />
         <Border       Grid.Row="9" Grid.Column="4" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,1" />
         <Border       Grid.Row="9" Grid.Column="6" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,1" />
-        <Border       Grid.Row="9" Grid.Column="8" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,1" />
+        <Border       Grid.Row="9" Grid.Column="8" Background="SandyBrown" BorderBrush="Black" BorderThickness="1,1,0,1" />-->
 
         <vs:PieceView Grid.Row="0" Grid.Column="1" Fill="{Binding Path=F01, Converter={StaticResource ConvertFieldToColorFill}}" Stroke="{Binding Path=F01, Converter={StaticResource ConvertFieldToColorStroke}}" />
         <vs:PieceView Grid.Row="0" Grid.Column="3" Fill="{Binding Path=F02, Converter={StaticResource ConvertFieldToColorFill}}" Stroke="{Binding Path=F02, Converter={StaticResource ConvertFieldToColorStroke}}" />

@@ -36,14 +36,16 @@ namespace Check.Views
         {
             InitializeComponent();
 
-            
+            Border border = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, 0d, 0d ) } ;
 
             Ellipse = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
             Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(  Fill)) { Source = this } );
             Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(Stroke)) { Source = this } );
 
-            Content = Ellipse;
+            border.Child = Ellipse;
+
+            Content = border;
 
             Loaded += (sender, args) => { Panel = VisualTreeHelper.GetParent(this) as Panel; Debug.Assert(Panel != null); };
         }
