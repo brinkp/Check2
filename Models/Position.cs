@@ -1,4 +1,7 @@
 ﻿
+using System.Collections.Generic;
+using Check.ViewModels;
+
 namespace Check.Models
 {
     public class Position
@@ -36,11 +39,24 @@ namespace Check.Models
             {
                 for (int index =  1; index <= 50; index += 1) { _fields[index] = Field.Empty;      }
             }
+
+            PossibleMoves = new List<Move>
+            {
+                new Move(31, 26),
+                new Move(31, 27),
+                new Move(32, 27),
+                new Move(32, 28),
+                new Move(33, 28),
+                new Move(33, 29),
+                new Move(34, 29),
+                new Move(34, 30),
+                new Move(35, 30)
+            };
         }
 
         #endregion
 
-        #region Public properties
+        #region Field properties
 
         public Field F01 { get => _fields[ 1]; set => _fields[ 1] = value; }
         public Field F02 { get => _fields[ 2]; set => _fields[ 2] = value; }
@@ -92,6 +108,12 @@ namespace Check.Models
         public Field F48 { get => _fields[48]; set => _fields[48] = value; }
         public Field F49 { get => _fields[49]; set => _fields[49] = value; }
         public Field F50 { get => _fields[50]; set => _fields[50] = value; }
+
+        #endregion
+
+        #region Public properties
+
+        public List<Move> PossibleMoves { get; set; }
 
         #endregion
     }

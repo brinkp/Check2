@@ -32,18 +32,21 @@ namespace Check.Views
 
         #region Constructors
 
-        public PieceView()
+        public PieceView(PositionView positionView, int fieldIndex)
         {
             InitializeComponent();
 
-            Ellipse = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
+            Debug.Assert(positionView != null);
+
+            PositionView = positionView;
+            FieldIndex   = fieldIndex  ;
+
+            Ellipse      = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
             Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(  Fill)) { Source = this } );
             Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(Stroke)) { Source = this } );
 
             Content = Ellipse;
-
-            Loaded += (sender, args) => { Panel = VisualTreeHelper.GetParent(this) as Panel; Debug.Assert(Panel != null); };
         }
 
         #endregion
@@ -64,7 +67,8 @@ namespace Check.Views
             if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
             {
                 DragInProgress  = true;
-                DragStartPoint  = ea.GetPosition(Panel);
+                DragFieldIndex  = FieldIndex;
+                DragStartPoint  = ea.GetPosition(PositionView);
                 DragStartZIndex = Panel.GetZIndex(Ellipse);
 
                 Panel.SetZIndex(this, int.MaxValue);
@@ -81,7 +85,7 @@ namespace Check.Views
 
             if (DragInProgress)
             {
-                Point newPosition = ea.GetPosition(Panel);
+                Point newPosition = ea.GetPosition(PositionView);
 
                 Ellipse.RenderTransform = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
 
@@ -120,10 +124,30 @@ namespace Check.Views
             Panel.SetZIndex(this, DragStartZIndex);
 
             // Do this...
-            DragInProgress  = false;
+            DragInProgress = false;
 
             // ... before this
             ReleaseMouseCapture();
+        }
+
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+
+            if (DragInProgress && (DragFieldIndex != FieldIndex))
+            {
+                Background = Brushes.Purple;
+            }
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (DragInProgress && (DragFieldIndex != FieldIndex))
+            {
+                Background = null;
+            }
         }
 
         #endregion
@@ -133,6 +157,8 @@ namespace Check.Views
         #endregion
 
         #region Public properties
+
+        public int FieldIndex { get; private set;  }
 
         public Brush Fill
         {
@@ -166,13 +192,14 @@ namespace Check.Views
 
         #region Private properties
 
-        private Panel   Panel           { get; set; }
+        private PositionView PositionView    { get; set; }
 
-        private Ellipse Ellipse         { get;      }
+        private Ellipse      Ellipse         { get;      }
 
-        private bool    DragInProgress  { get; set; }
-        private Point   DragStartPoint  { get; set; }
-        private int     DragStartZIndex { get; set; }
+        private bool         DragInProgress  { get => PositionView.DragInProgress; set => PositionView.DragInProgress = value; }
+        private int          DragFieldIndex  { get => PositionView.DragFieldIndex; set => PositionView.DragFieldIndex = value; }
+        private Point        DragStartPoint  { get; set; }
+        private int          DragStartZIndex { get; set; }
 
         #endregion
     }

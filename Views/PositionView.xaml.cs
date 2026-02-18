@@ -3,7 +3,6 @@ using Check.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -32,8 +31,8 @@ namespace Check.Views
             FieldToColorConverterFill   fieldToColorConverterFill   = new FieldToColorConverterFill  ();
             FieldToColorConverterStroke fieldToColorConverterStroke = new FieldToColorConverterStroke();
 
-            int delta = 0;
-            int f     = 1;
+            int      delta = 0;
+            int fieldIndex = 1;
 
             for (int rowIndex = 0; rowIndex < 10; rowIndex += 1)
             {
@@ -50,9 +49,9 @@ namespace Check.Views
                     Border      border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
                     Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnPieceView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    PieceView pieceView = new PieceView();
+                    PieceView pieceView = new PieceView(this, fieldIndex);
 
-                    string  bindingPath = "F" + f++.ToString("00");
+                    string  bindingPath = "F" + fieldIndex++.ToString("00");
 
                     pieceView.SetBinding(PieceView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
                     pieceView.SetBinding(PieceView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
@@ -79,6 +78,13 @@ namespace Check.Views
 
             DataContext = positionViewModel;
         }
+
+        #endregion
+
+        #region Public properties
+
+        internal bool DragInProgress { get; set; }
+        internal int  DragFieldIndex { get; set; }
 
         #endregion
     }
