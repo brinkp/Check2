@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Check.Models;
+using Check.ViewModels;
+using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
-using Check.Models;
-using Check.ViewModels;
 
 namespace Check.Views
 {
@@ -40,24 +41,33 @@ namespace Check.Views
 
                 for (int columnIndex = 0; columnIndex < 10; columnIndex += 2)
                 {
-                    bool lastColumnBorder    = (columnIndex + delta     == 9);
-                    bool lastColumnPieceView = (columnIndex - delta + 1 == 9);
+                    int      columnBorder    = columnIndex + delta    ;
+                    int      columnPieceView = columnIndex - delta + 1;
 
-                    Border       border = new Border { Background = Brushes.White, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder ? 1d : 0d, lastRow ? 1d : 0d) };
-                    PieceView pieceView = new PieceView(lastRow, lastColumnPieceView);
+                    bool lastColumnBorder    = columnBorder    == 9   ;
+                    bool lastColumnPieceView = columnPieceView == 9   ;
+
+                    Border      border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
+                    Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnPieceView ? 1d : 0d, lastRow ? 1d : 0d) } ;
+
+                    PieceView pieceView = new PieceView();
 
                     string  bindingPath = "F" + f++.ToString("00");
 
                     pieceView.SetBinding(PieceView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
                     pieceView.SetBinding(PieceView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
 
-                    Grid.SetRow   (border   ,    rowIndex            );
-                    Grid.SetColumn(border   , columnIndex + delta    );
+                    Grid.SetRow   (border1  , rowIndex        );
+                    Grid.SetColumn(border1  , columnBorder    );
 
-                    Grid.SetRow   (pieceView,    rowIndex            );
-                    Grid.SetColumn(pieceView, columnIndex - delta + 1);
+                    Grid.SetRow   (border2  , rowIndex        );
+                    Grid.SetColumn(border2  , columnPieceView);
 
-                    grid.Children.Add(border   );
+                    Grid.SetRow   (pieceView, rowIndex       );
+                    Grid.SetColumn(pieceView, columnPieceView);
+
+                    grid.Children.Add(border1  );
+                    grid.Children.Add(border2  );
                     grid.Children.Add(pieceView);
                 }
 

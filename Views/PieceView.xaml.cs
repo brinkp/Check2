@@ -32,20 +32,16 @@ namespace Check.Views
 
         #region Constructors
 
-        public PieceView(bool lastRow, bool lastColumn)
+        public PieceView()
         {
             InitializeComponent();
-
-            Border border = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumn ? 1d : 0d, lastRow ? 1d : 0d ) } ;
 
             Ellipse = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
             Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(  Fill)) { Source = this } );
             Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(Stroke)) { Source = this } );
 
-            border.Child = Ellipse;
-
-            Content = border;
+            Content = Ellipse;
 
             Loaded += (sender, args) => { Panel = VisualTreeHelper.GetParent(this) as Panel; Debug.Assert(Panel != null); };
         }
