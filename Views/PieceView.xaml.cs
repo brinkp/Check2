@@ -32,11 +32,11 @@ namespace Check.Views
 
         #region Constructors
 
-        public PieceView()
+        public PieceView(bool lastRow, bool lastColumn)
         {
             InitializeComponent();
 
-            Border border = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, 0d, 0d ) } ;
+            Border border = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumn ? 1d : 0d, lastRow ? 1d : 0d ) } ;
 
             Ellipse = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
