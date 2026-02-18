@@ -67,7 +67,7 @@ namespace Check.Views
                 DragStartPoint  = ea.GetPosition(Panel);
                 DragStartZIndex = Panel.GetZIndex(Ellipse);
 
-                Panel.SetZIndex(Ellipse, int.MaxValue);
+                Panel.SetZIndex(this, int.MaxValue);
 
                 CaptureMouse();
 
@@ -117,7 +117,7 @@ namespace Check.Views
         {
             Ellipse.RenderTransform = null;
 
-            Panel.SetZIndex(Ellipse, DragStartZIndex);
+            Panel.SetZIndex(this, DragStartZIndex);
 
             // Do this...
             DragInProgress  = false;

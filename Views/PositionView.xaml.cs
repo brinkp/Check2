@@ -68,10 +68,11 @@ namespace Check.Views
 
                     grid.Children.Add(border1  );
                     grid.Children.Add(border2  );
+
                     grid.Children.Add(pieceView);
                 }
 
-                delta = (delta == 0) ? 1 : 0;
+                delta = 1 - delta;
             }
 
             Content = grid;
