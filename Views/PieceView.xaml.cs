@@ -64,7 +64,8 @@ namespace Check.Views
         {
             base.OnMouseDown(ea);
 
-            if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
+          //if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
+            if (DragInProgress == false)
             {
                 DragInProgress  = true;
                 DragFieldIndex  = FieldIndex;
@@ -82,6 +83,13 @@ namespace Check.Views
         protected override void OnMouseMove(MouseEventArgs ea)
         {
             base.OnMouseMove(ea);
+
+            //PieceView pieceView = PositionView.GetPieceViewUnder(newPosition);
+
+            //if (pieceView != null)
+            //{
+            //    pieceView.Background = Brushes.Purple;
+            //}
 
             if (DragInProgress)
             {
@@ -125,40 +133,43 @@ namespace Check.Views
 
             // Do this...
             DragInProgress = false;
+            DragFieldIndex = 0    ;
 
             // ... before this
             ReleaseMouseCapture();
         }
 
-        protected override void OnMouseEnter(MouseEventArgs e)
-        {
-            base.OnMouseEnter(e);
+        //protected override void OnMouseEnter(MouseEventArgs ea)
+        //{
+        //    base.OnMouseEnter(ea);
 
-            if (DragInProgress && (DragFieldIndex != FieldIndex))
-            {
-                Background = Brushes.Purple;
-            }
-        }
+        //    MouseOverPieceView = this;
 
-        protected override void OnMouseLeave(MouseEventArgs e)
-        {
-            base.OnMouseLeave(e);
+        //    //if (DragInProgress && (DragFieldIndex != FieldIndex))
+        //    {
+        //        Background = Brushes.Purple;
 
-            if (DragInProgress && (DragFieldIndex != FieldIndex))
-            {
-                Background = null;
-            }
-        }
+        //        ea.Handled = true;
+        //    }
+        //}
 
-        #endregion
+        //protected override void OnMouseLeave(MouseEventArgs ea)
+        //{
+        //    base.OnMouseLeave(ea);
 
-        #region Event handlers
+        //    MouseOverPieceView = null;
+
+        //    //if (DragInProgress && (DragFieldIndex != FieldIndex))
+        //    {
+        //        Background = null;
+
+        //        ea.Handled = true;
+        //    }
+        //}
 
         #endregion
 
         #region Public properties
-
-        public int FieldIndex { get; private set;  }
 
         public Brush Fill
         {
@@ -192,14 +203,17 @@ namespace Check.Views
 
         #region Private properties
 
-        private PositionView PositionView    { get; set; }
+        private PositionView PositionView       { get;      }
 
-        private Ellipse      Ellipse         { get;      }
+        private Ellipse      Ellipse            { get;      }
 
-        private bool         DragInProgress  { get => PositionView.DragInProgress; set => PositionView.DragInProgress = value; }
-        private int          DragFieldIndex  { get => PositionView.DragFieldIndex; set => PositionView.DragFieldIndex = value; }
-        private Point        DragStartPoint  { get; set; }
-        private int          DragStartZIndex { get; set; }
+        private int          FieldIndex         { get;      }
+
+        private PieceView    MouseOverPieceView { get => PositionView.MouseOverPieceView; set => PositionView.MouseOverPieceView = value; }
+        private bool         DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
+        private int          DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
+        private Point        DragStartPoint     { get; set; }
+        private int          DragStartZIndex    { get; set; }
 
         #endregion
     }

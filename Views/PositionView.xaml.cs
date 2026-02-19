@@ -1,11 +1,13 @@
 ﻿using Check.Models;
 using Check.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Check.Views
@@ -31,6 +33,8 @@ namespace Check.Views
             FieldToColorConverterFill   fieldToColorConverterFill   = new FieldToColorConverterFill  ();
             FieldToColorConverterStroke fieldToColorConverterStroke = new FieldToColorConverterStroke();
 
+            PieceViews = new List<PieceView>();
+
             int      delta = 0;
             int fieldIndex = 1;
 
@@ -50,6 +54,8 @@ namespace Check.Views
                     Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnPieceView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
                     PieceView pieceView = new PieceView(this, fieldIndex);
+
+                    PieceViews.Add(pieceView);
 
                     string  bindingPath = "F" + fieldIndex++.ToString("00");
 
@@ -81,10 +87,48 @@ namespace Check.Views
 
         #endregion
 
+        protected override void OnPreviewMouseMove(MouseEventArgs e)
+        {
+            base.OnPreviewMouseMove(e);
+
+            if (MouseOverPieceView != null) MouseOverPieceView.Background = null;
+
+            MouseOverPieceView = GetPieceViewUnder(e.GetPosition(this));
+
+            if (MouseOverPieceView != null) MouseOverPieceView.Background = Brushes.Purple;
+        }
+
         #region Public properties
 
-        internal bool DragInProgress { get; set; }
-        internal int  DragFieldIndex { get; set; }
+        internal PieceView MouseOverPieceView { get; set; }
+        internal bool      DragInProgress     { get; set; }
+        internal int       DragFieldIndex     { get; set; }
+
+        #endregion
+
+        #region Private properties
+
+        private List<PieceView> PieceViews    { get;      }
+
+        #endregion
+
+        #region Private methods
+
+        public PieceView GetPieceViewUnder(Point position)
+        {
+            PieceView result = null;
+
+            foreach (PieceView pieceView in PieceViews)
+            {
+                if (pieceView.IsMouseOver)
+                {
+                    result = pieceView;
+                    break;
+                }
+            }
+
+            return result;
+        }
 
         #endregion
     }
