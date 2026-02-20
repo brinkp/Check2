@@ -33,7 +33,7 @@ namespace Check.Views
             FieldToColorConverterFill   fieldToColorConverterFill   = new FieldToColorConverterFill  ();
             FieldToColorConverterStroke fieldToColorConverterStroke = new FieldToColorConverterStroke();
 
-            PieceViews = new List<PieceView>();
+            PieceViews = new PieceView[50];
 
             int      delta = 0;
             int fieldIndex = 1;
@@ -55,7 +55,7 @@ namespace Check.Views
 
                     PieceView pieceView = new PieceView(this, fieldIndex);
 
-                    PieceViews.Add(pieceView);
+                    PieceViews[fieldIndex - 1] = pieceView;
 
                     string  bindingPath = "F" + fieldIndex++.ToString("00");
 
@@ -91,24 +91,37 @@ namespace Check.Views
         {
             base.OnPreviewMouseMove(e);
 
-            if (MouseOverPieceView != null) MouseOverPieceView.Background = null;
+            Point position = e.GetPosition(this);
 
-            MouseOverPieceView = GetPieceViewUnder(e.GetPosition(this));
+            int row        = (int) position.Y / 50;
+            int column     = (int) position.X / 50;
 
-            if (MouseOverPieceView != null) MouseOverPieceView.Background = Brushes.Purple;
+            bool    rowIsEven =     row % 2 == 0;
+            bool columnIsEven =  column % 2 == 0;
+
+            if (rowIsEven == ! columnIsEven)
+            {
+                int pieceViewIndex = row * 5 + column / 2;
+
+                if (MouseOverPieceView != null) MouseOverPieceView.Background = null;
+
+                    MouseOverPieceView  = PieceViews[pieceViewIndex];
+
+                if (MouseOverPieceView != null) MouseOverPieceView.Background = Brushes.Purple;
+            }
         }
 
         #region Public properties
 
-        internal PieceView MouseOverPieceView { get; set; }
-        internal bool      DragInProgress     { get; set; }
-        internal int       DragFieldIndex     { get; set; }
+        internal PieceView  MouseOverPieceView { get; set; }
+        internal bool       DragInProgress     { get; set; }
+        internal int        DragFieldIndex     { get; set; }
 
         #endregion
 
         #region Private properties
 
-        private List<PieceView> PieceViews    { get;      }
+        private PieceView[] PieceViews { get; }
 
         #endregion
 
