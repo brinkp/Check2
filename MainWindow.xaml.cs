@@ -13,7 +13,7 @@ namespace Check
         {
             InitializeComponent();
 
-            PositionView positionView = new PositionView(new PositionViewModel(new Position())) { Margin = new Thickness(10d) };
+            PositionView positionView = new PositionView(new PositionViewModel(new Position(false))) { Margin = new Thickness(10d) };
 
             Viewbox viewBox = new Viewbox { Stretch = Stretch.Uniform, Child = positionView };
 

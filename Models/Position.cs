@@ -37,20 +37,31 @@ namespace Check.Models
             }
             else
             {
-                for (int index =  1; index <= 50; index += 1) { _fields[index] = Field.Empty;      }
+                //for (int index =  1; index <= 50; index += 1) { _fields[index] = Field.Empty;      }
+
+                _fields[ 1] = Field.BlackPiece; _fields[ 2] = Field.Empty     ; _fields[ 3] = Field.Empty     ; _fields[ 4] = Field.Empty     ; _fields[ 5] = Field.Empty     ;
+                _fields[ 6] = Field.Empty     ; _fields[ 7] = Field.Empty     ; _fields[ 8] = Field.BlackPiece; _fields[ 9] = Field.BlackPiece; _fields[10] = Field.BlackPiece;
+                _fields[11] = Field.WhitePiece; _fields[12] = Field.Empty     ; _fields[13] = Field.BlackPiece; _fields[14] = Field.Empty     ; _fields[15] = Field.Empty     ;
+                _fields[16] = Field.Empty     ; _fields[17] = Field.WhitePiece; _fields[18] = Field.Empty     ; _fields[19] = Field.BlackPiece; _fields[20] = Field.BlackPiece;
+                _fields[21] = Field.WhitePiece; _fields[22] = Field.WhitePiece; _fields[23] = Field.BlackPiece; _fields[24] = Field.BlackPiece; _fields[25] = Field.Empty     ;
+                _fields[26] = Field.Empty     ; _fields[27] = Field.WhitePiece; _fields[28] = Field.BlackPiece; _fields[29] = Field.BlackPiece; _fields[30] = Field.WhitePiece;
+                _fields[31] = Field.Empty     ; _fields[32] = Field.Empty     ; _fields[33] = Field.BlackPiece; _fields[34] = Field.WhitePiece; _fields[35] = Field.BlackPiece;
+                _fields[36] = Field.Empty     ; _fields[37] = Field.WhitePiece; _fields[38] = Field.WhitePiece; _fields[39] = Field.WhitePiece; _fields[40] = Field.WhitePiece;
+                _fields[41] = Field.Empty     ; _fields[42] = Field.WhitePiece; _fields[43] = Field.WhitePiece; _fields[44] = Field.WhitePiece; _fields[45] = Field.BlackPiece;
+                _fields[46] = Field.Empty     ; _fields[47] = Field.Empty     ; _fields[48] = Field.Empty     ; _fields[49] = Field.Empty     ; _fields[50] = Field.Empty     ;
             }
 
             PossibleMoves = new List<Move>
             {
-                new Move(31, 26),
-                new Move(31, 27),
-                new Move(32, 27),
-                new Move(32, 28),
-                new Move(33, 28),
-                new Move(33, 29),
-                new Move(34, 29),
-                new Move(34, 30),
-                new Move(35, 30)
+                new Move(11,  6),
+                new Move(11,  7),
+                new Move(17, 12),
+                new Move(21, 16),
+                new Move(22, 18),
+                new Move(30, 25),
+                new Move(37, 31),
+                new Move(37, 32),
+                new Move(38, 32)
             };
         }
 

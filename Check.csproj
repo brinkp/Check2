@@ -57,6 +57,7 @@
     <Compile Include="Models\Position.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\Move.cs" />
+    <Compile Include="ViewModels\PieceViewModel.cs" />
     <Compile Include="ViewModels\PositionViewModel.cs" />
     <Compile Include="Views\PieceView.xaml.cs">
       <DependentUpon>PieceView.xaml</DependentUpon>

@@ -51,13 +51,6 @@ namespace Check.Views
 
         #endregion
 
-        #region Dependency properties
-
-        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(PieceView));
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(PieceView));
-
-        #endregion
-
         #region Dragging
 
         protected override void OnMouseDown(MouseButtonEventArgs ea)
@@ -169,7 +162,10 @@ namespace Check.Views
 
         #endregion
 
-        #region Public properties
+        #region Dependency properties
+
+        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(PieceView));
+        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(PieceView));
 
         public Brush Fill
         {
