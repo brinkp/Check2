@@ -10,7 +10,7 @@ using System.Windows.Shapes;
 
 namespace Check.Views
 {
-    public partial class PieceView
+    public partial class FieldView
     {
         #region Delegates and events
 
@@ -32,7 +32,7 @@ namespace Check.Views
 
         #region Constructors
 
-        public PieceView(PositionView positionView, int fieldIndex)
+        public FieldView(PositionView positionView, int fieldIndex)
         {
             InitializeComponent();
 
@@ -164,8 +164,8 @@ namespace Check.Views
 
         #region Dependency properties
 
-        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(PieceView));
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(PieceView));
+        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(FieldView));
+        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(FieldView));
 
         public Brush Fill
         {
@@ -205,7 +205,7 @@ namespace Check.Views
 
         private int          FieldIndex         { get;      }
 
-        private PieceView    MouseOverPieceView { get => PositionView.MouseOverPieceView; set => PositionView.MouseOverPieceView = value; }
+        private FieldView    MouseOverPieceView { get => PositionView.MouseOverPieceView; set => PositionView.MouseOverPieceView = value; }
         private bool         DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
         private int          DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
         private Point        DragStartPoint     { get; set; }

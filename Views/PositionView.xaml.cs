@@ -33,7 +33,7 @@ namespace Check.Views
             FieldToColorConverterFill   fieldToColorConverterFill   = new FieldToColorConverterFill  ();
             FieldToColorConverterStroke fieldToColorConverterStroke = new FieldToColorConverterStroke();
 
-            PieceViews = new PieceView[50];
+            PieceViews = new FieldView[50];
 
             int      delta = 0;
             int fieldIndex = 1;
@@ -53,14 +53,14 @@ namespace Check.Views
                     Border      border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
                     Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnPieceView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    PieceView pieceView = new PieceView(this, fieldIndex);
+                    FieldView pieceView = new FieldView(this, fieldIndex);
 
                     PieceViews[fieldIndex - 1] = pieceView;
 
                     string  bindingPath = "F" + fieldIndex++.ToString("00");
 
-                    pieceView.SetBinding(PieceView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
-                    pieceView.SetBinding(PieceView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
+                    pieceView.SetBinding(FieldView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
+                    pieceView.SetBinding(FieldView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
 
                     Grid.SetRow   (border1  , rowIndex        );
                     Grid.SetColumn(border1  , columnBorder    );
@@ -113,7 +113,7 @@ namespace Check.Views
 
         #region Public properties
 
-        internal PieceView  MouseOverPieceView { get; set; }
+        internal FieldView  MouseOverPieceView { get; set; }
         internal bool       DragInProgress     { get; set; }
         internal int        DragFieldIndex     { get; set; }
 
@@ -121,17 +121,17 @@ namespace Check.Views
 
         #region Private properties
 
-        private PieceView[] PieceViews { get; }
+        private FieldView[] PieceViews { get; }
 
         #endregion
 
         #region Private methods
 
-        public PieceView GetPieceViewUnder(Point position)
+        public FieldView GetPieceViewUnder(Point position)
         {
-            PieceView result = null;
+            FieldView result = null;
 
-            foreach (PieceView pieceView in PieceViews)
+            foreach (FieldView pieceView in PieceViews)
             {
                 if (pieceView.IsMouseOver)
                 {
@@ -154,23 +154,23 @@ namespace Check.Views
         {
             Brush result;
 
-            if (value is Position.Field field)
+            if (value is Position.FieldContent field)
             {
                 switch (field)
                 {
-                    case Position.Field.Empty:
+                    case Position.FieldContent.Empty:
                         result = Brushes.Transparent;
                         break;
-                    case Position.Field.WhitePiece:
+                    case Position.FieldContent.WhitePiece:
                         result = Brushes.White;
                         break;
-                    case Position.Field.BlackPiece:
+                    case Position.FieldContent.BlackPiece:
                         result = Brushes.Black;
                         break;
-                    case Position.Field.WhiteRook:
+                    case Position.FieldContent.WhiteRook:
                         result = Brushes.White;
                         break;
-                    case Position.Field.BlackRook:
+                    case Position.FieldContent.BlackRook:
                         result = Brushes.Black;
                         break;
                     default:
@@ -201,11 +201,11 @@ namespace Check.Views
         {
             Brush result;
 
-            if (value is Position.Field field)
+            if (value is Position.FieldContent field)
             {
                 switch (field)
                 {
-                    case Position.Field.Empty:
+                    case Position.FieldContent.Empty:
                         result = Brushes.Transparent;
                         break;
                     default:
