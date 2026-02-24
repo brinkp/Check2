@@ -1,7 +1,6 @@
 ﻿using Check.Models;
 using Check.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
@@ -33,7 +32,7 @@ namespace Check.Views
             FieldToColorConverterFill   fieldToColorConverterFill   = new FieldToColorConverterFill  ();
             FieldToColorConverterStroke fieldToColorConverterStroke = new FieldToColorConverterStroke();
 
-            PieceViews = new FieldView[50];
+            FieldViews = new FieldView[50];
 
             int      delta = 0;
             int fieldIndex = 1;
@@ -45,36 +44,36 @@ namespace Check.Views
                 for (int columnIndex = 0; columnIndex < 10; columnIndex += 2)
                 {
                     int      columnBorder    = columnIndex + delta    ;
-                    int      columnPieceView = columnIndex - delta + 1;
+                    int      columnFieldView = columnIndex - delta + 1;
 
                     bool lastColumnBorder    = columnBorder    == 9   ;
-                    bool lastColumnPieceView = columnPieceView == 9   ;
+                    bool lastColumnFieldView = columnFieldView == 9   ;
 
                     Border      border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
-                    Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnPieceView ? 1d : 0d, lastRow ? 1d : 0d) } ;
+                    Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldView pieceView = new FieldView(this, fieldIndex);
+                    FieldView fieldView = new FieldView(this, fieldIndex);
 
-                    PieceViews[fieldIndex - 1] = pieceView;
+                    FieldViews[fieldIndex - 1] = fieldView;
 
                     string  bindingPath = "F" + fieldIndex++.ToString("00");
 
-                    pieceView.SetBinding(FieldView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
-                    pieceView.SetBinding(FieldView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
+                    fieldView.SetBinding(FieldView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
+                    fieldView.SetBinding(FieldView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
 
                     Grid.SetRow   (border1  , rowIndex        );
                     Grid.SetColumn(border1  , columnBorder    );
 
                     Grid.SetRow   (border2  , rowIndex        );
-                    Grid.SetColumn(border2  , columnPieceView);
+                    Grid.SetColumn(border2  , columnFieldView);
 
-                    Grid.SetRow   (pieceView, rowIndex       );
-                    Grid.SetColumn(pieceView, columnPieceView);
+                    Grid.SetRow   (fieldView, rowIndex       );
+                    Grid.SetColumn(fieldView, columnFieldView);
 
                     grid.Children.Add(border1  );
                     grid.Children.Add(border2  );
 
-                    grid.Children.Add(pieceView);
+                    grid.Children.Add(fieldView);
                 }
 
                 delta = 1 - delta;
@@ -101,19 +100,19 @@ namespace Check.Views
 
             if (rowIsEven == ! columnIsEven)
             {
-                int pieceViewIndex = row * 5 + column / 2;
+                int fieldViewIndex = row * 5 + column / 2;
 
-                if (MouseOverPieceView != null) MouseOverPieceView.Background = null;
+                if (MouseOverFieldView != null) MouseOverFieldView.Background = null;
 
-                    MouseOverPieceView  = PieceViews[pieceViewIndex];
+                    MouseOverFieldView  = FieldViews[fieldViewIndex];
 
-                if (MouseOverPieceView != null) MouseOverPieceView.Background = Brushes.Purple;
+                if (MouseOverFieldView != null) MouseOverFieldView.Background = Brushes.Purple;
             }
         }
 
         #region Public properties
 
-        internal FieldView  MouseOverPieceView { get; set; }
+        internal FieldView  MouseOverFieldView { get; set; }
         internal bool       DragInProgress     { get; set; }
         internal int        DragFieldIndex     { get; set; }
 
@@ -121,21 +120,21 @@ namespace Check.Views
 
         #region Private properties
 
-        private FieldView[] PieceViews { get; }
+        private FieldView[] FieldViews { get; }
 
         #endregion
 
         #region Private methods
 
-        public FieldView GetPieceViewUnder(Point position)
+        public FieldView GetFieldViewUnder(Point position)
         {
             FieldView result = null;
 
-            foreach (FieldView pieceView in PieceViews)
+            foreach (FieldView fieldView in FieldViews)
             {
-                if (pieceView.IsMouseOver)
+                if (fieldView.IsMouseOver)
                 {
-                    result = pieceView;
+                    result = fieldView;
                     break;
                 }
             }

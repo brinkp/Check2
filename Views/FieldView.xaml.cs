@@ -77,13 +77,6 @@ namespace Check.Views
         {
             base.OnMouseMove(ea);
 
-            //PieceView pieceView = PositionView.GetPieceViewUnder(newPosition);
-
-            //if (pieceView != null)
-            //{
-            //    pieceView.Background = Brushes.Purple;
-            //}
-
             if (DragInProgress)
             {
                 Point newPosition = ea.GetPosition(PositionView);
@@ -132,34 +125,6 @@ namespace Check.Views
             ReleaseMouseCapture();
         }
 
-        //protected override void OnMouseEnter(MouseEventArgs ea)
-        //{
-        //    base.OnMouseEnter(ea);
-
-        //    MouseOverPieceView = this;
-
-        //    //if (DragInProgress && (DragFieldIndex != FieldIndex))
-        //    {
-        //        Background = Brushes.Purple;
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
-        //protected override void OnMouseLeave(MouseEventArgs ea)
-        //{
-        //    base.OnMouseLeave(ea);
-
-        //    MouseOverPieceView = null;
-
-        //    //if (DragInProgress && (DragFieldIndex != FieldIndex))
-        //    {
-        //        Background = null;
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
         #endregion
 
         #region Dependency properties
@@ -205,7 +170,7 @@ namespace Check.Views
 
         private int          FieldIndex         { get;      }
 
-        private FieldView    MouseOverPieceView { get => PositionView.MouseOverPieceView; set => PositionView.MouseOverPieceView = value; }
+        private FieldView    MouseOverFieldView { get => PositionView.MouseOverFieldView; set => PositionView.MouseOverFieldView = value; }
         private bool         DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
         private int          DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
         private Point        DragStartPoint     { get; set; }
