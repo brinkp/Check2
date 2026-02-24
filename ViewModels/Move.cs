@@ -2,7 +2,7 @@
 
 namespace Check.ViewModels
 {
-    public class Move
+    internal class Move
     {
         public Move(int fromFiled, int toField)
         {

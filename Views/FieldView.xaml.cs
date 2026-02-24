@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Check.ViewModels;
 
 namespace Check.Views
 {
@@ -32,21 +33,26 @@ namespace Check.Views
 
         #region Constructors
 
-        public FieldView(PositionView positionView, int fieldIndex)
+        internal FieldView(PositionView positionView, FieldViewModel fieldViewModel, int fieldIndex)
         {
             InitializeComponent();
 
-            Debug.Assert(positionView != null);
+            Debug.Assert(positionView   != null);
+            Debug.Assert(fieldViewModel != null);
 
-            PositionView = positionView;
-            FieldIndex   = fieldIndex  ;
+            Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
+
+            PositionView = positionView  ;
+            FieldIndex   = fieldIndex    ;
 
             Ellipse      = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
-            Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(  Fill)) { Source = this } );
-            Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(Stroke)) { Source = this } );
+            Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(FieldViewModel.Fill  )));
+            Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(FieldViewModel.Stroke)));
 
             Content = Ellipse;
+
+            DataContext  = fieldViewModel;
         }
 
         #endregion
@@ -123,41 +129,6 @@ namespace Check.Views
 
             // ... before this
             ReleaseMouseCapture();
-        }
-
-        #endregion
-
-        #region Dependency properties
-
-        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(FieldView));
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(FieldView));
-
-        public Brush Fill
-        {
-            get => (Brush) GetValue(  FillProperty);
-            set
-            {
-                if (Fill != value)
-                {
-                    SetValue(FillProperty, value);
-
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public Brush Stroke
-        {
-            get => (Brush) GetValue(StrokeProperty);
-            set
-            {
-                if (Stroke != value)
-                {
-                    SetValue(StrokeProperty, value);
-
-                    OnPropertyChanged();
-                }
-            }
         }
 
         #endregion

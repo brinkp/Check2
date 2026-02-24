@@ -1,10 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Windows;
 
 namespace Check.ViewModels
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    public class BaseViewModel : DependencyObject, INotifyPropertyChanged
     {
         #region Events
 

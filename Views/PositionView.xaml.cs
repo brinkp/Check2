@@ -15,7 +15,7 @@ namespace Check.Views
     {
         #region Constructors
 
-        public PositionView(PositionViewModel positionViewModel)
+        internal PositionView(PositionViewModel positionViewModel)
         {
             Debug.Assert(positionViewModel != null);
 
@@ -52,14 +52,14 @@ namespace Check.Views
                     Border      border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
                     Border      border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldView fieldView = new FieldView(this, fieldIndex);
+                    FieldView fieldView = new FieldView(this, new FieldViewModel(), fieldIndex);
 
                     FieldViews[fieldIndex - 1] = fieldView;
 
                     string  bindingPath = "F" + fieldIndex++.ToString("00");
 
-                    fieldView.SetBinding(FieldView.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
-                    fieldView.SetBinding(FieldView.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
+                    fieldView.SetBinding(FieldViewModel.  FillProperty, new Binding(bindingPath) { Converter = fieldToColorConverterFill   } ) ;
+                    fieldView.SetBinding(FieldViewModel.StrokeProperty, new Binding(bindingPath) { Converter = fieldToColorConverterStroke } ) ;
 
                     Grid.SetRow   (border1  , rowIndex        );
                     Grid.SetColumn(border1  , columnBorder    );
@@ -153,23 +153,23 @@ namespace Check.Views
         {
             Brush result;
 
-            if (value is Position.FieldContent field)
+            if (value is Position.FieldContentEnum field)
             {
                 switch (field)
                 {
-                    case Position.FieldContent.Empty:
+                    case Position.FieldContentEnum.Empty:
                         result = Brushes.Transparent;
                         break;
-                    case Position.FieldContent.WhitePiece:
+                    case Position.FieldContentEnum.WhitePiece:
                         result = Brushes.White;
                         break;
-                    case Position.FieldContent.BlackPiece:
+                    case Position.FieldContentEnum.BlackPiece:
                         result = Brushes.Black;
                         break;
-                    case Position.FieldContent.WhiteRook:
+                    case Position.FieldContentEnum.WhiteRook:
                         result = Brushes.White;
                         break;
-                    case Position.FieldContent.BlackRook:
+                    case Position.FieldContentEnum.BlackRook:
                         result = Brushes.Black;
                         break;
                     default:
@@ -200,11 +200,11 @@ namespace Check.Views
         {
             Brush result;
 
-            if (value is Position.FieldContent field)
+            if (value is Position.FieldContentEnum field)
             {
                 switch (field)
                 {
-                    case Position.FieldContent.Empty:
+                    case Position.FieldContentEnum.Empty:
                         result = Brushes.Transparent;
                         break;
                     default:
