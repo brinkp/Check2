@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace Check.ViewModels
 {
-    public class BaseViewModel : DependencyObject, INotifyPropertyChanged
+    internal class BaseViewModel : DependencyObject, INotifyPropertyChanged
     {
         #region Events
 

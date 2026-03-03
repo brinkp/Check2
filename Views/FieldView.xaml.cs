@@ -1,54 +1,39 @@
-﻿using System.ComponentModel;
+﻿using Check.Models;
+using Check.ViewModels;
+using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Check.ViewModels;
 
 namespace Check.Views
 {
     public partial class FieldView
     {
-        #region Delegates and events
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            try
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-            catch
-            {
-                // Do nothing
-            }
-        }
-
-        #endregion
-
         #region Constructors
 
-        internal FieldView(PositionView positionView, FieldViewModel fieldViewModel, int fieldIndex)
+        internal FieldView(PositionView positionView, PositionViewModel positionViewModel, FieldViewModel fieldViewModel, int fieldIndex)
         {
             InitializeComponent();
 
-            Debug.Assert(positionView   != null);
-            Debug.Assert(fieldViewModel != null);
+            Debug.Assert(positionView      != null);
+            Debug.Assert(positionViewModel != null);
+            Debug.Assert(fieldViewModel    != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
-            PositionView = positionView  ;
-            FieldIndex   = fieldIndex    ;
+            PositionView      = positionView     ;
+            PositionViewModel = positionViewModel;
+            FieldIndex        = fieldIndex       ;
 
             Ellipse      = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
-            Ellipse.SetBinding(Shape.  FillProperty, new Binding(nameof(FieldViewModel.Fill  )));
-            Ellipse.SetBinding(Shape.StrokeProperty, new Binding(nameof(FieldViewModel.Stroke)));
+            Ellipse.SetBinding(Shape.  FillProperty, new Binding { Source = fieldViewModel, Converter = new FieldToColorConverterFill  () } ) ;
+            Ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Converter = new FieldToColorConverterStroke() } ) ;
 
             Content = Ellipse;
 
@@ -135,18 +120,106 @@ namespace Check.Views
 
         #region Private properties
 
-        private PositionView PositionView       { get;      }
+        private PositionView      PositionView       { get;      }
+        private PositionViewModel PositionViewModel  { get;      }
 
-        private Ellipse      Ellipse            { get;      }
+        private Ellipse           Ellipse            { get;      }
 
-        private int          FieldIndex         { get;      }
+        private int               FieldIndex         { get;      }
 
-        private FieldView    MouseOverFieldView { get => PositionView.MouseOverFieldView; set => PositionView.MouseOverFieldView = value; }
-        private bool         DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
-        private int          DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
-        private Point        DragStartPoint     { get; set; }
-        private int          DragStartZIndex    { get; set; }
+        private FieldView         MouseOverFieldView { get => PositionView.MouseOverFieldView; set => PositionView.MouseOverFieldView = value; }
+        private bool              DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
+        private int               DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
+        private Point             DragStartPoint     { get; set; }
+        private int               DragStartZIndex    { get; set; }
 
         #endregion
     }
+
+    #region FieldToColorConverterFill
+
+    internal class FieldToColorConverterFill : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Brush result;
+
+            Debug.Assert(targetType == typeof(Brush));
+
+            if (value is FieldViewModel fieldViewModel)
+            {
+                switch (fieldViewModel.FieldContentEnum)
+                {
+                    case Position.FieldContentEnum.Empty:
+                        result = Brushes.Transparent;
+                        break;
+                    case Position.FieldContentEnum.WhitePiece:
+                        result = Brushes.White;
+                        break;
+                    case Position.FieldContentEnum.BlackPiece:
+                        result = Brushes.Black;
+                        break;
+                    case Position.FieldContentEnum.WhiteRook:
+                        result = Brushes.White;
+                        break;
+                    case Position.FieldContentEnum.BlackRook:
+                        result = Brushes.Black;
+                        break;
+                    default:
+                        throw new Exception("Invalid Field value");
+                }
+            }
+            else
+            {
+                result = Brushes.Transparent;
+            }
+
+            return result;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
+
+    #region FieldToColorConverterStroke
+
+    internal class FieldToColorConverterStroke : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Brush result;
+
+            Debug.Assert(targetType == typeof(Brush));
+
+            if (value is FieldViewModel fieldViewModel)
+            {
+                switch (fieldViewModel.FieldContentEnum)
+                {
+                    case Position.FieldContentEnum.Empty:
+                        result = Brushes.Transparent;
+                        break;
+                    default:
+                        result = Brushes.Black;
+                        break;
+                }
+            }
+            else
+            {
+                result = Brushes.White;
+            }
+
+            return result;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }

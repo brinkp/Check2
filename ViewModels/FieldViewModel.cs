@@ -1,6 +1,6 @@
-﻿using Check.Views;
-using System.Windows;
-using System.Windows.Media;
+﻿using Check.Models;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Check.ViewModels
 {
@@ -21,51 +21,44 @@ namespace Check.ViewModels
 
         #region Constructors
 
-        public FieldViewModel(FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default)
+        public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex)
         {
-            FieldStatus = fieldStatusEnum;
-        }
+            Debug.Assert(positionViewModel != null);
 
-        #endregion
+            Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
-        #region Dependency properties
+            PositionViewModel = positionViewModel;
 
-        public static readonly DependencyProperty   FillProperty = DependencyProperty.Register(nameof(Fill  ), typeof(Brush), typeof(FieldView));
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(FieldView));
+          //FieldIndex        = fieldIndex;
 
-        public Brush Fill
-        {
-            get => (Brush) GetValue(  FillProperty);
-            set
-            {
-                if (Fill != value)
-                {
-                    SetValue(FillProperty, value);
-
-                    NotifyPropertyChanged(x => Fill);
-                }
-            }
-        }
-
-        public Brush Stroke
-        {
-            get => (Brush) GetValue(StrokeProperty);
-            set
-            {
-                if (Stroke != value)
-                {
-                    SetValue(StrokeProperty, value);
-
-                    NotifyPropertyChanged(x => Stroke);
-                }
-            }
+            PropertyInfo      = typeof(PositionViewModel).GetProperty("F" + fieldIndex.ToString("00"));
         }
 
         #endregion
 
         #region Public properties
 
-        public FieldStatusEnum FieldStatus { get; set; }
+        public PositionViewModel PositionViewModel { get;      }
+
+        public FieldStatusEnum   FieldStatus       { get; set; } = FieldStatusEnum.Default;
+
+        public Position.FieldContentEnum FieldContentEnum
+        {
+            get
+            {
+                Debug.Assert(PropertyInfo != null);
+
+                return (Position.FieldContentEnum) PropertyInfo.GetValue(PositionViewModel);
+            }
+        }
+
+        #endregion
+
+        #region Private properties
+
+      //private int          FieldIndex   { get; }
+
+        private PropertyInfo PropertyInfo { get; }
 
         #endregion
     }
