@@ -31,7 +31,7 @@ namespace Check.Views
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
-            FieldViews      = new FieldView     [50];
+          //FieldViews      = new FieldView     [50];
             FieldViewModels = new FieldViewModel[50];
 
             int       delta = 0;
@@ -52,10 +52,10 @@ namespace Check.Views
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel = FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel,                 fieldIndex);
-                    FieldView      fieldView      = FieldViews     [fieldIndex - 1] = new FieldView     (this, positionViewModel, fieldViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel,                 fieldIndex);
+                    FieldView      fieldView      = /* FieldViews     [fieldIndex - 1] = */ new FieldView     (this, positionViewModel, fieldViewModel, fieldIndex);
 
-                    border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Converter = fieldToBackgroundColorConverterFill } );
+                    border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill } );
 
                     fieldIndex += 1;
 
@@ -108,6 +108,13 @@ namespace Check.Views
             }
         }
 
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.Default  ;
+        }
+
         #region Public properties
 
         internal FieldViewModel  MouseOverFieldViewModel { get; set; }
@@ -119,28 +126,8 @@ namespace Check.Views
 
         #region Private properties
 
-        private FieldView     [] FieldViews      { get; }
+      //private FieldView     [] FieldViews      { get; }
         private FieldViewModel[] FieldViewModels { get; }
-
-        #endregion
-
-        #region Public methods
-
-        internal FieldViewModel GetFieldViewModelUnder(Point position)
-        {
-            FieldViewModel result = null;
-
-            for (int index = 0; index < FieldViews.Length; index += 1)
-            {
-                if (FieldViews[index].IsMouseOver)
-                {
-                    result = FieldViewModels[index];
-                    break;
-                }
-            }
-
-            return result;
-        }
 
         #endregion
     }
@@ -155,35 +142,40 @@ namespace Check.Views
 
             Debug.Assert(targetType == typeof(Brush));
 
+            FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
+
             if (value is FieldViewModel fieldViewModel)
             {
-                switch (fieldViewModel.FieldStatus)
-                {
-                    case FieldStatusEnum.Default:
-                        result = Brushes.SandyBrown;
-                        break;
-                    case FieldStatusEnum.MouseOver:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.CanStart:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.Started:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.CanBeTaken:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.Taken:
-                        result = Brushes.Red;
-                        break;
-                    default:
-                        throw new Exception("Invalid Field value");
-                }
+                fieldStatusEnum = fieldViewModel.FieldStatus;
             }
-            else
+            else if (value is FieldStatusEnum @enum)
             {
-                result = Brushes.Transparent;
+                fieldStatusEnum = @enum;
+            }
+
+            switch (fieldStatusEnum)
+            {
+                case FieldStatusEnum.Default:
+                    result = Brushes.SandyBrown;
+                    break;
+                case FieldStatusEnum.MouseOver:
+                    result = Brushes.Red;
+                    break;
+                case FieldStatusEnum.CanStart:
+                    result = Brushes.Red;
+                    break;
+                case FieldStatusEnum.Started:
+                    result = Brushes.Red;
+                    break;
+                case FieldStatusEnum.CanBeTaken:
+                    result = Brushes.Red;
+                    break;
+                case FieldStatusEnum.Taken:
+                    result = Brushes.Red;
+                    break;
+                default:
+                    result = Brushes.Transparent;
+                    break;
             }
 
             return result;
