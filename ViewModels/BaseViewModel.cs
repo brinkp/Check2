@@ -1,47 +1,25 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq.Expressions;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace Check.ViewModels
 {
     internal class BaseViewModel : DependencyObject, INotifyPropertyChanged
     {
-        #region Events
+        #region Delegates and events
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        #endregion
-
-        #region Public methods
-
-        protected void NotifyPropertyChanged<T>(Expression<Func<int, T>> property)
+        //[NotifyPropertyChangedInvocator]
+        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            var handler  = PropertyChanged;
-
-            if (handler != null)
+            try
             {
-                if (property != null)
-                {
-                    var memberExpression  = property.Body as MemberExpression;
-
-                    if (memberExpression == null)
-                    {
-                        throw new Exception("MemberExpression == null");
-                    }
-
-                    handler(this, new PropertyChangedEventArgs(memberExpression.Member.Name));
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
-        }
-
-        public void NotifyPropertyChangedAll()
-        {
-            var handler  = PropertyChanged;
-
-            if (handler != null)
+            catch
             {
-                handler(this, new PropertyChangedEventArgs(null));
+                // Do nothing
             }
         }
 

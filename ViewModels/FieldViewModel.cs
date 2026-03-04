@@ -11,6 +11,7 @@ namespace Check.ViewModels
         internal enum FieldStatusEnum
         {
             Default,
+            MouseOver,
             CanStart,
             Started,
             CanBeTaken,
@@ -40,9 +41,22 @@ namespace Check.ViewModels
 
         public PositionViewModel PositionViewModel { get;      }
 
-        public FieldStatusEnum   FieldStatus       { get; set; } = FieldStatusEnum.Default;
+        private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;
+        public  FieldStatusEnum  FieldStatus
+        {
+            get => _fieldStatus;
+            set
+            {
+                if (_fieldStatus != value)
+                {
+                    _fieldStatus  = value;
 
-        public Position.FieldContentEnum FieldContentEnum
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public Position.FieldContentEnum FieldContent
         {
             get
             {

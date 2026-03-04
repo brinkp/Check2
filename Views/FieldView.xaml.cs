@@ -127,9 +127,9 @@ namespace Check.Views
 
         private int               FieldIndex         { get;      }
 
-        private FieldView         MouseOverFieldView { get => PositionView.MouseOverFieldView; set => PositionView.MouseOverFieldView = value; }
-        private bool              DragInProgress     { get => PositionView.DragInProgress    ; set => PositionView.DragInProgress     = value; }
-        private int               DragFieldIndex     { get => PositionView.DragFieldIndex    ; set => PositionView.DragFieldIndex     = value; }
+        private FieldViewModel    MouseOverFieldView { get => PositionView.MouseOverFieldViewModel; set => PositionView.MouseOverFieldViewModel = value; }
+        private bool              DragInProgress     { get => PositionView.DragInProgress         ; set => PositionView.DragInProgress          = value; }
+        private int               DragFieldIndex     { get => PositionView.DragFieldIndex         ; set => PositionView.DragFieldIndex          = value; }
         private Point             DragStartPoint     { get; set; }
         private int               DragStartZIndex    { get; set; }
 
@@ -148,7 +148,7 @@ namespace Check.Views
 
             if (value is FieldViewModel fieldViewModel)
             {
-                switch (fieldViewModel.FieldContentEnum)
+                switch (fieldViewModel.FieldContent)
                 {
                     case Position.FieldContentEnum.Empty:
                         result = Brushes.Transparent;
@@ -197,7 +197,7 @@ namespace Check.Views
 
             if (value is FieldViewModel fieldViewModel)
             {
-                switch (fieldViewModel.FieldContentEnum)
+                switch (fieldViewModel.FieldContent)
                 {
                     case Position.FieldContentEnum.Empty:
                         result = Brushes.Transparent;

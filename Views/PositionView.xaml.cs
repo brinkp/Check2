@@ -1,9 +1,13 @@
 ﻿using Check.ViewModels;
+using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Check.ViewModels.FieldViewModel;
 
 namespace Check.Views
 {
@@ -25,10 +29,13 @@ namespace Check.Views
                 grid.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength(50d) } );
             }
 
-            FieldViews     = new FieldView[50];
+            FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
-            int      delta = 0;
-            int fieldIndex = 1;
+            FieldViews      = new FieldView     [50];
+            FieldViewModels = new FieldViewModel[50];
+
+            int       delta = 0;
+            int  fieldIndex = 1;
 
             for (int rowIndex = 0; rowIndex < 10; rowIndex += 1)
             {
@@ -42,12 +49,13 @@ namespace Check.Views
                     bool lastColumnBorder    = columnBorder    == 9   ;
                     bool lastColumnFieldView = columnFieldView == 9   ;
 
-                    Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) };
+                    Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldView  fieldView = new FieldView(this, positionViewModel, new FieldViewModel(positionViewModel, fieldIndex), fieldIndex);
+                    FieldViewModel fieldViewModel = FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel,                 fieldIndex);
+                    FieldView      fieldView      = FieldViews     [fieldIndex - 1] = new FieldView     (this, positionViewModel, fieldViewModel, fieldIndex);
 
-                    FieldViews[fieldIndex - 1] = fieldView;
+                    border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Converter = fieldToBackgroundColorConverterFill } );
 
                     fieldIndex += 1;
 
@@ -92,17 +100,18 @@ namespace Check.Views
             {
                 int fieldViewIndex = row * 5 + column / 2;
 
-                if (MouseOverFieldView != null) MouseOverFieldView.Background = null;
+                if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.Default  ;
 
-                    MouseOverFieldView  = FieldViews[fieldViewIndex];
+                    MouseOverFieldViewModel  = FieldViewModels[fieldViewIndex];
 
-                if (MouseOverFieldView != null) MouseOverFieldView.Background = Brushes.Purple;
+                if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
             }
         }
 
         #region Public properties
 
-        internal FieldView  MouseOverFieldView { get; set; }
+        internal FieldViewModel  MouseOverFieldViewModel { get; set; }
+
         internal bool       DragInProgress     { get; set; }
         internal int        DragFieldIndex     { get; set; }
 
@@ -110,21 +119,22 @@ namespace Check.Views
 
         #region Private properties
 
-        private FieldView[] FieldViews { get; }
+        private FieldView     [] FieldViews      { get; }
+        private FieldViewModel[] FieldViewModels { get; }
 
         #endregion
 
-        #region Private methods
+        #region Public methods
 
-        public FieldView GetFieldViewUnder(Point position)
+        internal FieldViewModel GetFieldViewModelUnder(Point position)
         {
-            FieldView result = null;
+            FieldViewModel result = null;
 
-            foreach (FieldView fieldView in FieldViews)
+            for (int index = 0; index < FieldViews.Length; index += 1)
             {
-                if (fieldView.IsMouseOver)
+                if (FieldViews[index].IsMouseOver)
                 {
-                    result = fieldView;
+                    result = FieldViewModels[index];
                     break;
                 }
             }
@@ -134,4 +144,56 @@ namespace Check.Views
 
         #endregion
     }
+
+    #region FieldToBackgroundColorConverterFill
+
+    internal class FieldToBackgroundColorConverterFill : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Brush result;
+
+            Debug.Assert(targetType == typeof(Brush));
+
+            if (value is FieldViewModel fieldViewModel)
+            {
+                switch (fieldViewModel.FieldStatus)
+                {
+                    case FieldStatusEnum.Default:
+                        result = Brushes.SandyBrown;
+                        break;
+                    case FieldStatusEnum.MouseOver:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.CanStart:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.Started:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.CanBeTaken:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.Taken:
+                        result = Brushes.Red;
+                        break;
+                    default:
+                        throw new Exception("Invalid Field value");
+                }
+            }
+            else
+            {
+                result = Brushes.Transparent;
+            }
+
+            return result;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
 }
