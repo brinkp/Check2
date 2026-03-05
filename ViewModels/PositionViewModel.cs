@@ -24,6 +24,8 @@ namespace Check.ViewModels
 
         #region Public properties
 
+        public Position Position => _position;
+
         public Position.FieldContentEnum F01 { get => _position.F01; set { if (_position.F01 != value) { _position.F01 = value; OnPropertyChanged(); } } }
         public Position.FieldContentEnum F02 { get => _position.F02; set { if (_position.F02 != value) { _position.F02 = value; OnPropertyChanged(); } } }
         public Position.FieldContentEnum F03 { get => _position.F03; set { if (_position.F03 != value) { _position.F03 = value; OnPropertyChanged(); } } }

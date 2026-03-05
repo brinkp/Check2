@@ -134,92 +134,92 @@ namespace Check.Views
         private int               DragStartZIndex    { get; set; }
 
         #endregion
-    }
 
-    #region FieldToColorConverterFill
+        #region FieldToColorConverterFill
 
-    internal class FieldToColorConverterFill : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        internal class FieldToColorConverterFill : IValueConverter
         {
-            Brush result;
-
-            Debug.Assert(targetType == typeof(Brush));
-
-            if (value is FieldViewModel fieldViewModel)
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                switch (fieldViewModel.FieldContent)
+                Brush result;
+
+                Debug.Assert(targetType == typeof(Brush));
+
+                if (value is FieldViewModel fieldViewModel)
                 {
-                    case Position.FieldContentEnum.Empty:
-                        result = Brushes.Transparent;
-                        break;
-                    case Position.FieldContentEnum.WhitePiece:
-                        result = Brushes.White;
-                        break;
-                    case Position.FieldContentEnum.BlackPiece:
-                        result = Brushes.Black;
-                        break;
-                    case Position.FieldContentEnum.WhiteRook:
-                        result = Brushes.White;
-                        break;
-                    case Position.FieldContentEnum.BlackRook:
-                        result = Brushes.Black;
-                        break;
-                    default:
-                        throw new Exception("Invalid Field value");
+                    switch (fieldViewModel.FieldContent)
+                    {
+                        case Position.FieldContentEnum.Empty:
+                            result = Brushes.Transparent;
+                            break;
+                        case Position.FieldContentEnum.WhitePiece:
+                            result = Brushes.White;
+                            break;
+                        case Position.FieldContentEnum.BlackPiece:
+                            result = Brushes.Black;
+                            break;
+                        case Position.FieldContentEnum.WhiteRook:
+                            result = Brushes.White;
+                            break;
+                        case Position.FieldContentEnum.BlackRook:
+                            result = Brushes.Black;
+                            break;
+                        default:
+                            throw new Exception("Invalid Field value");
+                    }
                 }
-            }
-            else
-            {
-                result = Brushes.Transparent;
-            }
-
-            return result;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    #endregion
-
-    #region FieldToColorConverterStroke
-
-    internal class FieldToColorConverterStroke : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            Brush result;
-
-            Debug.Assert(targetType == typeof(Brush));
-
-            if (value is FieldViewModel fieldViewModel)
-            {
-                switch (fieldViewModel.FieldContent)
+                else
                 {
-                    case Position.FieldContentEnum.Empty:
-                        result = Brushes.Transparent;
-                        break;
-                    default:
-                        result = Brushes.Black;
-                        break;
+                    result = Brushes.Transparent;
                 }
+
+                return result;
             }
-            else
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                result = Brushes.White;
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region FieldToColorConverterStroke
+
+        internal class FieldToColorConverterStroke : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                Brush result;
+
+                Debug.Assert(targetType == typeof(Brush));
+
+                if (value is FieldViewModel fieldViewModel)
+                {
+                    switch (fieldViewModel.FieldContent)
+                    {
+                        case Position.FieldContentEnum.Empty:
+                            result = Brushes.Transparent;
+                            break;
+                        default:
+                            result = Brushes.Black;
+                            break;
+                    }
+                }
+                else
+                {
+                    result = Brushes.White;
+                }
+
+                return result;
             }
 
-            return result;
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
     }
-
-    #endregion
 }

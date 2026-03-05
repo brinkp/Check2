@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using Check.Models;
 using static Check.ViewModels.FieldViewModel;
 
 namespace Check.Views
@@ -20,6 +21,8 @@ namespace Check.Views
             Debug.Assert(positionViewModel != null);
 
             InitializeComponent();
+
+            PositionViewModel = positionViewModel;
 
             Grid grid = new Grid();
 
@@ -104,7 +107,19 @@ namespace Check.Views
 
                     MouseOverFieldViewModel  = FieldViewModels[fieldViewIndex];
 
-                if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                    if (MouseOverFieldViewModel != null)
+                    {
+                        int fieldViewIndex1 = fieldViewIndex + 1;
+
+                        foreach (Move move in Position.PossibleMoves)
+                        {
+                            if (move.FromField == fieldViewIndex1)
+                            {
+                                MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                                break;
+                            }
+                        }
+                    }
             }
         }
 
@@ -126,66 +141,70 @@ namespace Check.Views
 
         #region Private properties
 
-      //private FieldView     [] FieldViews      { get; }
-        private FieldViewModel[] FieldViewModels { get; }
+        private PositionViewModel PositionViewModel { get; }
+
+      //private FieldView     []  FieldViews        { get; }
+        private FieldViewModel[]  FieldViewModels   { get; }
+
+        private Position Position => PositionViewModel?.Position;
+
+        #endregion
+
+        #region FieldToBackgroundColorConverterFill
+
+        internal class FieldToBackgroundColorConverterFill : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                Brush result;
+
+                Debug.Assert(targetType == typeof(Brush));
+
+                FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
+
+                if (value is FieldViewModel fieldViewModel)
+                {
+                    fieldStatusEnum = fieldViewModel.FieldStatus;
+                }
+                else if (value is FieldStatusEnum @enum)
+                {
+                    fieldStatusEnum = @enum;
+                }
+
+                switch (fieldStatusEnum)
+                {
+                    case FieldStatusEnum.Default:
+                        result = Brushes.SandyBrown;
+                        break;
+                    case FieldStatusEnum.MouseOver:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.CanStart:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.Started:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.CanBeTaken:
+                        result = Brushes.Red;
+                        break;
+                    case FieldStatusEnum.Taken:
+                        result = Brushes.Red;
+                        break;
+                    default:
+                        result = Brushes.Transparent;
+                        break;
+                }
+
+                return result;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         #endregion
     }
-
-    #region FieldToBackgroundColorConverterFill
-
-    internal class FieldToBackgroundColorConverterFill : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            Brush result;
-
-            Debug.Assert(targetType == typeof(Brush));
-
-            FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
-
-            if (value is FieldViewModel fieldViewModel)
-            {
-                fieldStatusEnum = fieldViewModel.FieldStatus;
-            }
-            else if (value is FieldStatusEnum @enum)
-            {
-                fieldStatusEnum = @enum;
-            }
-
-            switch (fieldStatusEnum)
-            {
-                case FieldStatusEnum.Default:
-                    result = Brushes.SandyBrown;
-                    break;
-                case FieldStatusEnum.MouseOver:
-                    result = Brushes.Red;
-                    break;
-                case FieldStatusEnum.CanStart:
-                    result = Brushes.Red;
-                    break;
-                case FieldStatusEnum.Started:
-                    result = Brushes.Red;
-                    break;
-                case FieldStatusEnum.CanBeTaken:
-                    result = Brushes.Red;
-                    break;
-                case FieldStatusEnum.Taken:
-                    result = Brushes.Red;
-                    break;
-                default:
-                    result = Brushes.Transparent;
-                    break;
-            }
-
-            return result;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    #endregion
 }
