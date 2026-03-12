@@ -5,7 +5,18 @@ namespace Check.ViewModels
 {
     internal class PositionViewModel : BaseViewModel
     {
-        #region Position
+        #region ENumerations
+
+        public enum PositionStatusEnum
+        {
+            Default,
+            MoveStarted,
+            TakeInProgress
+        }
+
+        #endregion
+
+        #region Fields
 
         private readonly Position _position;
 
@@ -25,6 +36,8 @@ namespace Check.ViewModels
         #region Public properties
 
         public Position Position => _position;
+
+        public PositionStatusEnum PositionStatus { get; set; } = PositionStatusEnum.Default;
 
         public Position.FieldContentEnum F01 { get => _position.F01; set { if (_position.F01 != value) { _position.F01 = value; OnPropertyChanged(); } } }
         public Position.FieldContentEnum F02 { get => _position.F02; set { if (_position.F02 != value) { _position.F02 = value; OnPropertyChanged(); } } }

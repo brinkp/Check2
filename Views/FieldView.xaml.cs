@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,6 +27,7 @@ namespace Check.Views
 
             PositionView      = positionView     ;
             PositionViewModel = positionViewModel;
+            FieldViewModel    = fieldViewModel   ;
             FieldIndex        = fieldIndex       ;
 
             Ellipse      = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
@@ -44,77 +44,104 @@ namespace Check.Views
 
         #region Dragging
 
-        protected override void OnMouseDown(MouseButtonEventArgs ea)
+        protected override void OnMouseEnter(MouseEventArgs ea)
         {
-            base.OnMouseDown(ea);
+            base.OnMouseEnter(ea);
 
-          //if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
-            if (DragInProgress == false)
-            {
-                DragInProgress  = true;
-                DragFieldIndex  = FieldIndex;
-                DragStartPoint  = ea.GetPosition(PositionView);
-                DragStartZIndex = Panel.GetZIndex(Ellipse);
+            PositionView.OnFieldMouseEnter(FieldIndex, FieldViewModel);
 
-                Panel.SetZIndex(this, int.MaxValue);
-
-                CaptureMouse();
-
-                ea.Handled = true;
-            }
+            ea.Handled = true;
         }
 
-        protected override void OnMouseMove(MouseEventArgs ea)
+        protected override void OnMouseLeave(MouseEventArgs ea)
         {
-            base.OnMouseMove(ea);
+            base.OnMouseLeave(ea);
 
-            if (DragInProgress)
-            {
-                Point newPosition = ea.GetPosition(PositionView);
+            PositionView.OnFieldMouseLeave(FieldIndex, FieldViewModel);
 
-                Ellipse.RenderTransform = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
-
-                ea.Handled = true;
-            }
+            ea.Handled = true;
         }
 
-        protected override void OnMouseUp(MouseButtonEventArgs ea)
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs ea)
         {
-            base.OnMouseUp(ea);
+            base.OnMouseLeftButtonDown(ea);
 
-            if (DragInProgress)
-            {
-                OnMouseUp();
+            PositionView.OnFieldMouseLeftButtonDown(FieldIndex, FieldViewModel);
 
-                ea.Handled = true;
-            }
+            ea.Handled = true;
         }
 
-        protected override void OnLostMouseCapture(MouseEventArgs ea)
-        {
-            base.OnLostMouseCapture(ea);
+        //protected override void OnMouseDown(MouseButtonEventArgs ea)
+        //{
+        //    base.OnMouseDown(ea);
 
-            if (DragInProgress)
-            {
-                OnMouseUp();
+        //  //if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
+        //    if (DragInProgress == false)
+        //    {
+        //        DragInProgress  = true;
+        //        DragFieldIndex  = FieldIndex;
+        //        DragStartPoint  = ea.GetPosition(PositionView);
+        //        DragStartZIndex = Panel.GetZIndex(Ellipse);
 
-                ea.Handled = true;
-            }
-        }
+        //        Panel.SetZIndex(this, int.MaxValue);
 
-        private void OnMouseUp()
-        {
-            Ellipse.RenderTransform = null;
+        //        CaptureMouse();
 
-            Panel.SetZIndex(this, DragStartZIndex);
+        //        ea.Handled = true;
+        //    }
+        //}
 
-            // Do this...
-            DragInProgress = false;
-            DragFieldIndex = 0    ;
+        //protected override void OnMouseMove(MouseEventArgs ea)
+        //{
+        //    base.OnMouseMove(ea);
 
-            // ... before this
-            ReleaseMouseCapture();
-        }
+        //    if (DragInProgress)
+        //    {
+        //        Point newPosition = ea.GetPosition(PositionView);
+
+        //        Ellipse.RenderTransform = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
+
+        //        ea.Handled = true;
+        //    }
+        //}
+
+        //protected override void OnMouseUp(MouseButtonEventArgs ea)
+        //{
+        //    base.OnMouseUp(ea);
+
+        //    if (DragInProgress)
+        //    {
+        //        OnMouseUp();
+
+        //        ea.Handled = true;
+        //    }
+        //}
+
+        //protected override void OnLostMouseCapture(MouseEventArgs ea)
+        //{
+        //    base.OnLostMouseCapture(ea);
+
+        //    if (DragInProgress)
+        //    {
+        //        OnMouseUp();
+
+        //        ea.Handled = true;
+        //    }
+        //}
+
+        //private void OnMouseUp()
+        //{
+        //    Ellipse.RenderTransform = null;
+
+        //    Panel.SetZIndex(this, DragStartZIndex);
+
+        //    // Do this...
+        //    DragInProgress = false;
+        //    DragFieldIndex = 0    ;
+
+        //    // ... before this
+        //    ReleaseMouseCapture();
+        //}
 
         #endregion
 
@@ -123,13 +150,14 @@ namespace Check.Views
         private PositionView      PositionView       { get;      }
         private PositionViewModel PositionViewModel  { get;      }
 
-        private Ellipse           Ellipse            { get;      }
-
+        private FieldViewModel    FieldViewModel     { get;      }
         private int               FieldIndex         { get;      }
 
-        private FieldViewModel    MouseOverFieldView { get => PositionView.MouseOverFieldViewModel; set => PositionView.MouseOverFieldViewModel = value; }
-        private bool              DragInProgress     { get => PositionView.DragInProgress         ; set => PositionView.DragInProgress          = value; }
-        private int               DragFieldIndex     { get => PositionView.DragFieldIndex         ; set => PositionView.DragFieldIndex          = value; }
+        private Ellipse           Ellipse            { get;      }
+
+      //private FieldViewModel    MouseOverFieldView { get => PositionView.MouseOverFieldViewModel; set => PositionView.MouseOverFieldViewModel = value; }
+      //private bool              DragInProgress     { get => PositionView.DragInProgress         ; set => PositionView.DragInProgress          = value; }
+      //private int               DragFieldIndex     { get => PositionView.DragFieldIndex         ; set => PositionView.DragFieldIndex          = value; }
         private Point             DragStartPoint     { get; set; }
         private int               DragStartZIndex    { get; set; }
 
