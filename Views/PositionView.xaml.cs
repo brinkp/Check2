@@ -129,7 +129,7 @@ namespace Check.Views
                     fieldViewModel.FieldStatus = FieldStatusEnum.Default;
                     break;
                 case PositionViewModel.PositionStatusEnum.MoveStarted:
-                    fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+                    if (fieldViewModel != StartFieldViewModel) { fieldViewModel.FieldStatus = FieldStatusEnum.Default; }
                     break;
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
                     break;
@@ -152,7 +152,7 @@ namespace Check.Views
                             fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
 
                             StartFieldViewModel = fieldViewModel;
-                            StartFieldIndex     = fieldIndex;
+                            StartFieldIndex     = fieldIndex    ;
 
                             PositionStatus = PositionViewModel.PositionStatusEnum.MoveStarted;
                             break;
@@ -160,12 +160,44 @@ namespace Check.Views
                     }
                     break;
                 case PositionViewModel.PositionStatusEnum.MoveStarted:
-                    foreach (Move move in Position.PossibleMoves)
+                    if (fieldViewModel == StartFieldViewModel)
                     {
-                        if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
+                        fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+
+                        StartFieldViewModel = null;
+                        StartFieldIndex     =    0;
+
+                        PositionStatus = PositionViewModel.PositionStatusEnum.Default;
+                    }
+                    else
+                    {
+                        bool moved = false;
+
+                        foreach (Move move in Position.PossibleMoves)
                         {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
-                            break;
+                            if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
+                            {
+                                moved = true;
+                                break;
+                            }
+                        }
+
+                        if (! moved)
+                        {
+                            foreach (Move move in Position.PossibleMoves)
+                            {
+                                if (move.FromField == fieldIndex)
+                                {
+                                    StartFieldViewModel.FieldStatus = FieldStatusEnum.Default;
+                                         fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+
+                                    StartFieldViewModel = fieldViewModel;
+                                    StartFieldIndex     = fieldIndex    ;
+
+                                    PositionStatus = PositionViewModel.PositionStatusEnum.MoveStarted;
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
