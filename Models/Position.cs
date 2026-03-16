@@ -5,7 +5,20 @@ namespace Check.Models
 {
     internal class Position
     {
+        #region Constants
+
+        private const int MaxNumberOfFields =  51;
+        private const int MaxNumberOfMoves  = 100;
+
+        #endregion
+
         #region Enumerations
+
+        public enum TurnEnum
+        {
+            WhitesTurn,
+            BlacksTurn
+        }
 
         public enum FieldContentEnum
         {
@@ -20,7 +33,10 @@ namespace Check.Models
 
         #region Fields
 
-        private readonly FieldContentEnum[] _fields = new FieldContentEnum[51];
+        private int _numberOfMoves = 0;
+
+        private readonly FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
+        private readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
 
         #endregion
 
@@ -49,6 +65,8 @@ namespace Check.Models
                 _fields[41] = FieldContentEnum.Empty     ; _fields[42] = FieldContentEnum.WhitePiece; _fields[43] = FieldContentEnum.WhitePiece; _fields[44] = FieldContentEnum.WhitePiece; _fields[45] = FieldContentEnum.BlackPiece;
                 _fields[46] = FieldContentEnum.Empty     ; _fields[47] = FieldContentEnum.Empty     ; _fields[48] = FieldContentEnum.Empty     ; _fields[49] = FieldContentEnum.Empty     ; _fields[50] = FieldContentEnum.Empty     ;
             }
+
+            WhiteOrBlacksTurn = TurnEnum.WhitesTurn;
 
             PossibleMoves = new List<Move>
             {
@@ -123,7 +141,23 @@ namespace Check.Models
 
         #region Public properties
 
-        public List<Move> PossibleMoves { get; set; }
+        public TurnEnum   WhiteOrBlacksTurn { get; set; }
+
+        public List<Move> PossibleMoves     { get; set; }
+
+        #endregion
+
+        #region Get moves and takes
+
+        public void GetMovesAndTakes()
+        {
+            FieldContentEnum    myFieldContent = (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) ? FieldContentEnum.WhitePiece : FieldContentEnum.BlackPiece;
+            FieldContentEnum otherFieldContent = (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) ? FieldContentEnum.BlackPiece : FieldContentEnum.WhitePiece;
+
+            _numberOfMoves = 0;
+
+            if ((_fields[ 6] == myFieldContent) && (_fields[ 1] == otherFieldContent)) _moves[_numberOfMoves++] = new Move( 6, 1);
+        }
 
         #endregion
     }
