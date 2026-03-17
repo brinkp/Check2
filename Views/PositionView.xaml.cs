@@ -178,6 +178,12 @@ namespace Check.Views
                             if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
                             {
                                 moved = true;
+
+                                Position.Move(StartFieldIndex, fieldIndex);
+
+                                var a = DataContext;
+                                DataContext = null;
+                                DataContext = a;
                                 break;
                             }
                         }
