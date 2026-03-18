@@ -8,3 +8,7 @@ obj/Debug/
 Check.v12.suo
 
 *.user
+
+bin/Release/
+
+obj/Release/

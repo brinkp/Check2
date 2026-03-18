@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using Check.ViewModels;
 // ReSharper disable LocalizableElement
 
@@ -48,8 +49,9 @@ namespace Check.Models
 
         private TurnEnum _whiteOrBlacksTurn;
 
-        private      int _numberOfMoves;
-        private      int _numberOfTakes;
+        private      int _numberOfMoves         ;
+        private      int _numberOfTakesInMove   ;
+      //private      int _numberOfTakesInMoveMax;
 
         private readonly FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
         private readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
@@ -75,9 +77,9 @@ namespace Check.Models
 
                 _fields[ 1] = FieldContentEnum.BlackPiece; _fields[ 2] = FieldContentEnum.Empty     ; _fields[ 3] = FieldContentEnum.Empty     ; _fields[ 4] = FieldContentEnum.Empty     ; _fields[ 5] = FieldContentEnum.Empty     ;
                 _fields[ 6] = FieldContentEnum.Empty     ; _fields[ 7] = FieldContentEnum.Empty     ; _fields[ 8] = FieldContentEnum.BlackPiece; _fields[ 9] = FieldContentEnum.BlackPiece; _fields[10] = FieldContentEnum.BlackPiece;
-                _fields[11] = FieldContentEnum.WhitePiece; _fields[12] = FieldContentEnum.Empty     ; _fields[13] = FieldContentEnum.BlackPiece; _fields[14] = FieldContentEnum.Empty     ; _fields[15] = FieldContentEnum.Empty     ;
-                _fields[16] = FieldContentEnum.Empty     ; _fields[17] = FieldContentEnum.WhitePiece; _fields[18] = FieldContentEnum.Empty     ; _fields[19] = FieldContentEnum.BlackPiece; _fields[20] = FieldContentEnum.BlackPiece;
-                _fields[21] = FieldContentEnum.WhitePiece; _fields[22] = FieldContentEnum.WhitePiece; _fields[23] = FieldContentEnum.BlackPiece; _fields[24] = FieldContentEnum.BlackPiece; _fields[25] = FieldContentEnum.Empty     ;
+                _fields[11] = FieldContentEnum.WhitePiece; _fields[12] = FieldContentEnum.Empty     ; _fields[13] = FieldContentEnum.Empty     ; _fields[14] = FieldContentEnum.Empty     ; _fields[15] = FieldContentEnum.Empty     ;
+                _fields[16] = FieldContentEnum.Empty     ; _fields[17] = FieldContentEnum.WhitePiece; _fields[18] = FieldContentEnum.BlackPiece; _fields[19] = FieldContentEnum.BlackPiece; _fields[20] = FieldContentEnum.BlackPiece;
+                _fields[21] = FieldContentEnum.WhitePiece; _fields[22] = FieldContentEnum.WhitePiece; _fields[23] = FieldContentEnum.BlackPiece; _fields[24] = FieldContentEnum.Empty     ; _fields[25] = FieldContentEnum.Empty     ;
                 _fields[26] = FieldContentEnum.Empty     ; _fields[27] = FieldContentEnum.WhitePiece; _fields[28] = FieldContentEnum.BlackPiece; _fields[29] = FieldContentEnum.BlackPiece; _fields[30] = FieldContentEnum.WhitePiece;
                 _fields[31] = FieldContentEnum.Empty     ; _fields[32] = FieldContentEnum.Empty     ; _fields[33] = FieldContentEnum.BlackPiece; _fields[34] = FieldContentEnum.WhitePiece; _fields[35] = FieldContentEnum.BlackPiece;
                 _fields[36] = FieldContentEnum.Empty     ; _fields[37] = FieldContentEnum.WhitePiece; _fields[38] = FieldContentEnum.WhitePiece; _fields[39] = FieldContentEnum.WhitePiece; _fields[40] = FieldContentEnum.WhitePiece;
@@ -176,46 +178,55 @@ namespace Check.Models
 
         private void GetTakes()
         {
-           _numberOfMoves = 0;
+           _numberOfMoves          = 0;
+           _numberOfTakesInMove    = 0;
+         //_numberOfTakesInMoveMax = 0;
 
             DateTime now = DateTime.Now;
 
-            if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) { for (int fromFieldIndex = 6; fromFieldIndex <= 50; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.WhitePiece) GetTakeWhite(fromFieldIndex); } }
-            else                                          { for (int fromFieldIndex = 1; fromFieldIndex <= 45; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.BlackPiece) GetTakeWhite(fromFieldIndex); } }
+            if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) { for (int fromFieldIndex = 6; fromFieldIndex <= 50; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.WhitePiece) GetTakeWhite(fromFieldIndex, 0, fromFieldIndex); } }
+            else                                          { for (int fromFieldIndex = 1; fromFieldIndex <= 45; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.BlackPiece) GetTakeWhite(fromFieldIndex, 0, fromFieldIndex); } }
 
             if (_numberOfMoves > 0)
             {
 
             }
 
-            Debug.WriteLine(DateTime.Now - now);
+#if DEBUG
+            Debug.WriteLine((DateTime.Now - now).Milliseconds + " mSec");
+#else
+            MessageBox.Show((DateTime.Now - now).Milliseconds + " mSec");
+#endif
         }
 
-        private void GetTakeWhite(int fromFieldIndex)
+        private void GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
         {
-           _numberOfTakes = 0;
-
-            switch (fromFieldIndex)
+            switch (fieldIndexFrom)
             {
+                case  1: break;
+                case  2:                                                                                        GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  7, 11); GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  8,  13); break;
+                case  3: break;
+                case  4:                                                                                        GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4,  9, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4, 10,  15); break;
+                case  5: break;
                 case  6: break;
                 case  7: break;
                 case  8: break;
                 case  9: break;
                 case 10: break;
                 case 11: break;
-                case 12: GetTakeWhite( 7, 1); GetTakeWhite( 8,  3); GetTakeWhite(17, 11); GetTakeWhite( 18,  23); break;
-                case 13: break;
+                case 12: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  7,  1); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  8,   3); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 17, 21); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 18,  23); break;
+                case 13: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  8,  2); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  9,   4); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 18, 22); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 19,  24); break;
                 case 14: break;
-                case 15: break;
+                case 15: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 10,  4);                                                            GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 20, 24);                                                            break;
                 case 16: break;
                 case 17: break;
                 case 18: break;
                 case 19: break;
                 case 20: break;
                 case 21: break;
-                case 22: break;
+                case 22: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 17, 11); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 18, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 27, 31); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 28,  33); break; 
                 case 23: break;
-                case 24: break;
+                case 24: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 19, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 10, 15); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 29, 33); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 30,  35); break;
                 case 25: break;
                 case 26: break;
                 case 27: break;
@@ -243,90 +254,72 @@ namespace Check.Models
                 case 49: break;
                 case 50: break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(fromFieldIndex), "Invalid switch value");
+                    throw new ArgumentOutOfRangeException(nameof(fieldIndexFrom), "Invalid switch value");
             }
         }
 
-        private void GetTakeWhite(int fieldIndexVia, int fieldIndexTo)
+        private void GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexVia, int fieldIndexTo)
         {
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
-                FieldContentEnum fieldContentVia = _fields[fieldIndexVia];
-
-                if        (fieldContentVia == FieldContentEnum.BlackPiece)
+                switch (_fields[fieldIndexVia])
                 {
-                   _fields[fieldIndexVia]   = FieldContentEnum.BlackPieceTaken;
+                    case FieldContentEnum.BlackPiece:
+                        fieldIndexEnd = fieldIndexTo;
 
-                    GetTakeWhite(fieldIndexTo);
+                       _fields[fieldIndexFrom]  = FieldContentEnum.Empty          ;
+                       _fields[fieldIndexVia ]  = FieldContentEnum.BlackPieceTaken;
 
-                   _fields[fieldIndexVia]   = FieldContentEnum.BlackPiece;
+                       _vias  [_numberOfTakesInMove]  = fieldIndexVia;
+                       _takes [_numberOfTakesInMove]  = fieldIndexTo;
+
+                       _numberOfTakesInMove += 1;
+
+                        GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+                       _numberOfTakesInMove -= 1;
+
+                       _fields[fieldIndexVia]   = FieldContentEnum.BlackPiece;
+                       _fields[fieldIndexFrom]  = FieldContentEnum.WhitePiece;
+                        break;
+                    case FieldContentEnum.BlackRook:
+                        fieldIndexEnd = fieldIndexTo;
+
+                       _fields[fieldIndexFrom]  = FieldContentEnum.Empty         ;
+                       _fields[fieldIndexVia ]  = FieldContentEnum.BlackRookTaken;
+
+                       _vias  [_numberOfTakesInMove]  = fieldIndexVia;
+                       _takes [_numberOfTakesInMove]  = fieldIndexTo;
+
+                       _numberOfTakesInMove += 1;
+
+                        GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+                       _numberOfTakesInMove -= 1;
+
+                       _fields[fieldIndexVia]   = FieldContentEnum.BlackRook ;
+                       _fields[fieldIndexFrom]  = FieldContentEnum.WhitePiece;
+                        break;
+                    default:
+                    {
+                        if (_numberOfTakesInMove > 0)
+                        {
+                          //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                          //{
+                          //    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+
+                                _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes, _vias);
+                          //}
+                        }
+                        break;
+                    }
                 }
-                else if   (fieldContentVia == FieldContentEnum.BlackRook )
-                {
-                   _fields[fieldIndexVia]   = FieldContentEnum.BlackRookTaken;
-
-                    GetTakeWhite(fieldIndexTo);
-
-                   _fields[fieldIndexVia]   = FieldContentEnum.BlackRook;
-                }
-            }
-
-            if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn)
-            {
-                if (_fields[ 6] == FieldContentEnum.WhitePiece) {                                                                                         if (_fields[ 1] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 6,  1); }
-                if (_fields[ 7] == FieldContentEnum.WhitePiece) { if (_fields[ 1] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 7,  1); if (_fields[ 2] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 7,  2); }
-                if (_fields[ 8] == FieldContentEnum.WhitePiece) { if (_fields[ 2] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 8,  2); if (_fields[ 3] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 8,  3); }
-                if (_fields[ 9] == FieldContentEnum.WhitePiece) { if (_fields[ 3] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 9,  3); if (_fields[ 4] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move( 9,  4); }
-                if (_fields[10] == FieldContentEnum.WhitePiece) { if (_fields[ 4] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(10,  4); if (_fields[ 5] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(10,  5); }
-                if (_fields[11] == FieldContentEnum.WhitePiece) { if (_fields[ 6] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(11,  6); if (_fields[ 7] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(11,  7); }
-                if (_fields[12] == FieldContentEnum.WhitePiece) { if (_fields[ 7] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(12,  7); if (_fields[ 8] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(12,  8); }
-                if (_fields[13] == FieldContentEnum.WhitePiece) { if (_fields[ 8] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(13,  8); if (_fields[ 9] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(13,  9); }
-                if (_fields[14] == FieldContentEnum.WhitePiece) { if (_fields[ 9] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(14,  9); if (_fields[10] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(14, 10); }
-                if (_fields[15] == FieldContentEnum.WhitePiece) { if (_fields[10] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(15, 10);                                                                                         }
-                if (_fields[16] == FieldContentEnum.WhitePiece) {                                                                                         if (_fields[11] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(16, 11); }
-                if (_fields[17] == FieldContentEnum.WhitePiece) { if (_fields[11] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(17, 11); if (_fields[12] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(17, 12); }
-                if (_fields[18] == FieldContentEnum.WhitePiece) { if (_fields[12] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(18, 12); if (_fields[13] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(18, 13); }
-                if (_fields[19] == FieldContentEnum.WhitePiece) { if (_fields[13] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(19, 13); if (_fields[14] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(19, 14); }
-                if (_fields[20] == FieldContentEnum.WhitePiece) { if (_fields[14] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(20, 14); if (_fields[15] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(20, 15); }
-                if (_fields[21] == FieldContentEnum.WhitePiece) { if (_fields[16] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(21, 16); if (_fields[17] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(21, 17); }
-                if (_fields[22] == FieldContentEnum.WhitePiece) { if (_fields[17] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(22, 17); if (_fields[18] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(22, 18); }
-                if (_fields[23] == FieldContentEnum.WhitePiece) { if (_fields[18] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(23, 18); if (_fields[19] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(23, 19); }
-                if (_fields[24] == FieldContentEnum.WhitePiece) { if (_fields[19] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(24, 19); if (_fields[20] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(24, 20); }
-                if (_fields[25] == FieldContentEnum.WhitePiece) { if (_fields[20] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(25, 20);                                                                                         }
-                if (_fields[26] == FieldContentEnum.WhitePiece) {                                                                                         if (_fields[21] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(26, 21); }
-                if (_fields[27] == FieldContentEnum.WhitePiece) { if (_fields[21] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(27, 21); if (_fields[22] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(27, 22); }
-                if (_fields[28] == FieldContentEnum.WhitePiece) { if (_fields[22] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(28, 22); if (_fields[23] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(28, 23); }
-                if (_fields[29] == FieldContentEnum.WhitePiece) { if (_fields[23] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(29, 23); if (_fields[24] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(29, 24); }
-                if (_fields[30] == FieldContentEnum.WhitePiece) { if (_fields[24] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(30, 24); if (_fields[25] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(30, 25); }
-                if (_fields[31] == FieldContentEnum.WhitePiece) { if (_fields[26] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(31, 26); if (_fields[27] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(31, 27); }
-                if (_fields[32] == FieldContentEnum.WhitePiece) { if (_fields[27] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(32, 27); if (_fields[28] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(32, 28); }
-                if (_fields[33] == FieldContentEnum.WhitePiece) { if (_fields[28] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(33, 28); if (_fields[29] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(33, 29); }
-                if (_fields[34] == FieldContentEnum.WhitePiece) { if (_fields[29] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(34, 29); if (_fields[30] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(34, 30); }
-                if (_fields[35] == FieldContentEnum.WhitePiece) { if (_fields[30] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(35, 30);                                                                                         }
-                if (_fields[36] == FieldContentEnum.WhitePiece) {                                                                                         if (_fields[31] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(36, 31); }
-                if (_fields[37] == FieldContentEnum.WhitePiece) { if (_fields[31] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(37, 31); if (_fields[32] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(37, 32); }
-                if (_fields[38] == FieldContentEnum.WhitePiece) { if (_fields[32] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(38, 32); if (_fields[33] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(38, 33); }
-                if (_fields[39] == FieldContentEnum.WhitePiece) { if (_fields[33] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(39, 33); if (_fields[34] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(39, 34); }
-                if (_fields[40] == FieldContentEnum.WhitePiece) { if (_fields[34] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(40, 34); if (_fields[35] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(40, 35); }
-                if (_fields[41] == FieldContentEnum.WhitePiece) { if (_fields[36] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(41, 36); if (_fields[37] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(41, 37); }
-                if (_fields[42] == FieldContentEnum.WhitePiece) { if (_fields[37] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(42, 37); if (_fields[38] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(42, 38); }
-                if (_fields[43] == FieldContentEnum.WhitePiece) { if (_fields[38] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(43, 38); if (_fields[39] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(43, 39); }
-                if (_fields[44] == FieldContentEnum.WhitePiece) { if (_fields[39] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(44, 39); if (_fields[40] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(44, 40); }
-                if (_fields[45] == FieldContentEnum.WhitePiece) { if (_fields[40] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(45, 40);                                                                                         }
-                if (_fields[46] == FieldContentEnum.WhitePiece) {                                                                                         if (_fields[41] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(46, 41); }
-                if (_fields[47] == FieldContentEnum.WhitePiece) { if (_fields[41] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(47, 41); if (_fields[42] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(47, 42); }
-                if (_fields[48] == FieldContentEnum.WhitePiece) { if (_fields[42] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(48, 42); if (_fields[43] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(48, 43); }
-                if (_fields[49] == FieldContentEnum.WhitePiece) { if (_fields[43] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(49, 43); if (_fields[44] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(49, 44); }
-                if (_fields[50] == FieldContentEnum.WhitePiece) { if (_fields[44] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(50, 44); if (_fields[45] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(50, 45); }
-            }
-            else
-            {
             }
         }
 
         private void GetMoves()
         {
-           _numberOfMoves = 0;
+           _numberOfMoves = 0; // Defensive
 
             DateTime now = DateTime.Now;
 
@@ -427,7 +420,11 @@ namespace Check.Models
                 if (_fields[45] == FieldContentEnum.BlackPiece) {                                                                                         if (_fields[50] == FieldContentEnum.Empty) _moves[_numberOfMoves++] = new Move(45, 50); }
             }
 
-            Debug.WriteLine(DateTime.Now - now);
+#if DEBUG
+            Debug.WriteLine((DateTime.Now - now).Milliseconds + " mSec");
+#else
+            MessageBox.Show((DateTime.Now - now).Milliseconds + " mSec");
+#endif
         }
 
         #endregion
