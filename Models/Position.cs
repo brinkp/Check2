@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 using Check.ViewModels;
-// ReSharper disable LocalizableElement
 
+#if RELEASE
+using System.Windows;
+#endif
+
+// ReSharper disable LocalizableElement
 // ReSharper disable IdentifierTypo
 
 namespace Check.Models
@@ -199,14 +202,16 @@ namespace Check.Models
 #endif
         }
 
-        private void GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
+        private bool GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
         {
+            bool result = false;
+
             switch (fieldIndexFrom)
             {
                 case  1: break;
-                case  2:                                                                                        GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  7, 11); GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  8,  13); break;
+                case  2:                                                                                                                                                           if (GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  7, 11)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd,  2,  8,  13)) result = true; break;
                 case  3: break;
-                case  4:                                                                                        GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4,  9, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4, 10,  15); break;
+                case  4:                                                                                                                                                           if (GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4,  9, 13)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd,  4, 10,  15)) result = true; break;
                 case  5: break;
                 case  6: break;
                 case  7: break;
@@ -214,19 +219,19 @@ namespace Check.Models
                 case  9: break;
                 case 10: break;
                 case 11: break;
-                case 12: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  7,  1); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  8,   3); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 17, 21); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 18,  23); break;
-                case 13: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  8,  2); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  9,   4); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 18, 22); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 19,  24); break;
+                case 12: if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  7,  1)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12,  8,  3)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 17, 21)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 12, 18,  23)) result = true; break;
+                case 13: if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  8,  2)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13,  9,  4)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 18, 22)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 13, 19,  24)) result = true; break;
                 case 14: break;
-                case 15: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 10,  4);                                                            GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 20, 24);                                                            break;
+                case 15: if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 10,  4)) result = true;                                                                              if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 15, 20, 24)) result = true;                                                                               break;
                 case 16: break;
                 case 17: break;
                 case 18: break;
                 case 19: break;
                 case 20: break;
                 case 21: break;
-                case 22: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 17, 11); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 18, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 27, 31); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 28,  33); break; 
+                case 22: if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 17, 11)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 18, 13)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 27, 31)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 22, 28,  33)) result = true; break; 
                 case 23: break;
-                case 24: GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 19, 13); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 10, 15); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 29, 33); GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 30,  35); break;
+                case 24: if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 19, 13)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 10, 15)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 29, 33)) result = true; if (GetTakeWhite(fieldIndexStart, fieldIndexEnd, 24, 30,  35)) result = true; break;
                 case 25: break;
                 case 26: break;
                 case 27: break;
@@ -256,10 +261,14 @@ namespace Check.Models
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fieldIndexFrom), "Invalid switch value");
             }
+
+            return result;
         }
 
-        private void GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexVia, int fieldIndexTo)
+        private bool GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexVia, int fieldIndexTo)
         {
+            bool result = false;
+
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
                 switch (_fields[fieldIndexVia])
@@ -275,7 +284,7 @@ namespace Check.Models
 
                        _numberOfTakesInMove += 1;
 
-                        GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+                        result = GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
 
                        _numberOfTakesInMove -= 1;
 
@@ -301,7 +310,8 @@ namespace Check.Models
                        _fields[fieldIndexFrom]  = FieldContentEnum.WhitePiece;
                         break;
                     default:
-                    {
+                        result = true;
+
                         if (_numberOfTakesInMove > 0)
                         {
                           //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
@@ -312,9 +322,10 @@ namespace Check.Models
                           //}
                         }
                         break;
-                    }
                 }
             }
+
+            return result;
         }
 
         private void GetMoves()
