@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Check.Models;
 using static Check.ViewModels.FieldViewModel;
+// ReSharper disable LocalizableElement
 
 namespace Check.Views
 {
@@ -115,7 +116,7 @@ namespace Check.Views
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("PositionStatus", "Invalid switch value");
+                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
             }
         }
 
@@ -134,7 +135,7 @@ namespace Check.Views
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("PositionStatus", "Invalid switch value");
+                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
             }
         }
 
@@ -210,7 +211,7 @@ namespace Check.Views
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("PositionStatus", "Invalid switch value");
+                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
             }
         }
 
@@ -253,7 +254,7 @@ namespace Check.Views
         //            case PositionViewModel.PositionStatusEnum.TakeInProgress:
         //                break;
         //            default:
-        //                throw new ArgumentOutOfRangeException("PositionStatus", "Invalid switch value");
+        //                throw new ArgumentOutOfRangeException(nameof(PositionStatus("), "Invalid switch value");
         //        }
         //    }
 
@@ -297,7 +298,7 @@ namespace Check.Views
         //            case PositionViewModel.PositionStatusEnum.TakeInProgress:
         //                break;
         //            default:
-        //                throw new ArgumentOutOfRangeException("PositionStatus", "Invalid switch value");
+        //                throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
         //        }
         //    }
 
