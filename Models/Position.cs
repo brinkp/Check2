@@ -54,7 +54,7 @@ namespace Check.Models
 
         private      int _numberOfMoves         ;
         private      int _numberOfTakesInMove   ;
-      //private      int _numberOfTakesInMoveMax;
+        private      int _numberOfTakesInMoveMax;
 
         private readonly FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
         private readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
@@ -183,12 +183,56 @@ namespace Check.Models
         {
            _numberOfMoves          = 0;
            _numberOfTakesInMove    = 0;
-         //_numberOfTakesInMoveMax = 0;
+           _numberOfTakesInMoveMax = 0;
 
             DateTime now = DateTime.Now;
 
-            if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) { for (int fromFieldIndex = 6; fromFieldIndex <= 50; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.WhitePiece) GetTakeWhite(fromFieldIndex, 0, fromFieldIndex); } }
-            else                                          { for (int fromFieldIndex = 1; fromFieldIndex <= 45; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.BlackPiece) GetTakeBlack(fromFieldIndex, 0, fromFieldIndex); } }
+            if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn)
+            {
+                for (int fromFieldIndex = 1; fromFieldIndex <= 50; fromFieldIndex += 1)
+                {
+                    switch (_fields[fromFieldIndex])
+                    {
+                        case FieldContentEnum.WhitePiece:
+                           _fields[fromFieldIndex] = FieldContentEnum.Empty;
+
+                            GetTakeWhite(fromFieldIndex, 0, fromFieldIndex);
+
+                           _fields[fromFieldIndex] = FieldContentEnum.WhitePiece;
+                            break;
+                        case FieldContentEnum.WhiteRook:
+                           _fields[fromFieldIndex] = FieldContentEnum.Empty;
+
+                            GetTakeWhite(fromFieldIndex, 0, fromFieldIndex);
+
+                           _fields[fromFieldIndex] = FieldContentEnum.WhiteRook;
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                for (int fromFieldIndex = 1; fromFieldIndex <= 50; fromFieldIndex += 1)
+                {
+                    switch (_fields[fromFieldIndex])
+                    {
+                        case FieldContentEnum.BlackPiece:
+                           _fields[fromFieldIndex] = FieldContentEnum.Empty;
+
+                            GetTakeBlack(fromFieldIndex, 0, fromFieldIndex);
+
+                           _fields[fromFieldIndex] = FieldContentEnum.BlackPiece;
+                            break;
+                        case FieldContentEnum.BlackRook:
+                           _fields[fromFieldIndex] = FieldContentEnum.Empty;
+
+                            GetTakeBlack(fromFieldIndex, 0, fromFieldIndex);
+
+                           _fields[fromFieldIndex] = FieldContentEnum.BlackRook;
+                            break;
+                    }
+                }
+            }
 
             if (_numberOfMoves > 0)
             {
@@ -276,7 +320,7 @@ namespace Check.Models
                     case FieldContentEnum.BlackPiece:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackPieceTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
@@ -289,12 +333,12 @@ namespace Check.Models
                        _numberOfTakesInMove -= 1;
 
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackPiece;
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
                         break;
                     case FieldContentEnum.BlackRook:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackRookTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
@@ -307,19 +351,20 @@ namespace Check.Models
                        _numberOfTakesInMove -= 1;
 
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackRook ;
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
                         break;
                     default:
                         result = true;
 
                         if (_numberOfTakesInMove > 0)
                         {
-                          //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                          //{
-                          //    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+                            //if (_numberOfTakesInMoveMax < _numberOfTakesInMove) { _numberOfMoves = 0; }
+                            //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                            //{
+                            //    _numberOfTakesInMoveMax = _numberOfTakesInMove;
 
                                 _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes, _vias);
-                          //}
+                            //}
                         }
                         break;
                 }
@@ -402,7 +447,7 @@ namespace Check.Models
                     case FieldContentEnum.WhitePiece:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhitePieceTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
@@ -415,12 +460,12 @@ namespace Check.Models
                        _numberOfTakesInMove -= 1;
 
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhitePiece;
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
                         break;
                     case FieldContentEnum.WhiteRook:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteRookTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
@@ -433,7 +478,7 @@ namespace Check.Models
                        _numberOfTakesInMove -= 1;
 
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteRook ;
-                       _fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
                         break;
                     default:
                         result = true;
