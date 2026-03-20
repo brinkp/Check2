@@ -90,7 +90,7 @@ namespace Check.Models
                 _fields[46] = FieldContentEnum.Empty     ; _fields[47] = FieldContentEnum.Empty     ; _fields[48] = FieldContentEnum.Empty     ; _fields[49] = FieldContentEnum.Empty     ; _fields[50] = FieldContentEnum.Empty     ;
             }
 
-            WhiteOrBlacksTurn = TurnEnum.WhitesTurn;
+            WhiteOrBlacksTurn = TurnEnum.BlacksTurn;
         }
 
         #endregion
@@ -188,7 +188,7 @@ namespace Check.Models
             DateTime now = DateTime.Now;
 
             if (WhiteOrBlacksTurn == TurnEnum.WhitesTurn) { for (int fromFieldIndex = 6; fromFieldIndex <= 50; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.WhitePiece) GetTakeWhite(fromFieldIndex, 0, fromFieldIndex); } }
-            else                                          { for (int fromFieldIndex = 1; fromFieldIndex <= 45; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.BlackPiece) GetTakeWhite(fromFieldIndex, 0, fromFieldIndex); } }
+            else                                          { for (int fromFieldIndex = 1; fromFieldIndex <= 45; fromFieldIndex += 1) { if (_fields[fromFieldIndex] == FieldContentEnum.BlackPiece) GetTakeBlack(fromFieldIndex, 0, fromFieldIndex); } }
 
             if (_numberOfMoves > 0)
             {
@@ -265,22 +265,22 @@ namespace Check.Models
             return result;
         }
 
-        private bool GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexVia, int fieldIndexTo)
+        private bool GetTakeWhite(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexTakes, int fieldIndexTo)
         {
             bool result = false;
 
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
-                switch (_fields[fieldIndexVia])
+                switch (_fields[fieldIndexTakes])
                 {
                     case FieldContentEnum.BlackPiece:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom]  = FieldContentEnum.Empty          ;
-                       _fields[fieldIndexVia ]  = FieldContentEnum.BlackPieceTaken;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackPieceTaken;
 
-                       _vias  [_numberOfTakesInMove]  = fieldIndexVia;
-                       _takes [_numberOfTakesInMove]  = fieldIndexTo;
+                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -288,26 +288,152 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexVia]   = FieldContentEnum.BlackPiece;
-                       _fields[fieldIndexFrom]  = FieldContentEnum.WhitePiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackPiece;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
                         break;
                     case FieldContentEnum.BlackRook:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexFrom]  = FieldContentEnum.Empty         ;
-                       _fields[fieldIndexVia ]  = FieldContentEnum.BlackRookTaken;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackRookTaken;
 
-                       _vias  [_numberOfTakesInMove]  = fieldIndexVia;
-                       _takes [_numberOfTakesInMove]  = fieldIndexTo;
+                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
-                        GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+                        result = GetTakeWhite(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexVia]   = FieldContentEnum.BlackRook ;
-                       _fields[fieldIndexFrom]  = FieldContentEnum.WhitePiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackRook ;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
+                        break;
+                    default:
+                        result = true;
+
+                        if (_numberOfTakesInMove > 0)
+                        {
+                          //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                          //{
+                          //    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+
+                                _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes, _vias);
+                          //}
+                        }
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        private bool GetTakeBlack(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
+        {
+            bool result = false;
+
+            switch (fieldIndexFrom)
+            {
+                case  1: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  1,  7, 12)) result = true;                                                                                                                                                                                                                                         break;
+                case  2: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  2,  8, 13)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  2,  7, 11)) result = true;                                                                                                                                                            break;
+                case  3: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  3,  9, 14)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  3,  8, 12)) result = true;                                                                                                                                                            break;
+                case  4: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  4, 10, 15)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  4,  9, 13)) result = true;                                                                                                                                                            break;
+                case  5:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  5, 10, 14)) result = true;                                                                                                                                                            break;
+                case  6: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  6, 11, 17)) result = true;                                                                                                                                                                                                                                         break;
+                case  7: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  7, 12, 18)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  7, 11, 16)) result = true;                                                                                                                                                            break;
+                case  8: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  8, 13, 19)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  8, 12, 17)) result = true;                                                                                                                                                            break;
+                case  9: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  9, 14, 20)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd,  9, 13, 18)) result = true;                                                                                                                                                            break;
+                case 10:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 10, 14, 19)) result = true;                                                                                                                                                            break;
+                case 11: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 11, 17, 22)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 11,  7,  2)) result = true;                                                                               break;
+                case 12: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 12, 18, 23)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 12, 17, 21)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 12,  8,  3)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 12,  7,   1)) result = true; break;
+                case 13: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 13, 19, 24)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 13, 18, 22)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 13,  9,  4)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 13,  8,   2)) result = true; break;
+                case 14: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 14, 20, 25)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 14, 19, 23)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 14, 10,  5)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 14,  9,   3)) result = true; break;
+                case 15:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 15, 20, 24)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 15, 10,   4)) result = true; break;
+                case 16: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 16, 21, 27)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 16, 11,  7)) result = true;                                                                               break;
+                case 17: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 17, 22, 28)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 17, 21, 26)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 17, 12,  8)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 17, 11,   6)) result = true; break;
+                case 18: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 18, 23, 29)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 18, 22, 27)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 18, 13,  9)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 18, 12,   7)) result = true; break;
+                case 19: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 19, 24, 30)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 19, 23, 28)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 19, 14, 10)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 19, 13,   8)) result = true; break;
+                case 20:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 20, 24, 29)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 20, 14,   9)) result = true; break;
+                case 21: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 21, 27, 32)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 21, 17, 12)) result = true;                                                                               break;
+                case 22: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 22, 28, 33)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 22, 27, 31)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 22, 18, 13)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 22, 17,  11)) result = true; break;
+                case 23: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 23, 29, 34)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 23, 28, 32)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 23, 19, 14)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 23, 18,  12)) result = true; break;
+                case 24: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 24, 30, 35)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 24, 29, 33)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 24, 20, 15)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 24, 19,  13)) result = true; break;
+                case 25:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 25, 30, 34)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 25, 20,  14)) result = true; break;
+                case 26: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 26, 31, 37)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 26, 21, 17)) result = true;                                                                               break;
+                case 27: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 27, 32, 38)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 27, 31, 36)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 27, 22, 18)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 27, 21,  16)) result = true; break;
+                case 28: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 28, 33, 39)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 28, 32, 37)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 28, 23, 19)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 28, 22,  17)) result = true; break;
+                case 29: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 29, 34, 40)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 29, 33, 38)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 29, 24, 20)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 29, 23,  18)) result = true; break;
+                case 30:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 30, 34, 39)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 30, 24,  19)) result = true; break;
+                case 31: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 31, 37, 42)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 31, 27, 22)) result = true;                                                                               break;
+                case 32: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 32, 38, 43)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 32, 37, 41)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 32, 28, 23)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 32, 27,  21)) result = true; break;
+                case 33: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 33, 39, 44)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 33, 38, 42)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 33, 29, 24)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 33, 28,  22)) result = true; break;
+                case 34: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 34, 40, 45)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 34, 39, 43)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 34, 30, 25)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 34, 29,  23)) result = true; break;
+                case 35:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 35, 40, 44)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 35, 30,  24)) result = true; break;
+                case 36: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 36, 41, 47)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 36, 31, 27)) result = true;                                                                               break;
+                case 37: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 37, 42, 48)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 37, 41, 46)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 37, 32, 28)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 37, 31,  26)) result = true; break;
+                case 38: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 38, 43, 49)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 38, 42, 47)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 38, 33, 29)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 38, 32,  27)) result = true; break;
+                case 39: if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 39, 44, 50)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 39, 43, 48)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 39, 34, 30)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 39, 33,  28)) result = true; break;
+                case 40:                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 40, 44, 49)) result = true;                                                                              if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 40, 34,  29)) result = true; break;
+                case 41:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 41, 37, 32)) result = true;                                                                               break;
+                case 42:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 42, 38, 33)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 42, 37,  31)) result = true; break;
+                case 43:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 43, 39, 34)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 43, 38,  32)) result = true; break;
+                case 44:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 44, 40, 35)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 44, 39,  33)) result = true; break;
+                case 45:                                                                                                                                                                                                                                        if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 45, 40,  34)) result = true; break;
+                case 46:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 46, 41, 37)) result = true;                                                                               break;
+                case 47:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 47, 42, 38)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 47, 41,  36)) result = true; break;
+                case 48:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 48, 43, 39)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 48, 42,  37)) result = true; break;
+                case 49:                                                                                                                                                           if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 49, 44, 40)) result = true; if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 49, 43,  38)) result = true; break;
+                case 50:                                                                                                                                                                                                                                        if (GetTakeBlack(fieldIndexStart, fieldIndexEnd, 50, 44,  39)) result = true; break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(fieldIndexFrom), "Invalid switch value");
+            }
+
+            return result;
+        }
+
+        private bool GetTakeBlack(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexTakes, int fieldIndexTo)
+        {
+            bool result = false;
+
+            if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
+            {
+                switch (_fields[fieldIndexTakes])
+                {
+                    case FieldContentEnum.WhitePiece:
+                        fieldIndexEnd = fieldIndexTo;
+
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty          ;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhitePieceTaken;
+
+                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+
+                       _numberOfTakesInMove += 1;
+
+                        result = GetTakeBlack(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+                       _numberOfTakesInMove -= 1;
+
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhitePiece;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
+                        break;
+                    case FieldContentEnum.WhiteRook:
+                        fieldIndexEnd = fieldIndexTo;
+
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteRookTaken;
+
+                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+
+                       _numberOfTakesInMove += 1;
+
+                        result = GetTakeBlack(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+                       _numberOfTakesInMove -= 1;
+
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteRook ;
+                       _fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
                         break;
                     default:
                         result = true;
