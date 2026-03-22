@@ -180,16 +180,16 @@ namespace Check.Views
                         case Position.FieldContentEnum.Empty:
                             result = Brushes.Transparent;
                             break;
-                        case Position.FieldContentEnum.WhitePiece:
+                        case Position.FieldContentEnum.WhiteMan:
                             result = Brushes.White;
                             break;
-                        case Position.FieldContentEnum.BlackPiece:
+                        case Position.FieldContentEnum.BlackMan:
                             result = Brushes.Black;
                             break;
-                        case Position.FieldContentEnum.WhiteRook:
+                        case Position.FieldContentEnum.WhiteKing:
                             result = Brushes.White;
                             break;
-                        case Position.FieldContentEnum.BlackRook:
+                        case Position.FieldContentEnum.BlackKing:
                             result = Brushes.Black;
                             break;
                         default:
