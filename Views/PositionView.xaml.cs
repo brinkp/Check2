@@ -87,6 +87,8 @@ namespace Check.Views
 
         #endregion
 
+        #region Event handlers
+
         internal void OnFieldMouseEnter(int fieldIndex, FieldViewModel fieldViewModel)
         {
             Debug.Assert(fieldViewModel != null);
@@ -182,9 +184,7 @@ namespace Check.Views
 
                                 Position.Move(StartFieldIndex, fieldIndex);
 
-                                var a = DataContext;
-                                DataContext = null;
-                                DataContext = a;
+                                Refresh();
                                 break;
                             }
                         }
@@ -305,6 +305,8 @@ namespace Check.Views
         //    ea.Handled = true;
         //}
 
+        #endregion
+
         #region Public properties
 
       //internal FieldViewModel  MouseOverFieldViewModel { get; set; }
@@ -365,6 +367,14 @@ namespace Check.Views
             }
 
             return result;
+        }
+
+        private void Refresh()
+        {
+            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+            {
+                fieldViewModel.Refresh();
+            }
         }
 
         #endregion

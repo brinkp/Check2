@@ -328,8 +328,8 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackMan  ;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackMan;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhiteMan;
                         break;
                     case FieldContentEnum.BlackKing:
                         fieldIndexEnd = fieldIndexTo;
@@ -346,8 +346,8 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackKing ;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhitePiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackKing;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhiteMan ;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -361,7 +361,7 @@ namespace Check.Models
                                 //{
                                 //    _numberOfTakesInMoveMax = _numberOfTakesInMove;
 
-                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes, _vias);
+                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
                                 //}
                             }
                         }
@@ -452,8 +452,8 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteMan  ;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteMan;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackMan;
                         break;
                     case FieldContentEnum.WhiteKing:
                         fieldIndexEnd = fieldIndexTo;
@@ -470,8 +470,8 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteKing ;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackPiece;
+                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteKing;
+                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackMan ;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -484,8 +484,7 @@ namespace Check.Models
                                 //{
                                 //    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
 
-                                _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd,
-                                    _numberOfTakesInMove, _takes, _vias);
+                                _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
                                 //}
                             }
                         }
@@ -610,6 +609,14 @@ namespace Check.Models
         {
            _fields[  toFieldIndex] = _fields[fromFieldIndex];
            _fields[fromFieldIndex] =  FieldContentEnum.Empty;
+
+           if (_takes?.Length > 0)
+           {
+               foreach (int take in _takes)
+               {
+                   _fields[take] = FieldContentEnum.Empty;
+               }
+           }
 
            WhiteOrBlacksTurn = (WhiteOrBlacksTurn == TurnEnum.White) ? TurnEnum.Black : TurnEnum.White;
         }

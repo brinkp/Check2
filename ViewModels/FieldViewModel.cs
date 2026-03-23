@@ -10,6 +10,7 @@ namespace Check.ViewModels
 
         internal enum FieldStatusEnum
         {
+            Dummy,
             Default,
             MouseOver,
             CanStart,
@@ -73,6 +74,18 @@ namespace Check.ViewModels
       //private int          FieldIndex   { get; }
 
         private PropertyInfo PropertyInfo { get; }
+
+        #endregion
+
+        #region Private methods
+
+        public void Refresh()
+        {
+            FieldStatusEnum fieldStatus = FieldStatus;
+
+            FieldStatus = FieldStatusEnum.Dummy;
+            FieldStatus = fieldStatus;
+        }
 
         #endregion
     }
