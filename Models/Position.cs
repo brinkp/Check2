@@ -35,6 +35,7 @@ namespace Check.Models
 
         public enum FieldContentEnum
         {
+            Dummy         ,
             Empty         ,
             WhiteMan      ,
             BlackMan      ,
@@ -60,7 +61,7 @@ namespace Check.Models
         private readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
 
         private readonly int             [] _takes = new int              [MaxNumberOfTakes ];
-        private readonly int             [] _vias  = new int              [MaxNumberOfTakes ];
+      //private readonly int             [] _vias  = new int              [MaxNumberOfTakes ];
 
         #endregion
 
@@ -320,7 +321,7 @@ namespace Check.Models
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackManTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -338,7 +339,7 @@ namespace Check.Models
                        _fields[fieldIndexTakes     ] = FieldContentEnum.BlackKingTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -444,7 +445,7 @@ namespace Check.Models
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteManTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -462,7 +463,7 @@ namespace Check.Models
                        _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteKingTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                       _vias  [_numberOfTakesInMove] = fieldIndexTo   ;
+                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -605,20 +606,24 @@ namespace Check.Models
 
         #endregion
 
-        public void Move(int fromFieldIndex, int toFieldIndex)
+        #region Public methods
+
+        public void Move(Move move)
         {
-           _fields[  toFieldIndex] = _fields[fromFieldIndex];
-           _fields[fromFieldIndex] =  FieldContentEnum.Empty;
+            _fields[move.  ToField] = _fields[move.FromField];
+            _fields[move.FromField] =  FieldContentEnum.Empty;
 
-           if (_takes?.Length > 0)
-           {
-               foreach (int take in _takes)
-               {
-                   _fields[take] = FieldContentEnum.Empty;
-               }
-           }
+            if (_takes?.Length > 0)
+            {
+                for (int index = 0; index < move.NumberOfTakes; index += 1)
+                {
+                    _fields[_takes[index]] = FieldContentEnum.Empty;
+                }
+            }
 
-           WhiteOrBlacksTurn = (WhiteOrBlacksTurn == TurnEnum.White) ? TurnEnum.Black : TurnEnum.White;
+            WhiteOrBlacksTurn = (WhiteOrBlacksTurn == TurnEnum.White) ? TurnEnum.Black : TurnEnum.White;
         }
+
+        #endregion
     }
 }

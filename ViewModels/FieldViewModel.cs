@@ -65,6 +65,17 @@ namespace Check.ViewModels
 
                 return (Position.FieldContentEnum) PropertyInfo.GetValue(PositionViewModel);
             }
+            set
+            {
+                Debug.Assert(PropertyInfo != null);
+
+                if (FieldContent != value)
+                {
+                    PropertyInfo.SetValue(PositionViewModel, value);
+
+                    OnPropertyChanged();
+                }
+            }
         }
 
         #endregion
@@ -81,10 +92,14 @@ namespace Check.ViewModels
 
         public void Refresh()
         {
-            FieldStatusEnum fieldStatus = FieldStatus;
+            Position.FieldContentEnum fieldContent = FieldContent;
+                     FieldStatusEnum  fieldStatus  = FieldStatus ;
 
-            FieldStatus = FieldStatusEnum.Dummy;
-            FieldStatus = fieldStatus;
+            FieldContent = Position.FieldContentEnum.Dummy;
+            FieldStatus  =          FieldStatusEnum .Dummy;
+
+            FieldContent = fieldContent;
+            FieldStatus  = fieldStatus ;
         }
 
         #endregion

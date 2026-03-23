@@ -30,14 +30,14 @@ namespace Check.Views
             FieldViewModel    = fieldViewModel   ;
             FieldIndex        = fieldIndex       ;
 
-            Ellipse      = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
+            Ellipse           = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
 
-            Ellipse.SetBinding(Shape.  FillProperty, new Binding { Source = fieldViewModel, Converter = new FieldToColorConverterFill  () } ) ;
-            Ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Converter = new FieldToColorConverterStroke() } ) ;
+            Ellipse.SetBinding(Shape.  FillProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterFill  () } ) ;
+            Ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterStroke() } ) ;
 
             Content = Ellipse;
 
-            DataContext  = fieldViewModel;
+            DataContext       = fieldViewModel;
         }
 
         #endregion
@@ -173,9 +173,9 @@ namespace Check.Views
 
                 Debug.Assert(targetType == typeof(Brush));
 
-                if (value is FieldViewModel fieldViewModel)
+                if (value is Position.FieldContentEnum fieldContent)
                 {
-                    switch (fieldViewModel.FieldContent)
+                    switch (fieldContent)
                     {
                         case Position.FieldContentEnum.Empty:
                             result = Brushes.Transparent;
@@ -222,9 +222,9 @@ namespace Check.Views
 
                 Debug.Assert(targetType == typeof(Brush));
 
-                if (value is FieldViewModel fieldViewModel)
+                if (value is Position.FieldContentEnum fieldContent)
                 {
-                    switch (fieldViewModel.FieldContent)
+                    switch (fieldContent)
                     {
                         case Position.FieldContentEnum.Empty:
                             result = Brushes.Transparent;

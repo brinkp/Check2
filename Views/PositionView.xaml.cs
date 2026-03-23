@@ -182,7 +182,7 @@ namespace Check.Views
                             {
                                 moved = true;
 
-                                Position.Move(StartFieldIndex, fieldIndex);
+                                Position.Move(move);
 
                                 Refresh();
                                 break;
