@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Check.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Check.ViewModels;
+using System.Reflection;
 
 #if RELEASE
 using System.Windows;
@@ -357,13 +358,16 @@ namespace Check.Models
                             {
                                 hadOne  = true ;
 
-                                //if (_numberOfTakesInMoveMax < _numberOfTakesInMove) { _numberOfMoves = 0; }
-                                //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                                //{
-                                //    _numberOfTakesInMoveMax = _numberOfTakesInMove;
+                                if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
+                                {
+                                    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+                                    _numberOfMoves           =                    0;
+                                }
 
+                                if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                                {
                                     _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                                //}
+                                }
                             }
                         }
                         break;
@@ -479,14 +483,18 @@ namespace Check.Models
                         {
                             if (hadOne == false)
                             {
-                                hadOne = true;
+                                hadOne  = true ;
 
-                                //if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                                //{
-                                //    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+                                if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
+                                {
+                                    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+                                    _numberOfMoves           =                    0;
+                                }
 
-                                _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                                //}
+                                if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                                {
+                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
+                                }
                             }
                         }
                         break;
@@ -610,18 +618,31 @@ namespace Check.Models
 
         public void Move(Move move)
         {
-            _fields[move.  ToField] = _fields[move.FromField];
-            _fields[move.FromField] =  FieldContentEnum.Empty;
+            int toFieldIndex = move.ToField;
 
-            if (_takes?.Length > 0)
+           _fields[toFieldIndex  ] = _fields[move.FromField];
+           _fields[move.FromField] =  FieldContentEnum.Empty;
+
+            if (move.TakeFields?.Count > 0)
             {
-                for (int index = 0; index < move.NumberOfTakes; index += 1)
+                foreach (int takeIndex in move.TakeFields)
                 {
-                    _fields[_takes[index]] = FieldContentEnum.Empty;
+                   _fields[takeIndex] = FieldContentEnum.Empty;
                 }
             }
 
-            WhiteOrBlacksTurn = (WhiteOrBlacksTurn == TurnEnum.White) ? TurnEnum.Black : TurnEnum.White;
+            if (WhiteOrBlacksTurn == TurnEnum.White)
+            {
+                switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: _fields[toFieldIndex] = FieldContentEnum.WhiteKing; break; }
+
+                WhiteOrBlacksTurn = TurnEnum.Black;
+            }
+            else
+            {
+                switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: _fields[toFieldIndex] = FieldContentEnum.BlackKing; break; }
+
+                WhiteOrBlacksTurn = TurnEnum.White;
+            }
         }
 
         #endregion

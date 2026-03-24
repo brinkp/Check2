@@ -42,21 +42,6 @@ namespace Check.ViewModels
 
         public PositionViewModel PositionViewModel { get;      }
 
-        private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;
-        public  FieldStatusEnum  FieldStatus
-        {
-            get => _fieldStatus;
-            set
-            {
-                if (_fieldStatus != value)
-                {
-                    _fieldStatus  = value;
-
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public Position.FieldContentEnum FieldContent
         {
             get
@@ -78,6 +63,21 @@ namespace Check.ViewModels
             }
         }
 
+        private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;
+        public  FieldStatusEnum  FieldStatus
+        {
+            get => _fieldStatus;
+            set
+            {
+                if (_fieldStatus != value)
+                {
+                    _fieldStatus  = value;
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Private properties
@@ -88,18 +88,12 @@ namespace Check.ViewModels
 
         #endregion
 
-        #region Private methods
+        #region Public methods
 
         public void Refresh()
         {
-            Position.FieldContentEnum fieldContent = FieldContent;
-                     FieldStatusEnum  fieldStatus  = FieldStatus ;
-
-            FieldContent = Position.FieldContentEnum.Dummy;
-            FieldStatus  =          FieldStatusEnum .Dummy;
-
-            FieldContent = fieldContent;
-            FieldStatus  = fieldStatus ;
+            OnPropertyChanged(nameof(FieldContent));
+            OnPropertyChanged(nameof(FieldStatus ));
         }
 
         #endregion
