@@ -55,8 +55,8 @@ namespace Check.Views
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel,                 fieldIndex);
-                    FieldView      fieldView      = /* FieldViews     [fieldIndex - 1] = */ new FieldView     (this, positionViewModel, fieldViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel, fieldIndex);
+                    FieldView      fieldView      = /* FieldViews     [fieldIndex - 1] = */ new FieldView     (this,    fieldViewModel, fieldIndex);
 
                     border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill } );
 
@@ -215,96 +215,6 @@ namespace Check.Views
             }
         }
 
-        //protected override void OnMouseMove(MouseEventArgs ea)
-        //{
-        //    base.OnPreviewMouseMove(ea);
-
-        //    if (GetFieldViewIndexAndFieldViewModel(ea.GetPosition(this), out int fieldIndex, out FieldViewModel fieldViewModel))
-        //    {
-        //        int fieldViewIndex1 = fieldIndex + 1;
-
-        //        switch (PositionStatus)
-        //        {
-        //            case PositionViewModel.PositionStatusEnum.Default:
-        //                if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.Default;
-
-        //                MouseOverFieldViewModel = fieldViewModel;
-
-        //                foreach (Move move in Position.PossibleMoves)
-        //                {
-        //                    if (move.FromField == fieldViewIndex1)
-        //                    {
-        //                        MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
-
-        //                        PositionStatus = PositionViewModel.PositionStatusEnum.MoveStarted;
-        //                        break;
-        //                    }
-        //                }
-        //                break;
-        //            case PositionViewModel.PositionStatusEnum.MoveStarted:
-        //                foreach (Move move in Position.PossibleMoves)
-        //                {
-        //                    if (move.ToField == fieldViewIndex1)
-        //                    {
-        //                        MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
-        //                        break;
-        //                    }
-        //                }
-        //                break;
-        //            case PositionViewModel.PositionStatusEnum.TakeInProgress:
-        //                break;
-        //            default:
-        //                throw new ArgumentOutOfRangeException(nameof(PositionStatus("), "Invalid switch value");
-        //        }
-        //    }
-
-        //    ea.Handled = true;
-        //}
-
-        //protected override void OnMouseDown(MouseButtonEventArgs ea)
-        //{
-        //    base.OnPreviewMouseMove(ea);
-
-        //    if (GetFieldViewIndexAndFieldViewModel(ea.GetPosition(this), out int fieldIndex, out FieldViewModel fieldViewModel))
-        //    {
-        //        int fieldViewIndex1 = fieldIndex + 1;
-
-        //        switch (PositionStatus)
-        //        {
-        //            case PositionViewModel.PositionStatusEnum.Default:
-        //                if (MouseOverFieldViewModel != null) MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.Default;
-
-        //                MouseOverFieldViewModel = FieldViewModels[(int) fieldIndex];
-
-        //                foreach (Move move in Position.PossibleMoves)
-        //                {
-        //                    if (move.FromField == fieldViewIndex1)
-        //                    {
-        //                        MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
-        //                        break;
-        //                    }
-        //                }
-        //                break;
-        //            case PositionViewModel.PositionStatusEnum.MoveStarted:
-        //                foreach (Move move in Position.PossibleMoves)
-        //                {
-        //                    if (move.ToField == fieldViewIndex1)
-        //                    {
-        //                        MouseOverFieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
-        //                        break;
-        //                    }
-        //                }
-        //                break;
-        //            case PositionViewModel.PositionStatusEnum.TakeInProgress:
-        //                break;
-        //            default:
-        //                throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
-        //        }
-        //    }
-
-        //    ea.Handled = true;
-        //}
-
         #endregion
 
         #region Public properties
@@ -342,32 +252,6 @@ namespace Check.Views
         #endregion
 
         #region Private methods
-
-        private bool GetFieldViewIndexAndFieldViewModel(Point location, out int fieldIndex, out FieldViewModel fieldViewModel)
-        {
-            bool result    = false;
-
-            fieldIndex     =     0;
-            fieldViewModel =  null;
-
-            int  row    = (int) location.Y / 50;
-            int  column = (int) location.X / 50;
-
-            bool    rowIsEven = row    % 2 == 0;
-            bool columnIsEven = column % 2 == 0;
-
-            if (rowIsEven != columnIsEven)
-            {
-                fieldIndex     = row * 5 + column / 2;
-                fieldViewModel = FieldViewModels[fieldIndex];
-
-                Debug.Assert(fieldViewModel != null);
-
-                result         = fieldViewModel != null;
-            }
-
-            return result;
-        }
 
         private void Refresh()
         {

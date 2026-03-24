@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 
 #if RELEASE
 using System.Windows;
@@ -36,7 +35,6 @@ namespace Check.Models
 
         public enum FieldContentEnum
         {
-            Dummy         ,
             Empty         ,
             WhiteMan      ,
             BlackMan      ,
@@ -60,9 +58,7 @@ namespace Check.Models
 
         private readonly FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
         private readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
-
-        private readonly int             [] _takes = new int              [MaxNumberOfTakes ];
-      //private readonly int             [] _vias  = new int              [MaxNumberOfTakes ];
+        private readonly int             [] _takes  = new int             [MaxNumberOfTakes ];
 
         #endregion
 
@@ -99,15 +95,15 @@ namespace Check.Models
 
         #region Field properties
 
-        public FieldContentEnum F01 { get => _fields[ 1]; set => _fields[ 1] = value; }
-        public FieldContentEnum F02 { get => _fields[ 2]; set => _fields[ 2] = value; }
-        public FieldContentEnum F03 { get => _fields[ 3]; set => _fields[ 3] = value; }
-        public FieldContentEnum F04 { get => _fields[ 4]; set => _fields[ 4] = value; }
-        public FieldContentEnum F05 { get => _fields[ 5]; set => _fields[ 5] = value; }
-        public FieldContentEnum F06 { get => _fields[ 6]; set => _fields[ 6] = value; }
-        public FieldContentEnum F07 { get => _fields[ 7]; set => _fields[ 7] = value; }
-        public FieldContentEnum F08 { get => _fields[ 8]; set => _fields[ 8] = value; }
-        public FieldContentEnum F09 { get => _fields[ 9]; set => _fields[ 9] = value; }
+        public FieldContentEnum F01 { get => _fields[1]; set => _fields[1] = value; }
+        public FieldContentEnum F02 { get => _fields[2]; set => _fields[2] = value; }
+        public FieldContentEnum F03 { get => _fields[3]; set => _fields[3] = value; }
+        public FieldContentEnum F04 { get => _fields[4]; set => _fields[4] = value; }
+        public FieldContentEnum F05 { get => _fields[5]; set => _fields[5] = value; }
+        public FieldContentEnum F06 { get => _fields[6]; set => _fields[6] = value; }
+        public FieldContentEnum F07 { get => _fields[7]; set => _fields[7] = value; }
+        public FieldContentEnum F08 { get => _fields[8]; set => _fields[8] = value; }
+        public FieldContentEnum F09 { get => _fields[9]; set => _fields[9] = value; }
         public FieldContentEnum F10 { get => _fields[10]; set => _fields[10] = value; }
         public FieldContentEnum F11 { get => _fields[11]; set => _fields[11] = value; }
         public FieldContentEnum F12 { get => _fields[12]; set => _fields[12] = value; }
@@ -254,62 +250,62 @@ namespace Check.Models
 
             switch (fieldIndexFrom)
             {
-                case  1:                                                                                                                                                                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  1,  7,  12); break;
-                case  2:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  2,  7, 11); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  2,  8,  13); break;
-                case  3:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  3,  8, 12); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  3,  9,  14); break;
-                case  4:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  4,  9, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  4, 10,  15); break;
-                case  5:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  5, 10, 14);                                                                        break;
-                case  6:                                                                                                                                                                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  6, 11,  17); break;
-                case  7:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 11, 16); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 12,  18); break;
-                case  8:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 12, 17); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 13,  19); break;
-                case  9:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 13, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 14,  20); break;
-                case 10:                                                                                                                                             GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 10, 14, 19);                                                                        break;
-                case 11:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  7,  2);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11, 17,  22); break;
-                case 12: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  7,  1); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  8,  3); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 17, 21); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 18,  23); break;
-                case 13: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  8,  2); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  9,  4); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 18, 22); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 19,  24); break;
-                case 14: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14,  9,  3); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 10,  5); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 19, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 20,  25); break;
-                case 15: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 15, 10,  4);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 15, 20, 24);                                                                        break;
-                case 16:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 16, 11,  7);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 16, 21,  27); break;
-                case 17: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 11,  6); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 12,  8); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 21, 26); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 22,  28); break;
-                case 18: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 12,  7); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 13,  9); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 22, 27); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 23,  29); break;
-                case 19: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 13,  8); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 14, 10); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 23, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 24,  30); break;
-                case 20: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 14,  9);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 24, 29);                                                                        break;
-                case 21:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 17, 12);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 27,  32); break;
-                case 22: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 17, 11); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 18, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 27, 31); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 28,  33); break;
-                case 23: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 18, 12); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 19, 14); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 28, 32); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 29,  34); break;
-                case 24: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 19, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 20, 15); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 29, 33); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 30,  35); break;
-                case 25: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 25, 20, 14);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 25, 30, 34);                                                                        break;
-                case 26:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 26, 21, 17);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 26, 31,  37); break;
-                case 27: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 21, 16); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 22, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 31, 36); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 32,  38); break;
-                case 28: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 22, 17); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 23, 19); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 32, 37); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 33,  39); break;
-                case 29: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 23, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 24, 20); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 33, 38); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 34,  40); break;
-                case 30: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 24, 19);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 34, 39);                                                                        break;
-                case 31:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 27, 22);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 37,  42); break;
-                case 32: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 27, 21); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 28, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 37, 41); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 38,  43); break;
-                case 33: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 28, 22); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 29, 24); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 38, 42); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 39,  44); break;
-                case 34: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 29, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 30, 25); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 39, 43); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 40,  45); break;
-                case 35: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 35, 30, 24);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 35, 40, 44);                                                                        break;
-                case 36:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 36, 31, 27);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 36, 41,  47); break;
-                case 37: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 31, 26); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 32, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 41, 46); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 42,  48); break;
-                case 38: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 32, 27); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 33, 29); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 42, 47); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 43,  49); break;
-                case 39: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 33, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 34, 30); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 43, 48); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 44,  50); break;
-                case 40: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 34, 29);                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 44, 49);                                                                        break;
-                case 41:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 37, 32);                                                                                                                                              break;
-                case 42: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 37, 31); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 38, 33);                                                                                                                                              break;
-                case 43: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 38, 32); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 39, 34);                                                                                                                                              break;
-                case 44: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 39, 33); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 40, 35);                                                                                                                                              break;
-                case 45: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 45, 40, 34);                                                                                                                                                                                                                    break;
-                case 46:                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 46, 41, 37);                                                                                                                                              break;
-                case 47: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 47, 41, 36); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 47, 42, 38);                                                                                                                                              break;
-                case 48: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 48, 42, 37); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 48, 43, 39);                                                                                                                                              break;
-                case 49: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 49, 43, 38); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 49, 44, 40);                                                                                                                                              break;
-                case 50: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 50, 44, 39);                                                                                                                                                                                                                    break;
+                case  1:                                                                                                                                                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7,  12); break;
+                case  2:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 11); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8,  13); break;
+                case  3:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 12); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9,  14); break;
+                case  4:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 10,  15); break;
+                case  5:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 10, 14);                                                                    break;
+                case  6:                                                                                                                                                                                                       GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  17); break;
+                case  7:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11, 16); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  18); break;
+                case  8:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 17); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  19); break;
+                case  9:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14,  20); break;
+                case 10:                                                                                                                                     GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 19);                                                                    break;
+                case 11:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7,  2);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17,  22); break;
+                case 12: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  7,  1); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8,  3); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 21); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18,  23); break;
+                case 13: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  8,  2); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9,  4); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 22); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19,  24); break;
+                case 14: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd,  9,  3); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 10,  5); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20,  25); break;
+                case 15: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 10,  4);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 24);                                                                    break;
+                case 16:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  7);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21,  27); break;
+                case 17: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  6); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  8); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 26); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22,  28); break;
+                case 18: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  7); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  9); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 27); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23,  29); break;
+                case 19: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  8); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 10); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24,  30); break;
+                case 20: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 14,  9);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 29);                                                                    break;
+                case 21:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 12);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27,  32); break;
+                case 22: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 11); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 31); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28,  33); break;
+                case 23: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 12); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 14); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 32); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29,  34); break;
+                case 24: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 13); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 15); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 33); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30,  35); break;
+                case 25: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 14);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 34);                                                                    break;
+                case 26:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 17);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31,  37); break;
+                case 27: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 16); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 36); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32,  38); break;
+                case 28: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 17); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 19); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 37); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33,  39); break;
+                case 29: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 18); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 20); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 38); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34,  40); break;
+                case 30: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 19);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 39);                                                                    break;
+                case 31:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 22);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37,  42); break;
+                case 32: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 21); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 41); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38,  43); break;
+                case 33: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 22); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 24); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 42); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39,  44); break;
+                case 34: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 23); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 25); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 43); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40,  45); break;
+                case 35: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 24);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 44);                                                                    break;
+                case 36:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 27);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 41,  47); break;
+                case 37: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 26); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 46); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42,  48); break;
+                case 38: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 27); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 29); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 47); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43,  49); break;
+                case 39: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 28); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 30); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 48); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44,  50); break;
+                case 40: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 29);                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 49);                                                                    break;
+                case 41:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 32);                                                                                                                                      break;
+                case 42: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 31); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 33);                                                                                                                                      break;
+                case 43: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 32); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 34);                                                                                                                                      break;
+                case 44: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 33); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 35);                                                                                                                                      break;
+                case 45: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 34);                                                                                                                                                                                                        break;
+                case 46:                                                                   GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 37);                                                                                                                                      break;
+                case 47: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 36); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 38);                                                                                                                                      break;
+                case 48: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 37); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 39);                                                                                                                                      break;
+                case 49: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 38); GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 40);                                                                                                                                      break;
+                case 50: GetTakeWhite(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 39);                                                                                                                                                                                                        break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fieldIndexFrom), "Invalid switch value");
             }
         }
 
-        private void GetTakeWhite(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexTakes, int fieldIndexTo)
+        private void GetTakeWhite(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
         {
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
@@ -318,11 +314,9 @@ namespace Check.Models
                     case FieldContentEnum.BlackMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty        ;
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackManTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.BlackManTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -330,17 +324,14 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackMan;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhiteMan;
+                       _fields[fieldIndexTakes] = FieldContentEnum.BlackMan;
                         break;
                     case FieldContentEnum.BlackKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackKingTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKingTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -348,8 +339,7 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.BlackKing;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.WhiteMan ;
+                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKing;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -381,62 +371,62 @@ namespace Check.Models
 
             switch (fieldIndexFrom)
             {
-                case  1: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  1,  7, 12);                                                                                                                                                                                                                    break;
-                case  2: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  2,  8, 13); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  2,  7, 11);                                                                                                                                              break;
-                case  3: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  3,  9, 14); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  3,  8, 12);                                                                                                                                              break;
-                case  4: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  4, 10, 15); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  4,  9, 13);                                                                                                                                              break;
-                case  5:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  5, 10, 14);                                                                                                                                              break;
-                case  6: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  6, 11, 17);                                                                                                                                                                                                                    break;
-                case  7: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 12, 18); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 11, 16);                                                                                                                                              break;
-                case  8: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 13, 19); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 12, 17);                                                                                                                                              break;
-                case  9: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 14, 20); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 13, 18);                                                                                                                                              break;
-                case 10:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 10, 14, 19);                                                                                                                                              break;
-                case 11: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11, 17, 22);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  7,  2);                                                                        break;
-                case 12: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 18, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 17, 21); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  8,  3); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  7,   1); break;
-                case 13: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 19, 24); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 18, 22); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  9,  4); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  8,   2); break;
-                case 14: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 20, 25); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 19, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 10,  5); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14,  9,   3); break;
-                case 15:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 15, 20, 24);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 15, 10,   4); break;
-                case 16: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 16, 21, 27);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 16, 11,  7);                                                                        break;
-                case 17: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 22, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 21, 26); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 12,  8); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 11,   6); break;
-                case 18: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 23, 29); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 22, 27); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 13,  9); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 12,   7); break;
-                case 19: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 24, 30); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 23, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 14, 10); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 13,   8); break;
-                case 20:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 24, 29);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 14,   9); break;
-                case 21: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 27, 32);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 17, 12);                                                                        break;
-                case 22: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 28, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 27, 31); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 18, 13); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 17,  11); break;
-                case 23: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 29, 34); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 28, 32); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 19, 14); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 18,  12); break;
-                case 24: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 30, 35); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 29, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 20, 15); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 19,  13); break;
-                case 25:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 25, 30, 34);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 25, 20,  14); break;
-                case 26: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 26, 31, 37);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 26, 21, 17);                                                                        break;
-                case 27: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 32, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 31, 36); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 22, 18); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 21,  16); break;
-                case 28: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 33, 39); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 32, 37); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 23, 19); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 22,  17); break;
-                case 29: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 34, 40); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 33, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 24, 20); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 23,  18); break;
-                case 30:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 34, 39);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 24,  19); break;
-                case 31: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 37, 42);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 27, 22);                                                                        break;
-                case 32: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 38, 43); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 37, 41); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 28, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 27,  21); break;
-                case 33: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 39, 44); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 38, 42); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 29, 24); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 28,  22); break;
-                case 34: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 40, 45); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 39, 43); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 30, 25); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 29,  23); break;
-                case 35:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 35, 40, 44);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 35, 30,  24); break;
-                case 36: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 36, 41, 47);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 36, 31, 27);                                                                        break;
-                case 37: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 42, 48); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 41, 46); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 32, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 31,  26); break;
-                case 38: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 43, 49); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 42, 47); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 33, 29); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 32,  27); break;
-                case 39: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 44, 50); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 43, 48); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 34, 30); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 33,  28); break;
-                case 40:                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 44, 49);                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 34,  29); break;
-                case 41:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 37, 32);                                                                        break;
-                case 42:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 38, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 37,  31); break;
-                case 43:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 39, 34); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 38,  32); break;
-                case 44:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 40, 35); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 39,  33); break;
-                case 45:                                                                                                                                                                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 45, 40,  34); break;
-                case 46:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 46, 41, 37);                                                                        break;
-                case 47:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 47, 42, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 47, 41,  36); break;
-                case 48:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 48, 43, 39); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 48, 42,  37); break;
-                case 49:                                                                                                                                             GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 49, 44, 40); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 49, 43,  38); break;
-                case 50:                                                                                                                                                                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 50, 44,  39); break;
+                case  1: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 12);                                                                                                                                                                                                        break;
+                case  2: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 13); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7, 11);                                                                                                                                      break;
+                case  3: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 14); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8, 12);                                                                                                                                      break;
+                case  4: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 10, 15); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9, 13);                                                                                                                                      break;
+                case  5:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 10, 14);                                                                                                                                      break;
+                case  6: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11, 17);                                                                                                                                                                                                        break;
+                case  7: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 18); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11, 16);                                                                                                                                      break;
+                case  8: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 19); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12, 17);                                                                                                                                      break;
+                case  9: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 20); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13, 18);                                                                                                                                      break;
+                case 10:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 19);                                                                                                                                      break;
+                case 11: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 22);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7,  2);                                                                    break;
+                case 12: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 21); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8,  3); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  7,   1); break;
+                case 13: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 24); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 22); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9,  4); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  8,   2); break;
+                case 14: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 25); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 10,  5); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd,  9,   3); break;
+                case 15:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 24);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 10,   4); break;
+                case 16: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 27);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,  7);                                                                    break;
+                case 17: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 26); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,  8); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 11,   6); break;
+                case 18: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 29); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 27); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,  9); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 12,   7); break;
+                case 19: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 30); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14, 10); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 13,   8); break;
+                case 20:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 29);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 14,   9); break;
+                case 21: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 32);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17, 12);                                                                    break;
+                case 22: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 31); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18, 13); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 17,  11); break;
+                case 23: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 34); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 32); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19, 14); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 18,  12); break;
+                case 24: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 35); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20, 15); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 19,  13); break;
+                case 25:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 34);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 20,  14); break;
+                case 26: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 37);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21, 17);                                                                    break;
+                case 27: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 36); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22, 18); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 21,  16); break;
+                case 28: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 39); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 37); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23, 19); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 22,  17); break;
+                case 29: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 40); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24, 20); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 23,  18); break;
+                case 30:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 39);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 24,  19); break;
+                case 31: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 42);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27, 22);                                                                    break;
+                case 32: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 43); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 41); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28, 23); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 27,  21); break;
+                case 33: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 44); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 42); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29, 24); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 28,  22); break;
+                case 34: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 45); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 43); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30, 25); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 29,  23); break;
+                case 35:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 44);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 30,  24); break;
+                case 36: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 47);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31, 27);                                                                    break;
+                case 37: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 48); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 46); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32, 28); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 31,  26); break;
+                case 38: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 49); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 47); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33, 29); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 32,  27); break;
+                case 39: GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 50); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 48); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34, 30); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 33,  28); break;
+                case 40:                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 49);                                                                   GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 34,  29); break;
+                case 41:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37, 32);                                                                    break;
+                case 42:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38, 33); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 37,  31); break;
+                case 43:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39, 34); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 38,  32); break;
+                case 44:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40, 35); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 39,  33); break;
+                case 45:                                                                                                                                                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 40,  34); break;
+                case 46:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 41, 37);                                                                    break;
+                case 47:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42, 38); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 41,  36); break;
+                case 48:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43, 39); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 42,  37); break;
+                case 49:                                                                                                                                     GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44, 40); GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 43,  38); break;
+                case 50:                                                                                                                                                                                                       GetTakeBlack(ref hadOne, fieldIndexStart, fieldIndexEnd, 44,  39); break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fieldIndexFrom), "Invalid switch value");
             }
         }
 
-        private void GetTakeBlack(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int fieldIndexTakes, int fieldIndexTo)
+        private void GetTakeBlack(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
         {
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
@@ -445,11 +435,9 @@ namespace Check.Models
                     case FieldContentEnum.WhiteMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty        ;
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteManTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteManTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -457,17 +445,14 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteMan;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackMan;
+                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteMan;
                         break;
                     case FieldContentEnum.WhiteKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.Empty         ;
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteKingTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKingTaken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
-                     //_vias  [_numberOfTakesInMove] = fieldIndexTo   ;
 
                        _numberOfTakesInMove += 1;
 
@@ -475,8 +460,7 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes     ] = FieldContentEnum.WhiteKing;
-                     //_fields[fieldIndexFrom      ] = FieldContentEnum.BlackMan ;
+                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKing;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -493,7 +477,7 @@ namespace Check.Models
 
                                 if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
                                 {
-                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
+                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes);
                                 }
                             }
                         }

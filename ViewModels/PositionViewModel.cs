@@ -5,6 +5,8 @@ namespace Check.ViewModels
 {
     internal class PositionViewModel : BaseViewModel
     {
+        private readonly Position _position;
+
         #region ENumerations
 
         public enum PositionStatusEnum
@@ -13,12 +15,6 @@ namespace Check.ViewModels
             MoveStarted,
             TakeInProgress
         }
-
-        #endregion
-
-        #region Fields
-
-        private readonly Position _position;
 
         #endregion
 

@@ -10,7 +10,6 @@ namespace Check.ViewModels
 
         internal enum FieldStatusEnum
         {
-            Dummy,
             Default,
             MouseOver,
             CanStart,

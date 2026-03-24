@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -15,34 +16,42 @@ namespace Check.Views
     {
         #region Constructors
 
-        internal FieldView(PositionView positionView, PositionViewModel positionViewModel, FieldViewModel fieldViewModel, int fieldIndex)
+        internal FieldView(PositionView positionView, FieldViewModel fieldViewModel, int fieldIndex)
         {
             InitializeComponent();
 
             Debug.Assert(positionView      != null);
-            Debug.Assert(positionViewModel != null);
             Debug.Assert(fieldViewModel    != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
             PositionView      = positionView     ;
-            PositionViewModel = positionViewModel;
+          //PositionViewModel = positionViewModel;
             FieldViewModel    = fieldViewModel   ;
             FieldIndex        = fieldIndex       ;
 
-            Ellipse           = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, Stroke = new SolidColorBrush(Colors.Black), StrokeThickness = 0.5d };
+            Grid    grid      = new Grid    { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch } ;
+            Ellipse ellipse   = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, StrokeThickness = 0.5d };
 
-            Ellipse.SetBinding(Shape.  FillProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterFill  () } ) ;
-            Ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterStroke() } ) ;
+            ellipse.SetBinding(Shape.  FillProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterFill      () } ) ;
+            ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterStroke    () } ) ;
 
-            Content = Ellipse;
+            grid.Children.Add(ellipse);
+
+            ellipse           = new Ellipse { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch, StrokeThickness = 1.0d, Margin = new Thickness(5d) };
+
+            ellipse.SetBinding(Shape.StrokeProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath("FieldContent"), Converter = new FieldToColorConverterStrokeKing() } ) ;
+
+            grid.Children.Add(ellipse);
+
+            Content           = grid;
 
             DataContext       = fieldViewModel;
         }
 
         #endregion
 
-        #region Dragging
+        #region Event handlers
 
         protected override void OnMouseEnter(MouseEventArgs ea)
         {
@@ -71,95 +80,13 @@ namespace Check.Views
             ea.Handled = true;
         }
 
-        //protected override void OnMouseDown(MouseButtonEventArgs ea)
-        //{
-        //    base.OnMouseDown(ea);
-
-        //  //if ((ea.LeftButton == MouseButtonState.Pressed) && (DragInProgress == false))
-        //    if (DragInProgress == false)
-        //    {
-        //        DragInProgress  = true;
-        //        DragFieldIndex  = FieldIndex;
-        //        DragStartPoint  = ea.GetPosition(PositionView);
-        //        DragStartZIndex = Panel.GetZIndex(Ellipse);
-
-        //        Panel.SetZIndex(this, int.MaxValue);
-
-        //        CaptureMouse();
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
-        //protected override void OnMouseMove(MouseEventArgs ea)
-        //{
-        //    base.OnMouseMove(ea);
-
-        //    if (DragInProgress)
-        //    {
-        //        Point newPosition = ea.GetPosition(PositionView);
-
-        //        Ellipse.RenderTransform = new TranslateTransform(newPosition.X - DragStartPoint.X, newPosition.Y - DragStartPoint.Y);
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
-        //protected override void OnMouseUp(MouseButtonEventArgs ea)
-        //{
-        //    base.OnMouseUp(ea);
-
-        //    if (DragInProgress)
-        //    {
-        //        OnMouseUp();
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
-        //protected override void OnLostMouseCapture(MouseEventArgs ea)
-        //{
-        //    base.OnLostMouseCapture(ea);
-
-        //    if (DragInProgress)
-        //    {
-        //        OnMouseUp();
-
-        //        ea.Handled = true;
-        //    }
-        //}
-
-        //private void OnMouseUp()
-        //{
-        //    Ellipse.RenderTransform = null;
-
-        //    Panel.SetZIndex(this, DragStartZIndex);
-
-        //    // Do this...
-        //    DragInProgress = false;
-        //    DragFieldIndex = 0    ;
-
-        //    // ... before this
-        //    ReleaseMouseCapture();
-        //}
-
         #endregion
 
         #region Private properties
 
-        private PositionView      PositionView       { get;      }
-        private PositionViewModel PositionViewModel  { get;      }
-
-        private FieldViewModel    FieldViewModel     { get;      }
-        private int               FieldIndex         { get;      }
-
-        private Ellipse           Ellipse            { get;      }
-
-      //private FieldViewModel    MouseOverFieldView { get => PositionView.MouseOverFieldViewModel; set => PositionView.MouseOverFieldViewModel = value; }
-      //private bool              DragInProgress     { get => PositionView.DragInProgress         ; set => PositionView.DragInProgress          = value; }
-      //private int               DragFieldIndex     { get => PositionView.DragFieldIndex         ; set => PositionView.DragFieldIndex          = value; }
-        private Point             DragStartPoint     { get; set; }
-        private int               DragStartZIndex    { get; set; }
+        private PositionView   PositionView   { get; }
+        private FieldViewModel FieldViewModel { get; }
+        private int            FieldIndex     { get; }
 
         #endregion
 
@@ -237,6 +164,51 @@ namespace Check.Views
                 else
                 {
                     result = Brushes.White;
+                }
+
+                return result;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region FieldToColorConverterStrokeKing
+
+        internal class FieldToColorConverterStrokeKing : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                Brush result;
+
+                Debug.Assert(targetType == typeof(Brush));
+
+                if (value is Position.FieldContentEnum fieldContent)
+                {
+                    switch (fieldContent)
+                    {
+                        case Position.FieldContentEnum.Empty:
+                        case Position.FieldContentEnum.WhiteMan:
+                        case Position.FieldContentEnum.BlackMan:
+                            result = Brushes.Transparent;
+                            break;
+                        case Position.FieldContentEnum.WhiteKing:
+                            result = Brushes.Black;
+                            break;
+                        case Position.FieldContentEnum.BlackKing:
+                            result = Brushes.White;
+                            break;
+                        default:
+                            throw new Exception("Invalid Field value");
+                    }
+                }
+                else
+                {
+                    result = Brushes.Transparent;
                 }
 
                 return result;
