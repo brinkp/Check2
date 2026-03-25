@@ -4,15 +4,15 @@ using System.Reflection;
 
 namespace Check.ViewModels
 {
-    internal class FieldViewModel : BaseViewModel
+    internal unsafe class FieldViewModel : BaseViewModel
     {
         #region Enumerations
 
         internal enum FieldStatusEnum
         {
             Default,
-            MouseOver,
             CanStart,
+            MouseOverCanStart,
             Started,
             CanBeTaken,
             Taken
@@ -22,24 +22,48 @@ namespace Check.ViewModels
 
         #region Constructors
 
-        public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex)
+        public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex, Position.FieldContentEnum* fieldContent)
         {
             Debug.Assert(positionViewModel != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
+            Debug.Assert(fieldContent != null);
+
             PositionViewModel = positionViewModel;
 
           //FieldIndex        = fieldIndex;
+
+           _fieldContent      = fieldContent;
 
             PropertyInfo      = typeof(PositionViewModel).GetProperty("F" + fieldIndex.ToString("00"));
         }
 
         #endregion
 
+        #region Fields
+
+        private readonly Position.FieldContentEnum* _fieldContent;
+
+        #endregion
+
         #region Public properties
 
-        public PositionViewModel PositionViewModel { get;      }
+        public PositionViewModel PositionViewModel { get; }
+
+        //public Position.FieldContentEnum FieldContent
+        //{
+        //    get => *_fieldContent;
+        //    set
+        //    {
+        //        if (FieldContent != value)
+        //        {
+        //          *_fieldContent  = value;
+
+        //            OnPropertyChanged();
+        //        }
+        //    }
+        //}
 
         public Position.FieldContentEnum FieldContent
         {
@@ -47,7 +71,7 @@ namespace Check.ViewModels
             {
                 Debug.Assert(PropertyInfo != null);
 
-                return (Position.FieldContentEnum) PropertyInfo.GetValue(PositionViewModel);
+                return (Position.FieldContentEnum)PropertyInfo.GetValue(PositionViewModel);
             }
             set
             {
@@ -88,6 +112,13 @@ namespace Check.ViewModels
         #endregion
 
         #region Public methods
+
+        public void ResetStatus()
+        {
+            FieldStatus = FieldStatusEnum.Default;
+
+            Refresh();
+        }
 
         public void Refresh()
         {

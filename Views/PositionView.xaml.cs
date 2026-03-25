@@ -12,7 +12,7 @@ using static Check.ViewModels.FieldViewModel;
 
 namespace Check.Views
 {
-    public partial class PositionView
+    public unsafe partial class PositionView
     {
         #region Constructors
 
@@ -55,7 +55,7 @@ namespace Check.Views
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel, fieldIndex, positionViewModel.GetFieldContentAddress(fieldIndex));
                     FieldView      fieldView      = /* FieldViews     [fieldIndex - 1] = */ new FieldView     (this,    fieldViewModel, fieldIndex);
 
                     border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill } );
@@ -83,6 +83,8 @@ namespace Check.Views
             Content = grid;
 
             DataContext = positionViewModel;
+
+            ResetStatus();
         }
 
         #endregion
@@ -100,7 +102,7 @@ namespace Check.Views
                     {
                         if (move.FromField == fieldIndex)
                         {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
                             break;
                         }
                     }
@@ -110,7 +112,7 @@ namespace Check.Views
                     {
                         if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
                         {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
                             break;
                         }
                     }
@@ -124,21 +126,23 @@ namespace Check.Views
 
         internal void OnFieldMouseLeave(int fieldIndex, FieldViewModel fieldViewModel)
         {
-            Debug.Assert(fieldViewModel != null);
+            IndicatePossibleMoves();
 
-            switch (PositionStatus)
-            {
-                case PositionViewModel.PositionStatusEnum.Default:
-                    fieldViewModel.FieldStatus = FieldStatusEnum.Default;
-                    break;
-                case PositionViewModel.PositionStatusEnum.MoveStarted:
-                    if (fieldViewModel != StartFieldViewModel) { fieldViewModel.FieldStatus = FieldStatusEnum.Default; }
-                    break;
-                case PositionViewModel.PositionStatusEnum.TakeInProgress:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
-            }
+            //Debug.Assert(fieldViewModel != null);
+
+            //switch (PositionStatus)
+            //{
+            //    case PositionViewModel.PositionStatusEnum.Default:
+            //        fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+            //        break;
+            //    case PositionViewModel.PositionStatusEnum.MoveStarted:
+            //        if (fieldViewModel != StartFieldViewModel) { fieldViewModel.FieldStatus = FieldStatusEnum.Default; }
+            //        break;
+            //    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+            //        break;
+            //    default:
+            //        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+            //}
         }
 
         internal void OnFieldMouseLeftButtonDown(int fieldIndex, FieldViewModel fieldViewModel)
@@ -152,7 +156,7 @@ namespace Check.Views
                     {
                         if (move.FromField == fieldIndex)
                         {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
 
                             StartFieldViewModel = fieldViewModel;
                             StartFieldIndex     = fieldIndex    ;
@@ -183,8 +187,6 @@ namespace Check.Views
                                 moved = true;
 
                                 Position.Move(move);
-
-                                Refresh();
                                 break;
                             }
                         }
@@ -196,7 +198,7 @@ namespace Check.Views
                                 if (move.FromField == fieldIndex)
                                 {
                                     StartFieldViewModel.FieldStatus = FieldStatusEnum.Default;
-                                         fieldViewModel.FieldStatus = FieldStatusEnum.MouseOver;
+                                         fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
 
                                     StartFieldViewModel = fieldViewModel;
                                     StartFieldIndex     = fieldIndex    ;
@@ -206,6 +208,8 @@ namespace Check.Views
                                 }
                             }
                         }
+
+                        ResetStatus();
                     }
                     break;
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
@@ -253,13 +257,31 @@ namespace Check.Views
 
         #region Private methods
 
-        private void Refresh()
+        private void IndicatePossibleMoves()
+        {
+            foreach (Move move in Position.PossibleMoves)
+            {
+                FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanStart;
+            }
+        }
+
+        private void ResetStatus()
         {
             foreach (FieldViewModel fieldViewModel in FieldViewModels)
             {
-                fieldViewModel.Refresh();
+                fieldViewModel.ResetStatus();
             }
+
+            IndicatePossibleMoves();
         }
+
+        //private void Refresh()
+        //{
+        //    foreach (FieldViewModel fieldViewModel in FieldViewModels)
+        //    {
+        //        fieldViewModel.Refresh();
+        //    }
+        //}
 
         #endregion
 
@@ -289,11 +311,11 @@ namespace Check.Views
                     case FieldStatusEnum.Default:
                         result = Brushes.SandyBrown;
                         break;
-                    case FieldStatusEnum.MouseOver:
-                        result = Brushes.Red;
+                    case FieldStatusEnum.MouseOverCanStart:
+                        result = Brushes.Green;
                         break;
                     case FieldStatusEnum.CanStart:
-                        result = Brushes.Red;
+                        result = Brushes.LightSeaGreen;
                         break;
                     case FieldStatusEnum.Started:
                         result = Brushes.Red;
