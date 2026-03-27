@@ -56,9 +56,69 @@ namespace Check.Models
         private  int _numberOfTakesInMove   ;
         private  int _numberOfTakesInMoveMax;
 
-        internal readonly FieldContentEnum[] Fields = new FieldContentEnum[MaxNumberOfFields];
+        internal readonly FieldContentEnum[]  Fields = new FieldContentEnum[MaxNumberOfFields];
         private  readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
         private  readonly int             [] _takes  = new int             [MaxNumberOfTakes ];
+
+        private readonly int[] _upLefts     = new int [MaxNumberOfFields]
+        {
+             0,
+             0,  0,  0,  0,  0,
+             0,  1,  2,  3,  4,
+             6,  7,  8,  9, 10,
+             0, 11, 12, 13, 14,
+            16, 17, 18, 19, 20,
+             0, 21, 22, 23, 24,
+            26, 27, 28, 29, 30,
+             0, 31, 32, 33, 34,
+            36, 37, 38, 39, 40,
+             0, 41, 42, 43, 44
+        } ;
+
+        private readonly int[] _upRights    = new int [MaxNumberOfFields]
+        {
+             0,
+             0,  0,  0,  0,  0,
+             1,  2,  3,  4,  5,
+             7,  8,  9, 10,  0,
+            11, 12, 13, 14, 15,
+            17, 18, 19, 20,  0,
+            21, 22, 23, 24, 25,
+            27, 28, 29, 30,  0,
+            31, 32, 33, 34, 35,
+            37, 38, 39, 40,  0,
+            41, 42, 43, 44, 45
+        } ;
+
+        private readonly int[] _downLefts   = new int [MaxNumberOfFields]
+        {
+             0,
+             0,  0,  0,  0,  0,
+             0,  1,  2,  3,  4,
+             6,  7,  8,  9, 10,
+             0, 11, 12, 13, 14,
+            16, 17, 18, 19, 20,
+             0, 21, 22, 23, 24,
+            26, 27, 28, 29, 30,
+             0, 31, 32, 33, 34,
+            36, 37, 38, 39, 40,
+             0, 41, 42, 43, 44
+        } ;
+
+        private readonly int[] _downRightss = new int [MaxNumberOfFields]
+        {
+             0,
+             0,  0,  0,  0,  0,
+             0,  1,  2,  3,  4,
+             6,  7,  8,  9, 10,
+             0, 11, 12, 13, 14,
+            16, 17, 18, 19, 20,
+             0, 21, 22, 23, 24,
+            26, 27, 28, 29, 30,
+             0, 31, 32, 33, 34,
+            36, 37, 38, 39, 40,
+             0, 41, 42, 43, 44
+        } ;
 
         #endregion
 
