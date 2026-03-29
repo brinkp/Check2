@@ -1,11 +1,12 @@
 ﻿using Check.Models;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace Check.ViewModels
 {
-    internal unsafe class FieldViewModel : BaseViewModel
+    internal class FieldViewModel : BaseViewModel
     {
+        // The implementation of class FieldViewModel is completely determined by performance in both space and time.
+
         #region Enumerations
 
         internal enum FieldStatusEnum
@@ -22,68 +23,34 @@ namespace Check.ViewModels
 
         #region Constructors
 
-        public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex, Position.FieldContentEnum* fieldContent)
+        public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex)
         {
-            Debug.Assert(positionViewModel != null);
+            Debug.Assert(positionViewModel                 != null);
+            Debug.Assert(positionViewModel.Position        != null);
+            Debug.Assert(positionViewModel.Position.Fields != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
-            Debug.Assert(fieldContent != null);
+           _fields            = positionViewModel.Position.Fields;
 
-            PositionViewModel = positionViewModel;
-
-          //FieldIndex        = fieldIndex;
-
-           _fieldContent      = fieldContent;
-
-            PropertyInfo      = typeof(PositionViewModel).GetProperty("F" + fieldIndex.ToString("00"));
+           _fieldIndex        = fieldIndex;
         }
 
         #endregion
 
         #region Fields
 
-        private readonly Position.FieldContentEnum* _fieldContent;
+        private readonly Position.FieldContentEnum[] _fields    ;
+        private readonly int                         _fieldIndex;
 
         #endregion
 
         #region Public properties
 
-        public PositionViewModel PositionViewModel { get; }
-
-        //public Position.FieldContentEnum FieldContent
-        //{
-        //    get => *_fieldContent;
-        //    set
-        //    {
-        //        if (FieldContent != value)
-        //        {
-        //          *_fieldContent  = value;
-
-        //            OnPropertyChanged();
-        //        }
-        //    }
-        //}
-
         public Position.FieldContentEnum FieldContent
         {
-            get
-            {
-                Debug.Assert(PropertyInfo != null);
-
-                return (Position.FieldContentEnum)PropertyInfo.GetValue(PositionViewModel);
-            }
-            set
-            {
-                Debug.Assert(PropertyInfo != null);
-
-                if (FieldContent != value)
-                {
-                    PropertyInfo.SetValue(PositionViewModel, value);
-
-                    OnPropertyChanged();
-                }
-            }
+            get => _fields[_fieldIndex]        ;
+            set => _fields[_fieldIndex] = value;
         }
 
         private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;
@@ -100,14 +67,6 @@ namespace Check.ViewModels
                 }
             }
         }
-
-        #endregion
-
-        #region Private properties
-
-      //private int          FieldIndex   { get; }
-
-        private PropertyInfo PropertyInfo { get; }
 
         #endregion
 
