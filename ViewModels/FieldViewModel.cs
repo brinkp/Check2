@@ -27,11 +27,11 @@ namespace Check.ViewModels
         {
             Debug.Assert(positionViewModel                 != null);
             Debug.Assert(positionViewModel.Position        != null);
-            Debug.Assert(positionViewModel.Position.Fields != null);
+            Debug.Assert(positionViewModel.Position._fields != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
-           _fields            = positionViewModel.Position.Fields;
+           _fields            = positionViewModel.Position._fields;
 
            _fieldIndex        = fieldIndex;
         }
