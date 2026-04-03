@@ -222,7 +222,7 @@ namespace Check.Models
             }
         }
 
-        public IEnumerable<Move> PossibleMoves => _moves.Take(_numberOfMoves);
+        public IEnumerable<Move> PossibleMoves => _moves.Take(_numberOfMoves).Where(move => move.IsValidMove);
 
         #endregion
 
@@ -299,9 +299,24 @@ namespace Check.Models
                 }
             }
 
-            if (_numberOfMoves > 0)
+            if (_numberOfMoves > 1)
             {
-
+                for (int moveIndex1 = 0; moveIndex1 < _numberOfMoves - 1; moveIndex1 += 1)
+                {
+                    if (_moves[moveIndex1].IsValidMove)
+                    {
+                        for (int moveIndex2 = moveIndex1 + 1; moveIndex2 < _numberOfMoves; moveIndex2 += 1)
+                        {
+                            if (_moves[moveIndex2].IsValidMove)
+                            {
+                                if (_moves[moveIndex1].Equals(_moves[moveIndex2]))
+                                {
+                                    _moves[moveIndex2] = ViewModels.Move.InvalidMove;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -594,8 +609,10 @@ namespace Check.Models
             }
         }
 
-        private void GetTakesForWhiteKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
+        private bool GetTakesForWhiteKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
         {
+            bool result = false;
+
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
                 switch (_fields[fieldIndexTakes])
@@ -652,6 +669,8 @@ namespace Check.Models
                         break;
                 }
             }
+
+            return result;
         }
 
         private void GetTakesForBlackKing(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)

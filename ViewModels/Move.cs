@@ -6,8 +6,20 @@ namespace Check.ViewModels
 {
     internal struct Move
     {
+        #region Invalid move
+
+        public static Move InvalidMove { get; } = new Move();
+
+        public        bool IsValidMove => FromField != 0;
+
+        #endregion
+
+        #region Constructors
+
         public Move(int fromField, int toField)
         {
+            Debug.Assert(fromField != 0);
+
             FromField     = fromField;
               ToField     =   toField;
 
@@ -17,8 +29,15 @@ namespace Check.ViewModels
           // ViaFields    = null;
         }
 
+        //private Move(int fromField)
+        //{
+        //    FromField = ToField = NumberOfTakes = 0;
+        //}
+
         public Move(int fromField, int toField, int numberOfTakes, int[] takeFields) //, int[] viaFields)
         {
+            Debug.Assert(fromField != 0);
+
             Debug.Assert(takeFields != null);
           //Debug.Assert( viaFields != null);
 
@@ -36,6 +55,10 @@ namespace Check.ViewModels
           // ViaFields = new List<int>( viaFields.Take(numberOfTakes));
         }
 
+        #endregion
+
+        #region Public properties
+
         public      int      FromField { get; private set; }
         public      int        ToField { get; private set; }
 
@@ -43,5 +66,55 @@ namespace Check.ViewModels
 
         public List<int>    TakeFields { get; private set; }
       //public List<int>     ViaFields { get; private set; }
+
+        #endregion
+
+        #region Public methods
+
+        public bool Equals(Move move)
+        {
+            bool result = false;
+
+            if ((FromField == move.FromField) && (ToField == move.ToField) && (NumberOfTakes == move.NumberOfTakes))
+            {
+                if (NumberOfTakes <= 0)
+                {
+                    result = true;
+                }
+                else
+                {
+                    bool found = false;
+
+                    for (int takeIndex1 = 0; takeIndex1 < NumberOfTakes; takeIndex1 += 1)
+                    {
+                        int  take1 = TakeFields[takeIndex1];
+                             found = false;
+
+                        for (int takeIndex2 = 0; takeIndex2 < NumberOfTakes; takeIndex2 += 1)
+                        {
+                            if (move.TakeFields[takeIndex2] == take1)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (! found)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }
