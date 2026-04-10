@@ -35,15 +35,12 @@ namespace Check.Models
 
         public enum FieldContentEnum
         {
-            Empty         ,
-            WhiteMan      ,
-            BlackMan      ,
-            WhiteKing     ,
-            BlackKing     ,
-            WhiteManTaken ,
-            BlackManTaken ,
-            WhiteKingTaken,
-            BlackKingTaken
+            Empty    ,
+            WhiteMan ,
+            BlackMan ,
+            WhiteKing,
+            BlackKing,
+            Taken
         }
 
         #endregion
@@ -268,7 +265,7 @@ namespace Check.Models
                         case FieldContentEnum.WhiteKing:
                            _fields[fromFieldIndex] = FieldContentEnum.Empty;
 
-                            GetTakesForWhiteKing(fromFieldIndex, 0, fromFieldIndex);
+                            GetTakesForKing(FieldContentEnum.BlackMan, FieldContentEnum.BlackKing, fromFieldIndex, 0, fromFieldIndex);
 
                            _fields[fromFieldIndex] = FieldContentEnum.WhiteKing;
                             break;
@@ -291,7 +288,7 @@ namespace Check.Models
                         case FieldContentEnum.BlackKing:
                            _fields[fromFieldIndex] = FieldContentEnum.Empty;
 
-                            GetTakesForBlackKing(fromFieldIndex, 0, fromFieldIndex);
+                           GetTakesForKing(FieldContentEnum.WhiteMan, FieldContentEnum.WhiteKing, fromFieldIndex, 0, fromFieldIndex);
 
                            _fields[fromFieldIndex] = FieldContentEnum.BlackKing;
                             break;
@@ -392,7 +389,7 @@ namespace Check.Models
                     case FieldContentEnum.BlackMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackManTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
 
@@ -407,7 +404,7 @@ namespace Check.Models
                     case FieldContentEnum.BlackKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKingTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
 
@@ -513,7 +510,7 @@ namespace Check.Models
                     case FieldContentEnum.WhiteMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteManTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
 
@@ -528,7 +525,7 @@ namespace Check.Models
                     case FieldContentEnum.WhiteKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKingTaken;
+                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
 
                        _takes [_numberOfTakesInMove] = fieldIndexTakes;
 
@@ -566,212 +563,127 @@ namespace Check.Models
 
         #endregion
 
-        #region Get takes for kings
+        #region Get takes for king
 
-        private void GetTakesForWhiteKing(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
+        private void GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
         {
             bool hadOne = false;
 
-            GetTakesForWhiteKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts );
-            GetTakesForWhiteKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights);
-            GetTakesForWhiteKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts );
-            GetTakesForWhiteKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights);
+            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts );
+            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights);
+            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts );
+            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights);
         }
 
-        private void GetTakesForWhiteKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
+        private void GetTakesForKing(ref bool hadOne, FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
         {
             int    tryFieldIndex = fieldIndexFrom;
             bool   tryNext       = true          ;
 
-            while (tryNext && ((tryFieldIndex = tryFields[tryFieldIndex]) != 0))
+            while (tryNext && ((tryFieldIndex =  tryFields[tryFieldIndex]) != 0))
             {
-                switch (_fields[tryFieldIndex])
-                {
-                    case FieldContentEnum.BlackMan:
-                    case FieldContentEnum.BlackKing:
-                        int fieldIndexTakes = tryFieldIndex;
+                FieldContentEnum fieldContent = _fields   [tryFieldIndex];
 
-                        while ((tryFieldIndex = tryFields[tryFieldIndex]) != 0)
+                if ((fieldContent == manToTake) || (fieldContent == kingToTake))
+                {
+                    int fieldIndexTakes = tryFieldIndex;
+
+                    while ((tryFieldIndex = tryFields[tryFieldIndex]) != 0)
+                    {
+                        if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
                         {
-                            if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
+                            if (! GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTakes, tryFieldIndex))
                             {
-                                GetTakesForWhiteKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexTakes, tryFieldIndex);
+                                if (_numberOfTakesInMove > 0)
+                                {
+                                    if (hadOne == false)
+                                    {
+                                        hadOne = true;
+
+                                        if (_numberOfTakesInMoveMax < _numberOfTakesInMove)
+                                        {
+                                            _numberOfTakesInMoveMax = _numberOfTakesInMove;
+                                            _numberOfMoves = 0;
+                                        }
+
+                                        if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                                        {
+                                            _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
+                                        }
+                                    }
+                                }
                             }
                         }
-
-                        break;
-                    case FieldContentEnum.Empty:
-                        break;
-                    default:
-                        tryNext = false;
-                        break;
+                    }
+                }
+                else if (fieldContent != FieldContentEnum.Empty)
+                {
+                    tryNext = false;
                 }
             }
         }
 
-        private bool GetTakesForWhiteKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
+        private bool GetTakesForKing(ref bool hadOne, FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
         {
             bool result = false;
 
-            if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
+            FieldContentEnum fieldContent = _fields[fieldIndexStart];
+
+            if      (fieldContent == manToTake )
             {
-                switch (_fields[fieldIndexTakes])
+                fieldIndexEnd = fieldIndexTo;
+
+               _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+
+               _takes [_numberOfTakesInMove] = fieldIndexTakes;
+
+               _numberOfTakesInMove += 1;
+
+                GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+               _numberOfTakesInMove -= 1;
+
+               _fields[fieldIndexTakes] = manToTake;
+            }
+            else if (fieldContent == kingToTake)
+            {
+                fieldIndexEnd = fieldIndexTo;
+
+               _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+
+               _takes [_numberOfTakesInMove] = fieldIndexTakes;
+
+               _numberOfTakesInMove += 1;
+
+                GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTo);
+
+               _numberOfTakesInMove -= 1;
+
+               _fields[fieldIndexTakes] = kingToTake;
+            }
+            else
+            {
+                if (_numberOfTakesInMove > 0)
                 {
-                    case FieldContentEnum.BlackMan:
-                        fieldIndexEnd = fieldIndexTo;
+                    if (hadOne == false)
+                    {
+                        hadOne  = true ;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackManTaken;
-
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-                       _numberOfTakesInMove += 1;
-
-                        GetTakesForWhiteKing(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-                       _numberOfTakesInMove -= 1;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackMan;
-                        break;
-                    case FieldContentEnum.BlackKing:
-                        fieldIndexEnd = fieldIndexTo;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKingTaken;
-
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-                       _numberOfTakesInMove += 1;
-
-                        GetTakesForWhiteKing(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-                       _numberOfTakesInMove -= 1;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKing;
-                        break;
-                    default:
-                        if (_numberOfTakesInMove > 0)
+                        if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
                         {
-                            if (hadOne == false)
-                            {
-                                hadOne  = true ;
-
-                                if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
-                                {
-                                    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
-                                    _numberOfMoves           =                    0;
-                                }
-
-                                if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                                {
-                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                                }
-                            }
+                            _numberOfTakesInMoveMax  = _numberOfTakesInMove;
+                            _numberOfMoves           =                    0;
                         }
-                        break;
+
+                        if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                        {
+                            _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
+                        }
+                    }
                 }
             }
 
             return result;
-        }
-
-        private void GetTakesForBlackKing(int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
-        {
-            bool hadOne = false;
-
-            GetTakesForBlackKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts );
-            GetTakesForBlackKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights);
-            GetTakesForBlackKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts );
-            GetTakesForBlackKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights);
-        }
-
-        private void GetTakesForBlackKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
-        {
-            int    tryFieldIndex = fieldIndexFrom;
-            bool   tryNext       = true          ;
-
-            while (tryNext && ((tryFieldIndex = tryFields[tryFieldIndex]) != 0))
-            {
-                switch (_fields[tryFieldIndex])
-                {
-                    case FieldContentEnum.WhiteMan:
-                    case FieldContentEnum.WhiteKing:
-                        int fieldIndexTakes = tryFieldIndex;
-
-                        while ((tryFieldIndex = tryFields[tryFieldIndex]) != 0)
-                        {
-                            if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
-                            {
-                                GetTakesForBlackKing(ref hadOne, fieldIndexStart, fieldIndexEnd, fieldIndexTakes, tryFieldIndex);
-                            }
-                        }
-
-                        break;
-                    case FieldContentEnum.Empty:
-                        break;
-                    default:
-                        tryNext = false;
-                        break;
-                }
-            }
-        }
-
-        private void GetTakesForBlackKing(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
-        {
-            if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
-            {
-                switch (_fields[fieldIndexTakes])
-                {
-                    case FieldContentEnum.WhiteMan:
-                        fieldIndexEnd = fieldIndexTo;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteManTaken;
-
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-                       _numberOfTakesInMove += 1;
-
-                        GetTakesForBlackKing(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-                       _numberOfTakesInMove -= 1;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteMan;
-                        break;
-                    case FieldContentEnum.WhiteKing:
-                        fieldIndexEnd = fieldIndexTo;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKingTaken;
-
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-                       _numberOfTakesInMove += 1;
-
-                        GetTakesForBlackKing(fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-                       _numberOfTakesInMove -= 1;
-
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKing;
-                        break;
-                    default:
-                        if (_numberOfTakesInMove > 0)
-                        {
-                            if (hadOne == false)
-                            {
-                                hadOne  = true ;
-
-                                if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
-                                {
-                                    _numberOfTakesInMoveMax  = _numberOfTakesInMove;
-                                    _numberOfMoves           =                    0;
-                                }
-
-                                if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                                {
-                                    _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                                }
-                            }
-                        }
-                        break;
-                }
-            }
         }
 
         #endregion
