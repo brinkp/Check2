@@ -288,7 +288,7 @@ namespace Check.Models
                         case FieldContentEnum.BlackKing:
                            _fields[fromFieldIndex] = FieldContentEnum.Empty;
 
-                           GetTakesForKing(FieldContentEnum.WhiteMan, FieldContentEnum.WhiteKing, fromFieldIndex, 0, fromFieldIndex);
+                            GetTakesForKing(FieldContentEnum.WhiteMan, FieldContentEnum.WhiteKing, fromFieldIndex, 0, fromFieldIndex);
 
                            _fields[fromFieldIndex] = FieldContentEnum.BlackKing;
                             break;
@@ -380,18 +380,18 @@ namespace Check.Models
             }
         }
 
-        private void GetTakesForWhiteMan(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
+        private void GetTakesForWhiteMan(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTake, int fieldIndexTo)
         {
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
-                switch (_fields[fieldIndexTakes])
+                switch (_fields[fieldIndexTake])
                 {
                     case FieldContentEnum.BlackMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+                       _fields[fieldIndexTake] = FieldContentEnum.Taken;
 
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _takes [_numberOfTakesInMove] = fieldIndexTake;
 
                        _numberOfTakesInMove += 1;
 
@@ -399,14 +399,14 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackMan;
+                       _fields[fieldIndexTake] = FieldContentEnum.BlackMan;
                         break;
                     case FieldContentEnum.BlackKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+                       _fields[fieldIndexTake] = FieldContentEnum.Taken;
 
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _takes [_numberOfTakesInMove] = fieldIndexTake;
 
                        _numberOfTakesInMove += 1;
 
@@ -414,7 +414,7 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.BlackKing;
+                       _fields[fieldIndexTake] = FieldContentEnum.BlackKing;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -501,18 +501,18 @@ namespace Check.Models
             }
         }
 
-        private void GetTakesForBlackMan(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
+        private void GetTakesForBlackMan(ref bool hadOne, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTake, int fieldIndexTo)
         {
             if (_fields[fieldIndexTo] == FieldContentEnum.Empty)
             {
-                switch (_fields[fieldIndexTakes])
+                switch (_fields[fieldIndexTake])
                 {
                     case FieldContentEnum.WhiteMan:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+                       _fields[fieldIndexTake] = FieldContentEnum.Taken;
 
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _takes [_numberOfTakesInMove] = fieldIndexTake;
 
                        _numberOfTakesInMove += 1;
 
@@ -520,14 +520,14 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteMan;
+                       _fields[fieldIndexTake] = FieldContentEnum.WhiteMan;
                         break;
                     case FieldContentEnum.WhiteKing:
                         fieldIndexEnd = fieldIndexTo;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.Taken;
+                       _fields[fieldIndexTake] = FieldContentEnum.Taken;
 
-                       _takes [_numberOfTakesInMove] = fieldIndexTakes;
+                       _takes [_numberOfTakesInMove] = fieldIndexTake;
 
                        _numberOfTakesInMove += 1;
 
@@ -535,7 +535,7 @@ namespace Check.Models
 
                        _numberOfTakesInMove -= 1;
 
-                       _fields[fieldIndexTakes] = FieldContentEnum.WhiteKing;
+                       _fields[fieldIndexTake] = FieldContentEnum.WhiteKing;
                         break;
                     default:
                         if (_numberOfTakesInMove > 0)
@@ -565,20 +565,25 @@ namespace Check.Models
 
         #region Get takes for king
 
-        private void GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
+        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
         {
-            bool hadOne = false;
+            // ReSharper disable once ReplaceWithSingleAssignment.False
+            bool result = false;
 
-            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts );
-            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights);
-            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts );
-            GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights);
+            // ReSharper disable once ConvertIfToOrExpression
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights)) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights)) result = true;
+
+            return result;
         }
 
-        private void GetTakesForKing(ref bool hadOne, FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
+        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
         {
-            int    tryFieldIndex = fieldIndexFrom;
-            bool   tryNext       = true          ;
+            bool result        = false         ;
+            bool tryNext       = true          ;
+            int  tryFieldIndex = fieldIndexFrom;
 
             while (tryNext && ((tryFieldIndex =  tryFields[tryFieldIndex]) != 0))
             {
@@ -586,100 +591,53 @@ namespace Check.Models
 
                 if ((fieldContent == manToTake) || (fieldContent == kingToTake))
                 {
-                    int fieldIndexTakes = tryFieldIndex;
+                    int fieldIndexTake = tryFieldIndex;
+                    int tryFieldIndex2 = tryFieldIndex;
 
-                    while ((tryFieldIndex = tryFields[tryFieldIndex]) != 0)
+                    while ((tryFieldIndex2 = tryFields[tryFieldIndex2]) != 0)
                     {
-                        if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
+                        if (_fields[tryFieldIndex2] == FieldContentEnum.Empty)
                         {
-                            if (! GetTakesForKing(ref hadOne, manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTakes, tryFieldIndex))
+                            result = true;
+                            fieldIndexEnd = tryFieldIndex2;
+
+                            _fields[fieldIndexTake] = FieldContentEnum.Taken;
+
+                            _takes[_numberOfTakesInMove] = fieldIndexTake;
+
+                            _numberOfTakesInMove += 1;
+
+                            if (!GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, tryFieldIndex2))
                             {
                                 if (_numberOfTakesInMove > 0)
                                 {
-                                    if (hadOne == false)
+                                    if (_numberOfTakesInMoveMax < _numberOfTakesInMove)
                                     {
-                                        hadOne = true;
+                                        _numberOfTakesInMoveMax = _numberOfTakesInMove;
+                                        _numberOfMoves = 0;
+                                    }
 
-                                        if (_numberOfTakesInMoveMax < _numberOfTakesInMove)
-                                        {
-                                            _numberOfTakesInMoveMax = _numberOfTakesInMove;
-                                            _numberOfMoves = 0;
-                                        }
-
-                                        if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                                        {
-                                            _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                                        }
+                                    if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
+                                    {
+                                        _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
                                     }
                                 }
                             }
+
+                            _numberOfTakesInMove -= 1;
+
+                            _fields[fieldIndexTake] = fieldContent;
+                        }
+                        else
+                        {
+                            tryNext = false;
+                            break;
                         }
                     }
                 }
                 else if (fieldContent != FieldContentEnum.Empty)
                 {
                     tryNext = false;
-                }
-            }
-        }
-
-        private bool GetTakesForKing(ref bool hadOne, FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexTakes, int fieldIndexTo)
-        {
-            bool result = false;
-
-            FieldContentEnum fieldContent = _fields[fieldIndexStart];
-
-            if      (fieldContent == manToTake )
-            {
-                fieldIndexEnd = fieldIndexTo;
-
-               _fields[fieldIndexTakes] = FieldContentEnum.Taken;
-
-               _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-               _numberOfTakesInMove += 1;
-
-                GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-               _numberOfTakesInMove -= 1;
-
-               _fields[fieldIndexTakes] = manToTake;
-            }
-            else if (fieldContent == kingToTake)
-            {
-                fieldIndexEnd = fieldIndexTo;
-
-               _fields[fieldIndexTakes] = FieldContentEnum.Taken;
-
-               _takes [_numberOfTakesInMove] = fieldIndexTakes;
-
-               _numberOfTakesInMove += 1;
-
-                GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexTo);
-
-               _numberOfTakesInMove -= 1;
-
-               _fields[fieldIndexTakes] = kingToTake;
-            }
-            else
-            {
-                if (_numberOfTakesInMove > 0)
-                {
-                    if (hadOne == false)
-                    {
-                        hadOne  = true ;
-
-                        if (_numberOfTakesInMoveMax  < _numberOfTakesInMove)
-                        {
-                            _numberOfTakesInMoveMax  = _numberOfTakesInMove;
-                            _numberOfMoves           =                    0;
-                        }
-
-                        if (_numberOfTakesInMoveMax <= _numberOfTakesInMove)
-                        {
-                            _moves[_numberOfMoves++] = new Move(fieldIndexStart, fieldIndexEnd, _numberOfTakesInMove, _takes); //, _vias);
-                        }
-                    }
                 }
             }
 
