@@ -11,11 +11,13 @@ namespace Check.ViewModels
 
         internal enum FieldStatusEnum
         {
-            Default,
-            CanStart,
-            MouseOverCanStart,
-            Started,
-            CanBeTaken,
+            Default           ,
+            CanBeFrom         ,
+            MouseOverCanBeFrom,
+            CanBeTo           ,
+            MouseOverCanBeTo  ,
+            FromGiven         ,
+            CanBeTaken        ,
             Taken
         }
 

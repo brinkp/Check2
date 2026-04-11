@@ -6,14 +6,6 @@ namespace Check.ViewModels
 {
     internal struct Move
     {
-        #region Invalid move
-
-        public static Move InvalidMove { get; } = new Move();
-
-        public        bool IsValidMove => FromField != 0;
-
-        #endregion
-
         #region Constructors
 
         public Move(int fromField, int toField)
@@ -36,7 +28,7 @@ namespace Check.ViewModels
 
         public Move(int fromField, int toField, int numberOfTakes, int[] takeFields) //, int[] viaFields)
         {
-            Debug.Assert(fromField != 0);
+            Debug.Assert(fromField  != 0   );
 
             Debug.Assert(takeFields != null);
           //Debug.Assert( viaFields != null);
@@ -66,6 +58,8 @@ namespace Check.ViewModels
 
         public List<int>    TakeFields { get; private set; }
       //public List<int>     ViaFields { get; private set; }
+
+        public bool IsValid => FromField != 0;
 
         #endregion
 
@@ -113,6 +107,11 @@ namespace Check.ViewModels
             }
 
             return result;
+        }
+
+        public void Invalidate()
+        {
+            FromField = 0;
         }
 
         #endregion

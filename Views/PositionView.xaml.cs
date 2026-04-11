@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,7 +13,7 @@ using static Check.ViewModels.FieldViewModel;
 
 namespace Check.Views
 {
-    public unsafe partial class PositionView
+    public partial class PositionView
     {
         #region Constructors
 
@@ -85,6 +86,8 @@ namespace Check.Views
             DataContext = positionViewModel;
 
             ResetStatus();
+
+            IndicatePossibleFromFields();
         }
 
         #endregion
@@ -98,24 +101,10 @@ namespace Check.Views
             switch (PositionStatus)
             {
                 case PositionViewModel.PositionStatusEnum.Default:
-                    foreach (Move move in Position.PossibleMoves)
-                    {
-                        if (move.FromField == fieldIndex)
-                        {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
-                            break;
-                        }
-                    }
+                    if (Position.PossibleMoves.Any(move => (move.FromField ==      fieldIndex)                                )) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
                     break;
-                case PositionViewModel.PositionStatusEnum.MoveStarted:
-                    foreach (Move move in Position.PossibleMoves)
-                    {
-                        if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
-                        {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
-                            break;
-                        }
-                    }
+                case PositionViewModel.PositionStatusEnum.FromGiven:
+                    if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
                     break;
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
                     break;
@@ -126,23 +115,21 @@ namespace Check.Views
 
         internal void OnFieldMouseLeave(int fieldIndex, FieldViewModel fieldViewModel)
         {
-            IndicatePossibleMoves();
+            Debug.Assert(fieldViewModel != null);
 
-            //Debug.Assert(fieldViewModel != null);
-
-            //switch (PositionStatus)
-            //{
-            //    case PositionViewModel.PositionStatusEnum.Default:
-            //        fieldViewModel.FieldStatus = FieldStatusEnum.Default;
-            //        break;
-            //    case PositionViewModel.PositionStatusEnum.MoveStarted:
-            //        if (fieldViewModel != StartFieldViewModel) { fieldViewModel.FieldStatus = FieldStatusEnum.Default; }
-            //        break;
-            //    case PositionViewModel.PositionStatusEnum.TakeInProgress:
-            //        break;
-            //    default:
-            //        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
-            //}
+            switch (PositionStatus)
+            {
+                case PositionViewModel.PositionStatusEnum.Default:
+                    if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
+                    break;
+                case PositionViewModel.PositionStatusEnum.FromGiven:
+                    if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
+                    break;
+                case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+            }
         }
 
         internal void OnFieldMouseLeftButtonDown(int fieldIndex, FieldViewModel fieldViewModel)
@@ -152,64 +139,34 @@ namespace Check.Views
             switch (PositionStatus)
             {
                 case PositionViewModel.PositionStatusEnum.Default:
-                    foreach (Move move in Position.PossibleMoves)
-                    {
-                        if (move.FromField == fieldIndex)
-                        {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
-
-                            StartFieldViewModel = fieldViewModel;
-                            StartFieldIndex     = fieldIndex    ;
-
-                            PositionStatus = PositionViewModel.PositionStatusEnum.MoveStarted;
-                            break;
-                        }
-                    }
+                    CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
                     break;
-                case PositionViewModel.PositionStatusEnum.MoveStarted:
-                    if (fieldViewModel == StartFieldViewModel)
+                case PositionViewModel.PositionStatusEnum.FromGiven:
+                    if (fieldIndex == FromFieldIndex)
                     {
-                        fieldViewModel.FieldStatus = FieldStatusEnum.Default;
-
-                        StartFieldViewModel = null;
-                        StartFieldIndex     =    0;
-
-                        PositionStatus = PositionViewModel.PositionStatusEnum.Default;
+                        SetDefaultStatus(fieldViewModel);
                     }
                     else
                     {
                         bool moved = false;
 
-                        foreach (Move move in Position.PossibleMoves)
+                        foreach (Move move in Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)))
                         {
-                            if ((move.FromField == StartFieldIndex) && (move.ToField == fieldIndex))
-                            {
-                                moved = true;
+                            moved = true;
 
-                                Position.Move(move);
-                                break;
-                            }
+                            Position.Move(move);
+
+                            SetDefaultStatus(fieldViewModel);
+                            break;
                         }
 
                         if (! moved)
                         {
-                            foreach (Move move in Position.PossibleMoves)
+                            if (! CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
                             {
-                                if (move.FromField == fieldIndex)
-                                {
-                                    StartFieldViewModel.FieldStatus = FieldStatusEnum.Default;
-                                         fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanStart;
-
-                                    StartFieldViewModel = fieldViewModel;
-                                    StartFieldIndex     = fieldIndex    ;
-
-                                    PositionStatus = PositionViewModel.PositionStatusEnum.MoveStarted;
-                                    break;
-                                }
+                                SetDefaultStatus(fieldViewModel);
                             }
                         }
-
-                        ResetStatus();
                     }
                     break;
                 case PositionViewModel.PositionStatusEnum.TakeInProgress:
@@ -217,6 +174,29 @@ namespace Check.Views
                 default:
                     throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
             }
+        }
+
+        private bool CheckIfFieldCanBeFrom(int fieldIndex, FieldViewModel fieldViewModel)
+        {
+            bool result = false;
+
+            if (Position.PossibleMoves.Any(move => move.FromField == fieldIndex))
+            {
+                ResetStatus();
+
+                fieldViewModel.FieldStatus = FieldStatusEnum.FromGiven;
+
+                IndicatePossibleToFields(fieldIndex);
+
+                FromFieldViewModel = fieldViewModel;
+                FromFieldIndex     = fieldIndex    ;
+
+                PositionStatus = PositionViewModel.PositionStatusEnum.FromGiven;
+
+                result = true;
+            }
+
+            return result;
         }
 
         #endregion
@@ -250,20 +230,15 @@ namespace Check.Views
             }
         }
 
-        private int            StartFieldIndex     { get; set; }
-        private FieldViewModel StartFieldViewModel { get; set; }
+        private int            FromFieldIndex     { get; set; }
+        private FieldViewModel FromFieldViewModel { get; set; }
 
         #endregion
 
         #region Private methods
 
-        private void IndicatePossibleMoves()
-        {
-            foreach (Move move in Position.PossibleMoves)
-            {
-                FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanStart;
-            }
-        }
+        private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
+        private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }
 
         private void ResetStatus()
         {
@@ -271,8 +246,20 @@ namespace Check.Views
             {
                 fieldViewModel.ResetStatus();
             }
+        }
 
-            IndicatePossibleMoves();
+        private void SetDefaultStatus(FieldViewModel fieldViewModel)
+        {
+            fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+
+            FromFieldViewModel = null;
+            FromFieldIndex     =    0;
+
+            PositionStatus = PositionViewModel.PositionStatusEnum.Default;
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
         }
 
         //private void Refresh()
@@ -311,13 +298,15 @@ namespace Check.Views
                     case FieldStatusEnum.Default:
                         result = Brushes.SandyBrown;
                         break;
-                    case FieldStatusEnum.MouseOverCanStart:
-                        result = Brushes.Green;
-                        break;
-                    case FieldStatusEnum.CanStart:
+                    case FieldStatusEnum.CanBeFrom:
+                    case FieldStatusEnum.CanBeTo  :
                         result = Brushes.LightSeaGreen;
                         break;
-                    case FieldStatusEnum.Started:
+                    case FieldStatusEnum.MouseOverCanBeFrom:
+                    case FieldStatusEnum.MouseOverCanBeTo  :
+                        result = Brushes.Green;
+                        break;
+                    case FieldStatusEnum.FromGiven:
                         result = Brushes.Red;
                         break;
                     case FieldStatusEnum.CanBeTaken:

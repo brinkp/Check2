@@ -136,9 +136,9 @@ namespace Check.Models
 
                 _fields[ 1] = FieldContentEnum.BlackMan; _fields[ 2] = FieldContentEnum.Empty   ; _fields[ 3] = FieldContentEnum.Empty   ; _fields[ 4] = FieldContentEnum.Empty   ; _fields[ 5] = FieldContentEnum.Empty   ;
                 _fields[ 6] = FieldContentEnum.Empty   ; _fields[ 7] = FieldContentEnum.Empty   ; _fields[ 8] = FieldContentEnum.BlackMan; _fields[ 9] = FieldContentEnum.BlackMan; _fields[10] = FieldContentEnum.BlackMan;
-                _fields[11] = FieldContentEnum.WhiteMan; _fields[12] = FieldContentEnum.Empty   ; _fields[13] = FieldContentEnum.Empty   ; _fields[14] = FieldContentEnum.Empty   ; _fields[15] = FieldContentEnum.Empty   ;
-                _fields[16] = FieldContentEnum.Empty   ; _fields[17] = FieldContentEnum.WhiteMan; _fields[18] = FieldContentEnum.BlackMan; _fields[19] = FieldContentEnum.BlackMan; _fields[20] = FieldContentEnum.BlackMan;
-                _fields[21] = FieldContentEnum.WhiteMan; _fields[22] = FieldContentEnum.WhiteMan; _fields[23] = FieldContentEnum.BlackMan; _fields[24] = FieldContentEnum.Empty   ; _fields[25] = FieldContentEnum.Empty   ;
+                _fields[11] = FieldContentEnum.WhiteMan; _fields[12] = FieldContentEnum.Empty   ; _fields[13] = FieldContentEnum.BlackMan; _fields[14] = FieldContentEnum.Empty   ; _fields[15] = FieldContentEnum.Empty   ;
+                _fields[16] = FieldContentEnum.Empty   ; _fields[17] = FieldContentEnum.WhiteMan; _fields[18] = FieldContentEnum.Empty   ; _fields[19] = FieldContentEnum.BlackMan; _fields[20] = FieldContentEnum.BlackMan;
+                _fields[21] = FieldContentEnum.WhiteMan; _fields[22] = FieldContentEnum.WhiteMan; _fields[23] = FieldContentEnum.BlackMan; _fields[24] = FieldContentEnum.BlackMan; _fields[25] = FieldContentEnum.Empty   ;
                 _fields[26] = FieldContentEnum.Empty   ; _fields[27] = FieldContentEnum.WhiteMan; _fields[28] = FieldContentEnum.BlackMan; _fields[29] = FieldContentEnum.BlackMan; _fields[30] = FieldContentEnum.WhiteMan;
                 _fields[31] = FieldContentEnum.Empty   ; _fields[32] = FieldContentEnum.Empty   ; _fields[33] = FieldContentEnum.BlackMan; _fields[34] = FieldContentEnum.WhiteMan; _fields[35] = FieldContentEnum.BlackMan;
                 _fields[36] = FieldContentEnum.Empty   ; _fields[37] = FieldContentEnum.WhiteMan; _fields[38] = FieldContentEnum.WhiteMan; _fields[39] = FieldContentEnum.WhiteMan; _fields[40] = FieldContentEnum.WhiteMan;
@@ -151,62 +151,10 @@ namespace Check.Models
 
         #endregion
 
-        #region Field properties
-
-        //public FieldContentEnum F01 { get => Fields[ 1]; set => Fields[ 1] = value; }
-        //public FieldContentEnum F02 { get => Fields[ 2]; set => Fields[ 2] = value; }
-        //public FieldContentEnum F03 { get => Fields[ 3]; set => Fields[ 3] = value; }
-        //public FieldContentEnum F04 { get => Fields[ 4]; set => Fields[ 4] = value; }
-        //public FieldContentEnum F05 { get => Fields[ 5]; set => Fields[ 5] = value; }
-        //public FieldContentEnum F06 { get => Fields[ 6]; set => Fields[ 6] = value; }
-        //public FieldContentEnum F07 { get => Fields[ 7]; set => Fields[ 7] = value; }
-        //public FieldContentEnum F08 { get => Fields[ 8]; set => Fields[ 8] = value; }
-        //public FieldContentEnum F09 { get => Fields[ 9]; set => Fields[ 9] = value; }
-        //public FieldContentEnum F10 { get => Fields[10]; set => Fields[10] = value; }
-        //public FieldContentEnum F11 { get => Fields[11]; set => Fields[11] = value; }
-        //public FieldContentEnum F12 { get => Fields[12]; set => Fields[12] = value; }
-        //public FieldContentEnum F13 { get => Fields[13]; set => Fields[13] = value; }
-        //public FieldContentEnum F14 { get => Fields[14]; set => Fields[14] = value; }
-        //public FieldContentEnum F15 { get => Fields[15]; set => Fields[15] = value; }
-        //public FieldContentEnum F16 { get => Fields[16]; set => Fields[16] = value; }
-        //public FieldContentEnum F17 { get => Fields[17]; set => Fields[17] = value; }
-        //public FieldContentEnum F18 { get => Fields[18]; set => Fields[18] = value; }
-        //public FieldContentEnum F19 { get => Fields[19]; set => Fields[19] = value; }
-        //public FieldContentEnum F20 { get => Fields[20]; set => Fields[20] = value; }
-        //public FieldContentEnum F21 { get => Fields[21]; set => Fields[21] = value; }
-        //public FieldContentEnum F22 { get => Fields[22]; set => Fields[22] = value; }
-        //public FieldContentEnum F23 { get => Fields[23]; set => Fields[23] = value; }
-        //public FieldContentEnum F24 { get => Fields[24]; set => Fields[24] = value; }
-        //public FieldContentEnum F25 { get => Fields[25]; set => Fields[25] = value; }
-        //public FieldContentEnum F26 { get => Fields[26]; set => Fields[26] = value; }
-        //public FieldContentEnum F27 { get => Fields[27]; set => Fields[27] = value; }
-        //public FieldContentEnum F28 { get => Fields[28]; set => Fields[28] = value; }
-        //public FieldContentEnum F29 { get => Fields[29]; set => Fields[29] = value; }
-        //public FieldContentEnum F30 { get => Fields[30]; set => Fields[30] = value; }
-        //public FieldContentEnum F31 { get => Fields[31]; set => Fields[31] = value; }
-        //public FieldContentEnum F32 { get => Fields[32]; set => Fields[32] = value; }
-        //public FieldContentEnum F33 { get => Fields[33]; set => Fields[33] = value; }
-        //public FieldContentEnum F34 { get => Fields[34]; set => Fields[34] = value; }
-        //public FieldContentEnum F35 { get => Fields[35]; set => Fields[35] = value; }
-        //public FieldContentEnum F36 { get => Fields[36]; set => Fields[36] = value; }
-        //public FieldContentEnum F37 { get => Fields[37]; set => Fields[37] = value; }
-        //public FieldContentEnum F38 { get => Fields[38]; set => Fields[38] = value; }
-        //public FieldContentEnum F39 { get => Fields[39]; set => Fields[39] = value; }
-        //public FieldContentEnum F40 { get => Fields[40]; set => Fields[40] = value; }
-        //public FieldContentEnum F41 { get => Fields[41]; set => Fields[41] = value; }
-        //public FieldContentEnum F42 { get => Fields[42]; set => Fields[42] = value; }
-        //public FieldContentEnum F43 { get => Fields[43]; set => Fields[43] = value; }
-        //public FieldContentEnum F44 { get => Fields[44]; set => Fields[44] = value; }
-        //public FieldContentEnum F45 { get => Fields[45]; set => Fields[45] = value; }
-        //public FieldContentEnum F46 { get => Fields[46]; set => Fields[46] = value; }
-        //public FieldContentEnum F47 { get => Fields[47]; set => Fields[47] = value; }
-        //public FieldContentEnum F48 { get => Fields[48]; set => Fields[48] = value; }
-        //public FieldContentEnum F49 { get => Fields[49]; set => Fields[49] = value; }
-        //public FieldContentEnum F50 { get => Fields[50]; set => Fields[50] = value; }
-
-        #endregion
-
         #region Public properties
+
+        public IEnumerable<Move> PossibleMoves                         => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
+        public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) => PossibleMoves.Where(move => move.FromField == fromFieldIndex);
 
         public TurnEnum WhiteOrBlacksTurn
         {
@@ -218,8 +166,6 @@ namespace Check.Models
                 GetMovesAndTakes();
             }
         }
-
-        public IEnumerable<Move> PossibleMoves => _moves.Take(_numberOfMoves).Where(move => move.IsValidMove);
 
         #endregion
 
@@ -300,15 +246,15 @@ namespace Check.Models
             {
                 for (int moveIndex1 = 0; moveIndex1 < _numberOfMoves - 1; moveIndex1 += 1)
                 {
-                    if (_moves[moveIndex1].IsValidMove)
+                    if (_moves[moveIndex1].IsValid)
                     {
                         for (int moveIndex2 = moveIndex1 + 1; moveIndex2 < _numberOfMoves; moveIndex2 += 1)
                         {
-                            if (_moves[moveIndex2].IsValidMove)
+                            if (_moves[moveIndex2].IsValid)
                             {
                                 if (_moves[moveIndex1].Equals(_moves[moveIndex2]))
                                 {
-                                    _moves[moveIndex2] = ViewModels.Move.InvalidMove;
+                                    _moves[moveIndex2].Invalidate();
                                 }
                             }
                         }
@@ -770,6 +716,10 @@ namespace Check.Models
                         {
                            _moves[_numberOfMoves++] = new Move(fieldIndexFrom, tryFieldIndex);
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
 
                     tryFieldIndex = fieldIndexFrom;
@@ -779,6 +729,10 @@ namespace Check.Models
                         if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
                         {
                             _moves[_numberOfMoves++] = new Move(fieldIndexFrom, tryFieldIndex);
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
 
@@ -790,6 +744,10 @@ namespace Check.Models
                         {
                             _moves[_numberOfMoves++] = new Move(fieldIndexFrom, tryFieldIndex);
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
 
                     tryFieldIndex = fieldIndexFrom;
@@ -799,6 +757,10 @@ namespace Check.Models
                         if (_fields[tryFieldIndex] == FieldContentEnum.Empty)
                         {
                             _moves[_numberOfMoves++] = new Move(fieldIndexFrom, tryFieldIndex);
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
                 }
