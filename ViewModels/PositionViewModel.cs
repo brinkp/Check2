@@ -1,6 +1,4 @@
 ﻿using Check.Models;
-// ReSharper disable InvertIf
-// ReSharper disable LocalizableElement
 
 namespace Check.ViewModels
 {

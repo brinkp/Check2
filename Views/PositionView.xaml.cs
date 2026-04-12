@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using Check.Models;
 using static Check.ViewModels.FieldViewModel;
@@ -35,7 +36,6 @@ namespace Check.Views
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
-          //FieldViews      = new FieldView     [50];
             FieldViewModels = new FieldViewModel[50];
 
             int       delta = 0;
@@ -56,8 +56,8 @@ namespace Check.Views
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] =    new FieldViewModel(      positionViewModel, fieldIndex);
-                    FieldView      fieldView      = /* FieldViews     [fieldIndex - 1] = */ new FieldView     (this,    fieldViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
+                    FieldView      fieldView      =                                      new FieldView     (this,    fieldViewModel, fieldIndex);
 
                     border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill } );
 
@@ -188,7 +188,7 @@ namespace Check.Views
 
                 IndicatePossibleToFields(fieldIndex);
 
-                FromFieldViewModel = fieldViewModel;
+              //FromFieldViewModel = fieldViewModel;
                 FromFieldIndex     = fieldIndex    ;
 
                 PositionStatus = PositionViewModel.PositionStatusEnum.FromGiven;
@@ -199,22 +199,46 @@ namespace Check.Views
             return result;
         }
 
-        #endregion
+        internal void CheckForControlKeys(KeyEventArgs ea)
+        {
+            base.OnKeyDown(ea);
 
-        #region Public properties
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                switch (ea.Key)
+                {
+                    case Key.N:
+                        Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
 
-      //internal FieldViewModel  MouseOverFieldViewModel { get; set; }
+                        ResetStatus();
 
-      //internal bool            DragInProgress          { get; set; }
-      //internal int             DragFieldIndex          { get; set; }
+                        IndicatePossibleFromFields();
+
+                        ea.Handled = true;
+                        break;
+                    case Key.S:
+                        Position.Save();
+
+                        ea.Handled = true;
+                        break;
+                    case Key.L:
+                        Position.Load();
+
+                        ResetStatus();
+
+                        IndicatePossibleFromFields();
+
+                        ea.Handled = true;
+                        break;
+                }
+            }
+        }
 
         #endregion
 
         #region Private properties
 
         private PositionViewModel PositionViewModel { get; }
-
-      //private FieldView     []  FieldViews        { get; }
         private FieldViewModel[]  FieldViewModels   { get; }
 
         private Position                             Position       => PositionViewModel?.Position;
@@ -231,7 +255,7 @@ namespace Check.Views
         }
 
         private int            FromFieldIndex     { get; set; }
-        private FieldViewModel FromFieldViewModel { get; set; }
+      //private FieldViewModel FromFieldViewModel { get; set; }
 
         #endregion
 
@@ -252,7 +276,7 @@ namespace Check.Views
         {
             fieldViewModel.FieldStatus = FieldStatusEnum.Default;
 
-            FromFieldViewModel = null;
+          //FromFieldViewModel = null;
             FromFieldIndex     =    0;
 
             PositionStatus = PositionViewModel.PositionStatusEnum.Default;
@@ -261,14 +285,6 @@ namespace Check.Views
 
             IndicatePossibleFromFields();
         }
-
-        //private void Refresh()
-        //{
-        //    foreach (FieldViewModel fieldViewModel in FieldViewModels)
-        //    {
-        //        fieldViewModel.Refresh();
-        //    }
-        //}
 
         #endregion
 
@@ -307,13 +323,7 @@ namespace Check.Views
                         result = Brushes.Green;
                         break;
                     case FieldStatusEnum.FromGiven:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.CanBeTaken:
-                        result = Brushes.Red;
-                        break;
-                    case FieldStatusEnum.Taken:
-                        result = Brushes.Red;
+                        result = Brushes.Green;
                         break;
                     default:
                         result = Brushes.Transparent;

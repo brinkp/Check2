@@ -1,7 +1,10 @@
 ﻿using Check.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 #if DEBUG
 using System.Diagnostics;
@@ -47,14 +50,13 @@ namespace Check.Models
 
         #region Fields
 
-        private  TurnEnum _whiteOrBlacksTurn;
-
         private  int _numberOfMoves         ;
         private  int _numberOfTakesInMove   ;
         private  int _numberOfTakesInMoveMax;
 
+        [JsonInclude]
         // ReSharper disable once InconsistentNaming
-        internal readonly FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
+        internal          FieldContentEnum[] _fields = new FieldContentEnum[MaxNumberOfFields];
         private  readonly Move            [] _moves  = new Move            [MaxNumberOfMoves ];
         private  readonly int             [] _takes  = new int             [MaxNumberOfTakes ];
 
@@ -120,9 +122,14 @@ namespace Check.Models
 
         #endregion
 
-        #region Constructors
+        #region Constructors and initialization
 
         public Position(bool startPosition = true)
+        {
+            Initialize(startPosition);
+        }
+
+        public void Initialize(bool startPosition)
         {
             if (startPosition)
             {
@@ -154,14 +161,14 @@ namespace Check.Models
         #region Public properties
 
         public IEnumerable<Move> PossibleMoves                         => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
-        public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) => PossibleMoves.Where(move => move.FromField == fromFieldIndex);
+        public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) =>  PossibleMoves.Where(move => move.FromField == fromFieldIndex);
 
         public TurnEnum WhiteOrBlacksTurn
         {
-            get => _whiteOrBlacksTurn;
+            get => (TurnEnum) _fields[0];
             set
             {
-               _whiteOrBlacksTurn = value;
+                _fields[0] = (FieldContentEnum) value;
 
                 GetMovesAndTakes();
             }
@@ -800,6 +807,37 @@ namespace Check.Models
 
                 WhiteOrBlacksTurn = TurnEnum.White;
             }
+        }
+
+        public void Save(string filename = "default.pos")
+        {
+            StreamWriter sw = new StreamWriter(filename);
+
+            sw.WriteLine(JsonSerializer.Serialize(_fields));
+
+            sw.Close  ();
+            sw.Dispose();
+        }
+
+        public void Load(string filename = "default.pos")
+        {
+            StreamReader sr = new StreamReader(filename);
+
+            string json = sr.ReadToEnd();
+
+            sr.Close  ();
+            sr.Dispose();
+
+            FieldContentEnum[] fields = JsonSerializer.Deserialize<FieldContentEnum[]>(json);
+
+            Debug.Assert(fields.Length == _fields.Length);
+
+            for (int fieldIndex = 0; fieldIndex < fields.Length; fieldIndex++)
+            {
+                _fields[fieldIndex] = fields[fieldIndex];
+            }
+
+            WhiteOrBlacksTurn = (TurnEnum) _fields[0];
         }
 
         #endregion

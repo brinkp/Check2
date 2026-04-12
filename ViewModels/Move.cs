@@ -21,11 +21,6 @@ namespace Check.ViewModels
           // ViaFields    = null;
         }
 
-        //private Move(int fromField)
-        //{
-        //    FromField = ToField = NumberOfTakes = 0;
-        //}
-
         public Move(int fromField, int toField, int numberOfTakes, int[] takeFields) //, int[] viaFields)
         {
             Debug.Assert(fromField  != 0   );
@@ -52,11 +47,11 @@ namespace Check.ViewModels
         #region Public properties
 
         public      int      FromField { get; private set; }
-        public      int        ToField { get; private set; }
+        public      int        ToField { get;              }
 
-        public      int  NumberOfTakes { get; private set; }
+        public      int  NumberOfTakes { get;              }
 
-        public List<int>    TakeFields { get; private set; }
+        public List<int>    TakeFields { get;              }
       //public List<int>     ViaFields { get; private set; }
 
         public bool IsValid => FromField != 0;
