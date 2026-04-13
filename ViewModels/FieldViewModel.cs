@@ -1,5 +1,5 @@
-﻿using Check.Models;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using static Check.Models.Position;
 
 namespace Check.ViewModels
 {
@@ -32,26 +32,25 @@ namespace Check.ViewModels
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
 
-           _fields            = positionViewModel.Position._fields;
-
-           _fieldIndex        = fieldIndex;
+           _fields     = positionViewModel.Position._fields;
+           _fieldIndex = fieldIndex;
         }
 
         #endregion
 
         #region Fields
 
-        private readonly Position.FieldContentEnum[] _fields    ;
-        private readonly int                         _fieldIndex;
+        private readonly byte[] _fields    ;
+        private readonly int    _fieldIndex;
 
         #endregion
 
         #region Public properties
 
-        public Position.FieldContentEnum FieldContent
+        public FieldContentEnum FieldContent
         {
-            get => _fields[_fieldIndex]        ;
-            set => _fields[_fieldIndex] = value;
+            get => (FieldContentEnum) _fields[_fieldIndex]        ;
+            set => _fields[_fieldIndex] = (byte) value;
         }
 
         private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;

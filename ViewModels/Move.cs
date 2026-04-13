@@ -38,8 +38,8 @@ namespace Check.ViewModels
 
             NumberOfTakes = numberOfTakes;
 
-            TakeFields = new List<int>(takeFields.Take(numberOfTakes));
-          // ViaFields = new List<int>( viaFields.Take(numberOfTakes));
+            TakeFields    = new List<int>(takeFields.Take(numberOfTakes));
+          // ViaFields    = new List<int>( viaFields.Take(numberOfTakes));
         }
 
         #endregion
