@@ -260,12 +260,7 @@ namespace Check.Views
             get =>  PositionViewModel?.PositionStatus ?? PositionViewModel.PositionStatusEnum.Default;
             set
             {
-                if (PositionViewModel != null)
-                {
-                    PositionViewModel.PositionStatus = value;
-
-                    ResetStatus();
-                }
+                if (PositionViewModel != null) { PositionViewModel.PositionStatus = value; }
             }
         }
 
@@ -280,6 +275,7 @@ namespace Check.Views
               if (GiveVisualFeedback != value)
               {
                   Properties.Settings.Default.GiveVisualFeedback = value;
+                  Properties.Settings.Default.Save();
               }
           }
       }
