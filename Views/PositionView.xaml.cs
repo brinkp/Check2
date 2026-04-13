@@ -3,6 +3,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -242,6 +244,24 @@ namespace Check.Views
                         GiveVisualFeedback = ! GiveVisualFeedback;
 
                         RefreshFields();
+                        break;
+                    case Key.M:
+                        ResetStatus();
+
+                        Random random = new Random();
+
+                        int count = Position.PossibleMoves.Count();
+
+                        if (count > 0)
+                        {
+                            int randomIndex = random.Next(count);
+
+                            Move move = Position.PossibleMoves.ElementAt(randomIndex);
+
+                            Position.Move(move);
+
+                            RefreshFields();
+                        }
                         break;
                 }
             }
