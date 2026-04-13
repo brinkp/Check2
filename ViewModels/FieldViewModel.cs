@@ -16,7 +16,8 @@ namespace Check.ViewModels
             MouseOverCanBeFrom,
             CanBeTo           ,
             MouseOverCanBeTo  ,
-            FromGiven
+            FromGiven         ,
+            CanBeTaken
         }
 
         #endregion

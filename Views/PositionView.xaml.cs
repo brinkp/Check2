@@ -59,7 +59,7 @@ namespace Check.Views
                     FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
                     FieldView      fieldView      =                                      new FieldView     (this,    fieldViewModel, fieldIndex);
 
-                    border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill } );
+                    border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = this } );
 
                     fieldIndex += 1;
 
@@ -101,7 +101,12 @@ namespace Check.Views
             switch (PositionStatus)
             {
                 case PositionViewModel.PositionStatusEnum.Default:
-                    if (Position.PossibleMoves.Any(move => (move.FromField ==      fieldIndex)                                )) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
+                    if (Position.PossibleMoves.Any(move => (move.FromField == fieldIndex)))
+                    {
+                        fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
+
+                        IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
+                    }
                     break;
                 case PositionViewModel.PositionStatusEnum.FromGiven:
                     if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
@@ -121,6 +126,8 @@ namespace Check.Views
             {
                 case PositionViewModel.PositionStatusEnum.Default:
                     if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
+
+                    IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.Default);
                     break;
                 case PositionViewModel.PositionStatusEnum.FromGiven:
                     if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
@@ -186,7 +193,8 @@ namespace Check.Views
 
                 fieldViewModel.FieldStatus = FieldStatusEnum.FromGiven;
 
-                IndicatePossibleToFields(fieldIndex);
+                IndicatePossibleToFields  (fieldIndex);
+                IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
 
               //FromFieldViewModel = fieldViewModel;
                 FromFieldIndex     = fieldIndex    ;
@@ -230,6 +238,11 @@ namespace Check.Views
 
                         ea.Handled = true;
                         break;
+                    case Key.F:
+                        GiveVisualFeedback = ! GiveVisualFeedback;
+
+                        RefreshFields();
+                        break;
                 }
             }
         }
@@ -250,6 +263,8 @@ namespace Check.Views
                 if (PositionViewModel != null)
                 {
                     PositionViewModel.PositionStatus = value;
+
+                    ResetStatus();
                 }
             }
         }
@@ -257,12 +272,37 @@ namespace Check.Views
         private int            FromFieldIndex     { get; set; }
       //private FieldViewModel FromFieldViewModel { get; set; }
 
+      private bool GiveVisualFeedback
+      {
+          get => Properties.Settings.Default.GiveVisualFeedback;
+          set
+          {
+              if (GiveVisualFeedback != value)
+              {
+                  Properties.Settings.Default.GiveVisualFeedback = value;
+              }
+          }
+      }
+
         #endregion
 
         #region Private methods
 
         private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
         private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }
+        private void IndicatePossibleTakeFields(int fromFieldIndex, FieldStatusEnum fieldStatus)
+        {
+            foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex))
+            {
+                if (move.TakeFields?.Count > 0)
+                {
+                    foreach (int fieldIndexTake in move.TakeFields)
+                    {
+                        FieldViewModels[fieldIndexTake - 1].FieldStatus = fieldStatus;
+                    }
+                }
+            }
+        }
 
         private void ResetStatus()
         {
@@ -286,6 +326,14 @@ namespace Check.Views
             IndicatePossibleFromFields();
         }
 
+        private void RefreshFields()
+        {
+            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+            {
+                fieldViewModel.Refresh();
+            }
+        }
+
         #endregion
 
         #region FieldToBackgroundColorConverterFill
@@ -296,12 +344,18 @@ namespace Check.Views
             {
                 Brush result;
 
-                Debug.Assert(targetType == typeof(Brush));
+                Debug.Assert(targetType   == typeof(Brush));
+
+                PositionView positionView  = parameter as PositionView;
+
+                Debug.Assert(positionView != null);
 
                 FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
 
                 if (value is FieldViewModel fieldViewModel)
                 {
+                    Debugger.Break();
+
                     fieldStatusEnum = fieldViewModel.FieldStatus;
                 }
                 else if (value is FieldStatusEnum @enum)
@@ -309,25 +363,49 @@ namespace Check.Views
                     fieldStatusEnum = @enum;
                 }
 
-                switch (fieldStatusEnum)
+                if (positionView.GiveVisualFeedback)
                 {
-                    case FieldStatusEnum.Default:
-                        result = Brushes.SandyBrown;
-                        break;
-                    case FieldStatusEnum.CanBeFrom:
-                    case FieldStatusEnum.CanBeTo  :
-                        result = Brushes.LightSeaGreen;
-                        break;
-                    case FieldStatusEnum.MouseOverCanBeFrom:
-                    case FieldStatusEnum.MouseOverCanBeTo  :
-                        result = Brushes.Green;
-                        break;
-                    case FieldStatusEnum.FromGiven:
-                        result = Brushes.Green;
-                        break;
-                    default:
-                        result = Brushes.Transparent;
-                        break;
+                    switch (fieldStatusEnum)
+                    {
+                        case FieldStatusEnum.Default:
+                            result = Brushes.SandyBrown;
+                            break;
+                        case FieldStatusEnum.CanBeFrom:
+                        case FieldStatusEnum.CanBeTo:
+                            result = Brushes.LightSeaGreen;
+                            break;
+                        case FieldStatusEnum.MouseOverCanBeFrom:
+                        case FieldStatusEnum.MouseOverCanBeTo:
+                        case FieldStatusEnum.FromGiven:
+                            result = Brushes.Green;
+                            break;
+                        case FieldStatusEnum.CanBeTaken:
+                            result = Brushes.Red;
+                            break;
+                        default:
+                            result = Brushes.Transparent;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (fieldStatusEnum)
+                    {
+                        case FieldStatusEnum.Default:
+                        case FieldStatusEnum.CanBeFrom:
+                        case FieldStatusEnum.CanBeTo:
+                        case FieldStatusEnum.CanBeTaken:
+                            result = Brushes.SandyBrown;
+                            break;
+                        case FieldStatusEnum.MouseOverCanBeFrom:
+                        case FieldStatusEnum.MouseOverCanBeTo:
+                        case FieldStatusEnum.FromGiven:
+                            result = Brushes.Green;
+                            break;
+                        default:
+                            result = Brushes.Transparent;
+                            break;
+                    }
                 }
 
                 return result;

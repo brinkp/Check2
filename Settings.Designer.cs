@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Check.Properties {
+namespace Check {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
