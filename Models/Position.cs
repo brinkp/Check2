@@ -196,7 +196,7 @@ namespace Check.Models
 #endif
         }
 
-        private void GetTakes()
+        internal void GetTakes()
         {
            _numberOfMoves          = 0;
            _numberOfTakesInMove    = 0;
@@ -780,7 +780,7 @@ namespace Check.Models
 
         #region Public methods
 
-        public void Move(Move move)
+        public void MoveInSitu(Move move)
         {
             int toFieldIndex = move.ToField;
 
@@ -808,6 +808,35 @@ namespace Check.Models
                 WhiteOrBlacksTurn = TurnEnum.White;
             }
         }
+
+        //public void UnmoveInSitu(Move move)
+        //{
+        //    int toFieldIndex = move.ToField;
+
+        //    if (WhiteOrBlacksTurn == TurnEnum.White)
+        //    {
+        //        switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteKing; break; }
+
+        //        WhiteOrBlacksTurn = TurnEnum.Black;
+        //    }
+        //    else
+        //    {
+        //        switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: _fields[toFieldIndex] = (byte) FieldContentEnum.BlackKing; break; }
+
+        //        WhiteOrBlacksTurn = TurnEnum.White;
+        //    }
+
+        //   _fields[toFieldIndex  ] = _fields[move.FromField];
+        //   _fields[move.FromField] =  (byte) FieldContentEnum.Empty;
+
+        //    if (move.TakeFields?.Count > 0)
+        //    {
+        //        foreach (int takeIndex in move.TakeFields)
+        //        {
+        //            _fields[takeIndex] = (byte) FieldContentEnum.Empty;
+        //        }
+        //    }
+        //}
 
         public void Save(string filename = "default.pos")
         {
@@ -841,7 +870,38 @@ namespace Check.Models
         }
 
         public bool PositionEquals(byte[] position) => _fields.AsSpan().SequenceEqual(position);
-        public void PositionCopy  (byte[] position) => _fields.AsSpan().CopyTo       (position);
+
+        public byte[] CopyFields()
+        {
+            byte[] fields = new byte[MaxNumberOfFields];
+
+           _fields.AsSpan().CopyTo(fields);
+
+            return fields;
+        }
+
+        public void CopyBackFields(byte[] fields) => fields.AsSpan().CopyTo(_fields);
+
+        public double Evaluate()
+        {
+            int whiteManCount  = 0;
+            int whiteKingCount = 0;
+            int blackManCount  = 0;
+            int blackKingCount = 0;
+
+            for (int index = 1; index <= 50; index += 1)
+            {
+                switch (_fields[index])
+                {
+                    case (byte) FieldContentEnum.WhiteMan : whiteManCount  += 1; break;
+                    case (byte) FieldContentEnum.WhiteKing: whiteKingCount += 1; break;
+                    case (byte) FieldContentEnum.BlackMan : blackManCount  += 1; break;
+                    case (byte) FieldContentEnum.BlackKing: blackKingCount += 1; break;
+                }
+            }
+
+            return whiteManCount - blackManCount + whiteKingCount * 3d - blackKingCount * 3d;
+        }
 
         #endregion
     }

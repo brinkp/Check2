@@ -1,10 +1,9 @@
 ﻿using Check.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -163,7 +162,7 @@ namespace Check.Views
                         {
                             moved = true;
 
-                            Position.Move(move);
+                            Position.MoveInSitu(move);
 
                             SetDefaultStatus(fieldViewModel);
                             break;
@@ -244,6 +243,8 @@ namespace Check.Views
                         GiveVisualFeedback = ! GiveVisualFeedback;
 
                         RefreshFields();
+
+                        ea.Handled = true;
                         break;
                     case Key.M:
                         ResetStatus();
@@ -258,10 +259,17 @@ namespace Check.Views
 
                             Move move = Position.PossibleMoves.ElementAt(randomIndex);
 
-                            Position.Move(move);
+                            Position.MoveInSitu(move);
 
                             RefreshFields();
                         }
+
+                        ea.Handled = true;
+                        break;
+                    case Key.W:
+                        WhiteBeginsAndWins();
+
+                        ea.Handled = true;
                         break;
                 }
             }
@@ -348,6 +356,56 @@ namespace Check.Views
             {
                 fieldViewModel.Refresh();
             }
+        }
+
+        private void WhiteBeginsAndWins()
+        {
+            byte[] originalFields = Position.CopyFields();
+            double originalValue  = Position.Evaluate  ();
+
+            double value = BeginAndWin();
+        }
+
+        private double BeginAndWin()
+        {
+            double     result        = Position.Evaluate();
+
+            List<Move> possibleMoves = Position.PossibleMoves.ToList();
+
+            foreach (Move move in possibleMoves)
+            {
+                byte[] originalFields = Position.CopyFields();
+
+                Position.MoveInSitu(move);
+                Position.GetTakes  (    );
+
+                bool hadOne = false;
+
+                List<Move> possibleOpponentMoves = Position.PossibleMoves.ToList();
+
+                foreach (Move opponentMove in possibleOpponentMoves)
+                {
+                    hadOne = true;
+
+                    byte[] position = Position.CopyFields();
+
+                    Position.MoveInSitu      (opponentMove);
+                  //Position.GetMovesAndTakes(            );
+
+                    double evaluation = BeginAndWin();
+
+                    if (result < evaluation)
+                    {
+                        result = evaluation;
+                    }
+
+                    Position.CopyBackFields(position);
+                }
+
+                Position.CopyBackFields(originalFields);
+            }
+
+            return result;
         }
 
         #endregion
