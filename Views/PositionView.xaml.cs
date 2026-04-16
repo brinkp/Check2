@@ -438,9 +438,7 @@ namespace Check.Views
 
                 Position.MoveInSitu(move);
 
-                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
-
-                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+                await PauseIfRequired();
 
                 count = Position.PossibleMoves.Count();
             }
@@ -455,76 +453,96 @@ namespace Check.Views
             byte[] originalFields = Position.CopyFields();
             double originalValue  = Position.Evaluate  ();
 
-            double value = await BeginAndWin();
+            Stack<string> ownMoves       = new Stack<string>();
+            Stack<string> opponentsMoves = new Stack<string>();
+
+            double value = await BeginAndWin(ownMoves, opponentsMoves);
         }
 
-        private async Task<double> BeginAndWin()
+        private async Task<double> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves)
         {
-            double     result        = Position.Evaluate();
+            double     result           = Position.Evaluate();
 
-            List<Move> possibleMoves = new List<Move>();
+            List<Move> possibleOwnMoves = CopyListOfMoves(Position.PossibleMoves);
 
-          //List<Move> possibleMoves = Position.PossibleMoves.ToList();
-
-            foreach (Move move in Position.PossibleMoves)
+            foreach (Move ownMove in possibleOwnMoves)
             {
-                possibleMoves.Add(move.Copy());
-            }
+                ownMoves.Push(ownMove.ToString());
 
-            foreach (Move move in possibleMoves)
-            {
                 byte[] originalFields = Position.CopyFields();
 
-                Position.MoveInSitu(move);
-                Position.GetTakes  (    );
+                Position.MoveInSitu(ownMove);
 
-                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
-
-                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+                await PauseIfRequired();
 
                 bool hadOne = false;
 
-                //List<Move> possibleOpponentMoves = Position.PossibleMoves.ToList();
+                Position.GetTakes();
 
-                List<Move> possibleOpponentMoves = new List<Move>();
-
-                foreach (Move move2 in Position.PossibleMoves)
+                if (Position.HasMoves)
                 {
-                    possibleOpponentMoves.Add(move2.Copy());
-                }
+                    List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
 
-                foreach (Move opponentMove in possibleOpponentMoves)
-                {
-                    hadOne = true;
-
-                    byte[] position = Position.CopyFields();
-
-                    Position.MoveInSitu      (opponentMove);
-                  //Position.GetMovesAndTakes(            );
-
-                    if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
-
-                    await Task.Delay(DelayOfDisplayOfIntermediatePositions);
-
-                    double evaluation = await BeginAndWin();
-
-                    if (result < evaluation)
+                    foreach (Move opponentsMove in possibleOpponentsMoves)
                     {
-                        result = evaluation;
+                        opponentsMoves.Push(opponentsMove.ToString());
+
+                        hadOne = true;
+
+                        byte[] fieldsAfterTake = Position.CopyFields();
+
+                        Position.MoveInSitu(opponentsMove);
+
+                        await PauseIfRequired();
+
+                        double evaluation = await BeginAndWin(ownMoves, opponentsMoves);
+
+                        if (result < evaluation)
+                        {
+                            result = evaluation;
+                        }
+
+                        Position.CopyBackFields(fieldsAfterTake);
+
+                        await PauseIfRequired();
+
+                        opponentsMoves.Pop();
                     }
+                }
+                else
+                {
+                    Position.GetMovesAndTakes();
 
-                    Position.CopyBackFields(position);
-
-                    if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
-
-                    await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+                    if (! Position.HasMoves)
+                    {
+                        Debugger.Break();
+                    }
                 }
 
                 Position.CopyBackFields(originalFields);
 
-                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
+                await PauseIfRequired();
 
-                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+                ownMoves.Pop();
+            }
+
+            return result;
+        }
+
+        private async Task PauseIfRequired()
+        {
+            if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
+
+            await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+        }
+
+        private List<Move> CopyListOfMoves(IEnumerable<Move> moves)
+        {
+            List<Move> result = new List<Move>();
+
+            if (moves != null)
+            {
+                result.AddRange(moves.Select(move => move.Copy()));
             }
 
             return result;

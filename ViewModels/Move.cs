@@ -121,6 +121,18 @@ namespace Check.ViewModels
             }
         }
 
+        public string ToString()
+        {
+            if (TakeFields != null)
+            {
+                return FromField + " x " + ToField;
+            }
+            else
+            {
+                return FromField + " - " + ToField;
+            }
+        }
+
         #endregion
     }
 }
