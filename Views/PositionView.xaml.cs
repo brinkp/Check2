@@ -270,13 +270,27 @@ namespace Check.Views
                 {
                     case Key.Add    :
                     case Key.OemPlus:
-                        DelayConsideredMoves += 10;
+                        if (DelayOfDisplayOfIntermediatePositions == 1)
+                        {
+                            DelayOfDisplayOfIntermediatePositions  = 10;
+                        }
+                        else
+                        {
+                            DelayOfDisplayOfIntermediatePositions += 10;
+                        }
 
                         ea.Handled = true;
                         break;
                     case Key.Subtract:
                     case Key.OemMinus:
-                        DelayConsideredMoves -= 10;
+                        if (DelayOfDisplayOfIntermediatePositions == 10)
+                        {
+                            DelayOfDisplayOfIntermediatePositions  =  1;
+                        }
+                        else
+                        {
+                            DelayOfDisplayOfIntermediatePositions -= 10;
+                        }
 
                         ea.Handled = true;
                         break;
@@ -317,19 +331,21 @@ namespace Check.Views
             }
         }
 
-        private int _delayConsideredMoves = Properties.Settings.Default.DelayConsideredMoves;
-        private int  DelayConsideredMoves
+        private int _delayOfDisplayOfIntermediatePositions = Properties.Settings.Default.DelayOfDisplayOfIntermediatePositions;
+        private int  DelayOfDisplayOfIntermediatePositions
         {
-            get => _delayConsideredMoves;
+            get => _delayOfDisplayOfIntermediatePositions;
             set
             {
-                if (_delayConsideredMoves != value)
+                if (_delayOfDisplayOfIntermediatePositions != value)
                 {
                     if ((value >= 0) && (value <= 1000))
                     {
-                       _delayConsideredMoves = value;
+                        if (value == 0) value = 1;
 
-                        Properties.Settings.Default.DelayConsideredMoves = value;
+                       _delayOfDisplayOfIntermediatePositions = value;
+
+                        Properties.Settings.Default.DelayOfDisplayOfIntermediatePositions = value;
                         Properties.Settings.Default.Save();
                     }
                 }
@@ -422,15 +438,14 @@ namespace Check.Views
 
                 Position.MoveInSitu(move);
 
-                if (DelayConsideredMoves > 0)
-                {
-                    RefreshFields();
+                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
 
-                    await Task.Delay(DelayConsideredMoves);
-                }
+                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
 
                 count = Position.PossibleMoves.Count();
             }
+
+            RefreshFields();
         }
 
         private async Task WhiteBeginsAndWins()
@@ -463,12 +478,9 @@ namespace Check.Views
                 Position.MoveInSitu(move);
                 Position.GetTakes  (    );
 
-                if (DelayConsideredMoves > 0)
-                {
-                    RefreshFields();
+                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
 
-                    await Task.Delay(DelayConsideredMoves);
-                }
+                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
 
                 bool hadOne = false;
 
@@ -490,12 +502,9 @@ namespace Check.Views
                     Position.MoveInSitu      (opponentMove);
                   //Position.GetMovesAndTakes(            );
 
-                    if (DelayConsideredMoves > 0)
-                    {
-                        RefreshFields();
+                    if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
 
-                        await Task.Delay(DelayConsideredMoves);
-                    }
+                    await Task.Delay(DelayOfDisplayOfIntermediatePositions);
 
                     double evaluation = await BeginAndWin();
 
@@ -506,22 +515,16 @@ namespace Check.Views
 
                     Position.CopyBackFields(position);
 
-                    if (DelayConsideredMoves > 0)
-                    {
-                        RefreshFields();
+                    if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
 
-                        await Task.Delay(DelayConsideredMoves);
-                    }
+                    await Task.Delay(DelayOfDisplayOfIntermediatePositions);
                 }
 
                 Position.CopyBackFields(originalFields);
 
-                if (DelayConsideredMoves > 0)
-                {
-                    RefreshFields();
+                if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
 
-                    await Task.Delay(DelayConsideredMoves);
-                }
+                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
             }
 
             return result;

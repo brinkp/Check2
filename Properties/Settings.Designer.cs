@@ -38,12 +38,12 @@ namespace Check.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int DelayConsideredMoves {
+        public int DelayOfDisplayOfIntermediatePositions {
             get {
-                return ((int)(this["DelayConsideredMoves"]));
+                return ((int)(this["DelayOfDisplayOfIntermediatePositions"]));
             }
             set {
-                this["DelayConsideredMoves"] = value;
+                this["DelayOfDisplayOfIntermediatePositions"] = value;
             }
         }
     }
