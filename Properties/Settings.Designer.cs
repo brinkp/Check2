@@ -34,5 +34,17 @@ namespace Check.Properties {
                 this["GiveVisualFeedback"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int DelayConsideredMoves {
+            get {
+                return ((int)(this["DelayConsideredMoves"]));
+            }
+            set {
+                this["DelayConsideredMoves"] = value;
+            }
+        }
     }
 }

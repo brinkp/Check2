@@ -31,7 +31,7 @@ namespace Check.ViewModels
           //Debug.Assert(takeFields.Length == viaFields.Length);
 
             Debug.Assert(numberOfTakes > 0);
-            Debug.Assert(numberOfTakes < takeFields.Length);
+            Debug.Assert(numberOfTakes <= takeFields.Length);
 
             FromField     = fromField;
               ToField     =   toField;
@@ -107,6 +107,18 @@ namespace Check.ViewModels
         public void Invalidate()
         {
             FromField = 0;
+        }
+
+        public Move Copy()
+        {
+            if (TakeFields != null)
+            {
+                return new Move(FromField, ToField, NumberOfTakes, TakeFields.Take(NumberOfTakes).ToArray());
+            }
+            else
+            {
+                return new Move(FromField, ToField);
+            }
         }
 
         #endregion

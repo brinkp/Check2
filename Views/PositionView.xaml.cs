@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -208,7 +209,7 @@ namespace Check.Views
             return result;
         }
 
-        internal void CheckForControlKeys(KeyEventArgs ea)
+        internal async Task CheckForControlKeys(KeyEventArgs ea)
         {
             base.OnKeyDown(ea);
 
@@ -247,27 +248,35 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.M:
-                        ResetStatus();
+                        Move();
 
-                        Random random = new Random();
-
-                        int count = Position.PossibleMoves.Count();
-
-                        if (count > 0)
-                        {
-                            int randomIndex = random.Next(count);
-
-                            Move move = Position.PossibleMoves.ElementAt(randomIndex);
-
-                            Position.MoveInSitu(move);
-
-                            RefreshFields();
-                        }
+                        ea.Handled = true;
+                        break;
+                    case Key.P:
+                        await Play();
 
                         ea.Handled = true;
                         break;
                     case Key.W:
-                        WhiteBeginsAndWins();
+                        await WhiteBeginsAndWins();
+
+                        ea.Handled = true;
+                        break;
+                }
+            }
+            else
+            {
+                switch (ea.Key)
+                {
+                    case Key.Add    :
+                    case Key.OemPlus:
+                        DelayConsideredMoves += 10;
+
+                        ea.Handled = true;
+                        break;
+                    case Key.Subtract:
+                    case Key.OemMinus:
+                        DelayConsideredMoves -= 10;
 
                         ea.Handled = true;
                         break;
@@ -295,18 +304,37 @@ namespace Check.Views
         private int            FromFieldIndex     { get; set; }
       //private FieldViewModel FromFieldViewModel { get; set; }
 
-      private bool GiveVisualFeedback
-      {
-          get => Properties.Settings.Default.GiveVisualFeedback;
-          set
-          {
-              if (GiveVisualFeedback != value)
-              {
-                  Properties.Settings.Default.GiveVisualFeedback = value;
-                  Properties.Settings.Default.Save();
-              }
-          }
-      }
+        private bool GiveVisualFeedback
+        {
+            get => Properties.Settings.Default.GiveVisualFeedback;
+            set
+            {
+                if (GiveVisualFeedback != value)
+                {
+                    Properties.Settings.Default.GiveVisualFeedback = value;
+                    Properties.Settings.Default.Save();
+                }
+            }
+        }
+
+        private int _delayConsideredMoves = Properties.Settings.Default.DelayConsideredMoves;
+        private int  DelayConsideredMoves
+        {
+            get => _delayConsideredMoves;
+            set
+            {
+                if (_delayConsideredMoves != value)
+                {
+                    if ((value >= 0) && (value <= 1000))
+                    {
+                       _delayConsideredMoves = value;
+
+                        Properties.Settings.Default.DelayConsideredMoves = value;
+                        Properties.Settings.Default.Save();
+                    }
+                }
+            }
+        }
 
         #endregion
 
@@ -358,19 +386,75 @@ namespace Check.Views
             }
         }
 
-        private void WhiteBeginsAndWins()
+        private void Move()
         {
+            ResetStatus();
+
+            Random random = new Random();
+
+            int count = Position.PossibleMoves.Count();
+
+            if (count > 0)
+            {
+                int randomIndex = random.Next(count);
+
+                Move move = Position.PossibleMoves.ElementAt(randomIndex);
+
+                Position.MoveInSitu(move);
+
+                RefreshFields();
+            }
+        }
+
+        private async Task Play()
+        {
+            ResetStatus();
+
+            Random random = new Random();
+
+            int count = Position.PossibleMoves.Count();
+
+            while (count > 0)
+            {
+                int randomIndex = random.Next(count);
+
+                Move move = Position.PossibleMoves.ElementAt(randomIndex);
+
+                Position.MoveInSitu(move);
+
+                if (DelayConsideredMoves > 0)
+                {
+                    RefreshFields();
+
+                    await Task.Delay(DelayConsideredMoves);
+                }
+
+                count = Position.PossibleMoves.Count();
+            }
+        }
+
+        private async Task WhiteBeginsAndWins()
+        {
+            ResetStatus();
+
             byte[] originalFields = Position.CopyFields();
             double originalValue  = Position.Evaluate  ();
 
-            double value = BeginAndWin();
+            double value = await BeginAndWin();
         }
 
-        private double BeginAndWin()
+        private async Task<double> BeginAndWin()
         {
             double     result        = Position.Evaluate();
 
-            List<Move> possibleMoves = Position.PossibleMoves.ToList();
+            List<Move> possibleMoves = new List<Move>();
+
+          //List<Move> possibleMoves = Position.PossibleMoves.ToList();
+
+            foreach (Move move in Position.PossibleMoves)
+            {
+                possibleMoves.Add(move.Copy());
+            }
 
             foreach (Move move in possibleMoves)
             {
@@ -379,9 +463,23 @@ namespace Check.Views
                 Position.MoveInSitu(move);
                 Position.GetTakes  (    );
 
+                if (DelayConsideredMoves > 0)
+                {
+                    RefreshFields();
+
+                    await Task.Delay(DelayConsideredMoves);
+                }
+
                 bool hadOne = false;
 
-                List<Move> possibleOpponentMoves = Position.PossibleMoves.ToList();
+                //List<Move> possibleOpponentMoves = Position.PossibleMoves.ToList();
+
+                List<Move> possibleOpponentMoves = new List<Move>();
+
+                foreach (Move move2 in Position.PossibleMoves)
+                {
+                    possibleOpponentMoves.Add(move2.Copy());
+                }
 
                 foreach (Move opponentMove in possibleOpponentMoves)
                 {
@@ -392,7 +490,14 @@ namespace Check.Views
                     Position.MoveInSitu      (opponentMove);
                   //Position.GetMovesAndTakes(            );
 
-                    double evaluation = BeginAndWin();
+                    if (DelayConsideredMoves > 0)
+                    {
+                        RefreshFields();
+
+                        await Task.Delay(DelayConsideredMoves);
+                    }
+
+                    double evaluation = await BeginAndWin();
 
                     if (result < evaluation)
                     {
@@ -400,9 +505,23 @@ namespace Check.Views
                     }
 
                     Position.CopyBackFields(position);
+
+                    if (DelayConsideredMoves > 0)
+                    {
+                        RefreshFields();
+
+                        await Task.Delay(DelayConsideredMoves);
+                    }
                 }
 
                 Position.CopyBackFields(originalFields);
+
+                if (DelayConsideredMoves > 0)
+                {
+                    RefreshFields();
+
+                    await Task.Delay(DelayConsideredMoves);
+                }
             }
 
             return result;
