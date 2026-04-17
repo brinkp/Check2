@@ -247,6 +247,11 @@ namespace Check.Views
 
                         ea.Handled = true;
                         break;
+                    case Key.I:
+                        DisplayIntermediatePositions = ! DisplayIntermediatePositions;
+
+                        ea.Handled = true;
+                        break;
                     case Key.M:
                         Move();
 
@@ -270,26 +275,26 @@ namespace Check.Views
                 {
                     case Key.Add    :
                     case Key.OemPlus:
-                        if (DelayOfDisplayOfIntermediatePositions == 1)
+                        if (DelayOfDisplayOfIntermediatePositions ==   1)
                         {
-                            DelayOfDisplayOfIntermediatePositions  = 10;
+                            DelayOfDisplayOfIntermediatePositions  = 100;
                         }
                         else
                         {
-                            DelayOfDisplayOfIntermediatePositions += 10;
+                            DelayOfDisplayOfIntermediatePositions += 100;
                         }
 
                         ea.Handled = true;
                         break;
                     case Key.Subtract:
                     case Key.OemMinus:
-                        if (DelayOfDisplayOfIntermediatePositions == 10)
+                        if (DelayOfDisplayOfIntermediatePositions == 100)
                         {
-                            DelayOfDisplayOfIntermediatePositions  =  1;
+                            DelayOfDisplayOfIntermediatePositions  =   1;
                         }
                         else
                         {
-                            DelayOfDisplayOfIntermediatePositions -= 10;
+                            DelayOfDisplayOfIntermediatePositions -= 100;
                         }
 
                         ea.Handled = true;
@@ -318,14 +323,33 @@ namespace Check.Views
         private int            FromFieldIndex     { get; set; }
       //private FieldViewModel FromFieldViewModel { get; set; }
 
-        private bool GiveVisualFeedback
+        private bool _giveVisualFeedback = Properties.Settings.Default.GiveVisualFeedback;
+        private bool  GiveVisualFeedback
         {
-            get => Properties.Settings.Default.GiveVisualFeedback;
+            get =>  _giveVisualFeedback;
             set
             {
-                if (GiveVisualFeedback != value)
+                if (_giveVisualFeedback != value)
                 {
+                    _giveVisualFeedback  = value;
+
                     Properties.Settings.Default.GiveVisualFeedback = value;
+                    Properties.Settings.Default.Save();
+                }
+            }
+        }
+
+        private bool _displayIntermediatePositions = Properties.Settings.Default.DisplayIntermediatePositions;
+        private bool  DisplayIntermediatePositions
+        {
+            get => _displayIntermediatePositions;
+            set
+            {
+                if (_displayIntermediatePositions != value)
+                {
+                    _displayIntermediatePositions = value;
+
+                    Properties.Settings.Default.DisplayIntermediatePositions = value;
                     Properties.Settings.Default.Save();
                 }
             }
@@ -456,12 +480,15 @@ namespace Check.Views
             Stack<string> ownMoves       = new Stack<string>();
             Stack<string> opponentsMoves = new Stack<string>();
 
-            double value = await BeginAndWin(ownMoves, opponentsMoves);
+            Dictionary<byte[], byte[]> alreadyHandledPositions = new Dictionary<byte[], byte[]>(new ByteArrayComparer());
+
+            var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
         }
 
-        private async Task<double> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves)
+        private async Task<(bool result, int count)> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], byte[]> alreadyHandledPositions)
         {
-            double     result           = Position.Evaluate();
+            bool result = false;
+            int   count =     0;
 
             List<Move> possibleOwnMoves = CopyListOfMoves(Position.PossibleMoves);
 
@@ -473,65 +500,78 @@ namespace Check.Views
 
                 Position.MoveInSitu(ownMove);
 
-                await PauseIfRequired();
-
-                bool hadOne = false;
-
-                Position.GetTakes();
-
-                if (Position.HasMoves)
+                if (! alreadyHandledPositions.ContainsKey(Position._fields))
                 {
-                    List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
+                    alreadyHandledPositions.Add(Position._fields, Position._fields);
 
-                    foreach (Move opponentsMove in possibleOpponentsMoves)
+                    count += 1;
+
+                    await PauseIfRequired();
+
+                    Position.GetTakes();
+
+                    if (Position.NumberOfMoves > 0)
                     {
-                        opponentsMoves.Push(opponentsMove.ToString());
+                        List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
 
-                        hadOne = true;
-
-                        byte[] fieldsAfterTake = Position.CopyFields();
-
-                        Position.MoveInSitu(opponentsMove);
-
-                        await PauseIfRequired();
-
-                        double evaluation = await BeginAndWin(ownMoves, opponentsMoves);
-
-                        if (result < evaluation)
+                        foreach (Move opponentsMove in possibleOpponentsMoves)
                         {
-                            result = evaluation;
+                            opponentsMoves.Push(opponentsMove.ToString());
+
+                            byte[] fieldsAfterTake = Position.CopyFields();
+
+                            Position.MoveInSitu(opponentsMove);
+
+                            if (! alreadyHandledPositions.ContainsKey(Position._fields))
+                            {
+                                alreadyHandledPositions.Add(Position._fields, Position._fields);
+
+                                count += 1;
+
+                                await PauseIfRequired();
+
+                                var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
+
+                                count += a.count;
+
+                                if (! a.result)
+                                {
+                                    break;
+                                }
+
+                                Position.CopyBackFields(fieldsAfterTake);
+
+                                await PauseIfRequired();
+
+                                opponentsMoves.Pop();
+                            }
                         }
-
-                        Position.CopyBackFields(fieldsAfterTake);
-
-                        await PauseIfRequired();
-
-                        opponentsMoves.Pop();
                     }
-                }
-                else
-                {
-                    Position.GetMovesAndTakes();
-
-                    if (! Position.HasMoves)
+                    else
                     {
-                        Debugger.Break();
+                        Position.GetMovesAndTakes();
+
+                        if (! Position.HasMoves)
+                        {
+                            result = true;
+                            break;
+                        }
                     }
+
+                    Position.CopyBackFields(originalFields);
+
+                    await PauseIfRequired();
+
+                    ownMoves.Pop();
                 }
-
-                Position.CopyBackFields(originalFields);
-
-                await PauseIfRequired();
-
-                ownMoves.Pop();
             }
 
-            return result;
+            return (result, count);
         }
 
         private async Task PauseIfRequired()
         {
-            if (DelayOfDisplayOfIntermediatePositions > 1) { RefreshFields(); }
+            if (DisplayIntermediatePositions && (DelayOfDisplayOfIntermediatePositions > 1)) { RefreshFields(); }
 
             await Task.Delay(DelayOfDisplayOfIntermediatePositions);
         }
@@ -633,4 +673,35 @@ namespace Check.Views
 
         #endregion
     }
-}
+
+    public class ByteArrayComparer : IEqualityComparer<byte[]>
+    {
+        public bool Equals(byte[] x, byte[] y)
+        {
+            if (x is null || y is null) return false;
+
+            int lengthX  = x.Length;
+            int lengthY  = y.Length;
+
+            if (lengthX != lengthY)     return false;
+
+            if (ReferenceEquals(x, y))  return true ;
+
+            for (int index = 0; index < x.Length; index++) { if (x[index] != y[index]) return false; }
+
+            return true;
+        }
+
+        public int GetHashCode(byte[] obj)
+        {
+            if (obj is null) return 0;
+
+            unchecked
+            {
+                int hash = 17;
+                foreach (var b in obj)
+                    hash = hash * 31 + b;
+                return hash;
+            }
+        }
+    }}

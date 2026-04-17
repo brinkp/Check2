@@ -185,7 +185,9 @@ namespace Check.Models
             }
         }
 
-        public bool HasMoves => _numberOfMoves > 0;
+        public bool HasMoves      =>  NumberOfMoves > 0;
+
+        public int  NumberOfMoves => _moves.Take(_numberOfMoves).Count(move => move.IsValid);
 
         #endregion
 
