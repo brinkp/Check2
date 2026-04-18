@@ -539,12 +539,14 @@ namespace Check.Views
                                     break;
                                 }
 
-                                Position.CopyBackFields(fieldsAfterTake);
-
                                 await PauseIfRequired();
 
                                 opponentsMoves.Pop();
                             }
+
+                            Position.UndoMoveInSitu(opponentsMove);
+
+                            if (! Position.PositionEquals(fieldsAfterTake)) throw new Exception();
                         }
                     }
                     else
@@ -557,13 +559,15 @@ namespace Check.Views
                             break;
                         }
                     }
-
-                    Position.CopyBackFields(originalFields);
-
-                    await PauseIfRequired();
-
-                    ownMoves.Pop();
                 }
+
+                Position.UndoMoveInSitu(ownMove);
+
+                if (! Position.PositionEquals(originalFields)) throw new Exception();
+
+                await PauseIfRequired();
+
+                ownMoves.Pop();
             }
 
             return (result, count);

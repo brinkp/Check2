@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Check.Models;
 
 namespace Check.ViewModels
 {
@@ -12,13 +13,16 @@ namespace Check.ViewModels
         {
             Debug.Assert(fromField != 0);
 
-            FromField     = fromField;
-              ToField     =   toField;
+            FromField          = fromField;
+              ToField          =   toField;
 
-            NumberOfTakes = 0;
+            NumberOfTakes      = 0;
 
-            TakeFields    = null;
-          // ViaFields    = null;
+            TakeFields         = null;
+          // ViaFields         = null;
+            FieldContentsTaken = null;
+
+            Promoted           = false;
         }
 
         public Move(int fromField, int toField, int numberOfTakes, int[] takeFields) //, int[] viaFields)
@@ -33,26 +37,32 @@ namespace Check.ViewModels
             Debug.Assert(numberOfTakes > 0);
             Debug.Assert(numberOfTakes <= takeFields.Length);
 
-            FromField     = fromField;
-              ToField     =   toField;
+            FromField          = fromField;
+              ToField          =   toField;
 
             NumberOfTakes = numberOfTakes;
 
-            TakeFields    = new List<int>(takeFields.Take(numberOfTakes));
-          // ViaFields    = new List<int>( viaFields.Take(numberOfTakes));
+            TakeFields         = new List<int>(takeFields.Take(numberOfTakes));
+          // ViaFields         = new List<int>( viaFields.Take(numberOfTakes));
+            FieldContentsTaken = null;
+
+            Promoted           = false;
         }
 
         #endregion
 
         #region Public properties
 
-        public      int      FromField { get; private set; }
-        public      int        ToField { get;              }
+        public      int                                 FromField { get; private set; }
+        public      int                                   ToField { get;              }
 
-        public      int  NumberOfTakes { get;              }
+        public      int                             NumberOfTakes { get;              }
 
-        public List<int>    TakeFields { get;              }
-      //public List<int>     ViaFields { get; private set; }
+        public List<int                      >         TakeFields { get;              }
+        public List<Position.FieldContentEnum> FieldContentsTaken { get;         set; }
+      //public List<int                      >          ViaFields { get; private set; }
+
+        public      bool                                 Promoted { get;         set; }
 
         public bool IsValid => FromField != 0;
 
@@ -109,29 +119,9 @@ namespace Check.ViewModels
             FromField = 0;
         }
 
-        public Move Copy()
-        {
-            if (TakeFields != null)
-            {
-                return new Move(FromField, ToField, NumberOfTakes, TakeFields.Take(NumberOfTakes).ToArray());
-            }
-            else
-            {
-                return new Move(FromField, ToField);
-            }
-        }
+        public          Move   Copy    () => (TakeFields == null) ? new Move(FromField, ToField) : new Move(FromField, ToField, NumberOfTakes, TakeFields.Take(NumberOfTakes).ToArray());
 
-        public string ToString()
-        {
-            if (TakeFields != null)
-            {
-                return FromField + " x " + ToField;
-            }
-            else
-            {
-                return FromField + " - " + ToField;
-            }
-        }
+        public override string ToString() => (TakeFields == null) ? FromField + " - " + ToField : FromField + " x " + ToField;
 
         #endregion
     }
