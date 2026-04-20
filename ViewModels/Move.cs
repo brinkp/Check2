@@ -40,11 +40,11 @@ namespace Check.ViewModels
             FromField          = fromField;
               ToField          =   toField;
 
-            NumberOfTakes = numberOfTakes;
+            NumberOfTakes      = numberOfTakes;
 
             TakeFields         = new List<int>(takeFields.Take(numberOfTakes));
           // ViaFields         = new List<int>( viaFields.Take(numberOfTakes));
-            FieldContentsTaken = null;
+            FieldContentsTaken = new List<Position.FieldContentEnum>();
 
             Promoted           = false;
         }
@@ -56,9 +56,9 @@ namespace Check.ViewModels
         public      int                                 FromField { get; private set; }
         public      int                                   ToField { get;              }
 
-        public      int                             NumberOfTakes { get;              }
+        public      int                             NumberOfTakes { get; private set; }
 
-        public List<int                      >         TakeFields { get;              }
+        public List<int                      >         TakeFields { get; private set; }
         public List<Position.FieldContentEnum> FieldContentsTaken { get;         set; }
       //public List<int                      >          ViaFields { get; private set; }
 
@@ -119,7 +119,27 @@ namespace Check.ViewModels
             FromField = 0;
         }
 
-        public          Move   Copy    () => (TakeFields == null) ? new Move(FromField, ToField) : new Move(FromField, ToField, NumberOfTakes, TakeFields.Take(NumberOfTakes).ToArray());
+        public Move Copy()
+        {
+            Move result = new Move(FromField, ToField);
+
+            if (TakeFields != null)
+            {
+                result.NumberOfTakes          = NumberOfTakes;
+
+                result.TakeFields             = new List<int                      >(TakeFields        );
+              //result. ViaFields             = new List<int                      >( ViaFields        );
+
+                if (FieldContentsTaken != null)
+                {
+                    result.FieldContentsTaken = new List<Position.FieldContentEnum>(FieldContentsTaken);
+                }
+
+                result.Promoted               = Promoted;
+            }
+
+            return result;
+        }
 
         public override string ToString() => (TakeFields == null) ? FromField + " - " + ToField : FromField + " x " + ToField;
 

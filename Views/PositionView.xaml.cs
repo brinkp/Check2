@@ -165,6 +165,8 @@ namespace Check.Views
 
                             Position.MoveInSitu(move);
 
+                            Position.GetMovesAndTakes();
+
                             SetDefaultStatus(fieldViewModel);
                             break;
                         }
@@ -485,89 +487,115 @@ namespace Check.Views
             var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
         }
 
-        private async Task<(bool result, int count)> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], byte[]> alreadyHandledPositions)
+        private enum RecursionResult
         {
-            bool result = false;
-            int   count =     0;
+            DoesNotLeadToForcedWin,
+            DoesLeadToForcedWin
+        }
+
+        private async Task<(RecursionResult result, int count)> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], byte[]> alreadyHandledPositions)
+        {
+            RecursionResult result = RecursionResult.DoesNotLeadToForcedWin;
+            int             count  = 0;
 
             List<Move> possibleOwnMoves = CopyListOfMoves(Position.PossibleMoves);
 
+            bool continueOwnMoves = true;
+
             foreach (Move ownMove in possibleOwnMoves)
             {
-                ownMoves.Push(ownMove.ToString());
-
-                byte[] originalFields = Position.CopyFields();
-
-                Position.MoveInSitu(ownMove);
-
-                if (! alreadyHandledPositions.ContainsKey(Position._fields))
+                if (continueOwnMoves)
                 {
-                    alreadyHandledPositions.Add(Position._fields, Position._fields);
+                    ownMoves.Push(ownMove.ToString());
 
-                    count += 1;
+                    byte[] originalFields = Position.CopyFields();
+
+                    Position.MoveInSitu(ownMove);
+
+                    if (! alreadyHandledPositions.ContainsKey(Position._fields))
+                    {
+                        alreadyHandledPositions.Add(Position._fields, Position._fields);
+
+                        count += 1;
+
+                        await PauseIfRequired();
+
+                        Position.GetTakes();
+
+                        if (Position.NumberOfMoves > 0)
+                        {
+                            List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
+
+                            bool allMovesLeadToForcedWin = true;
+
+                            foreach (Move opponentsMove in possibleOpponentsMoves)
+                            {
+                                if (allMovesLeadToForcedWin)
+                                {
+                                    byte[] fieldsBeforeTake = Position.CopyFields();
+
+                                    Position.MoveInSitu(opponentsMove);
+
+                                    if (! alreadyHandledPositions.ContainsKey(Position._fields))
+                                    {
+                                        alreadyHandledPositions.Add(Position._fields, Position._fields);
+
+                                        count += 1;
+
+                                        await PauseIfRequired();
+
+                                        opponentsMoves.Push(opponentsMove.ToString());
+
+                                        Position.GetMovesAndTakes();
+
+                                        (RecursionResult result, int count) recursionResult = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
+
+                                        opponentsMoves.Pop();
+
+                                        count += recursionResult.count;
+
+                                        if (recursionResult.result == RecursionResult.DoesNotLeadToForcedWin)
+                                        {
+                                            allMovesLeadToForcedWin = false;
+                                        }
+
+                                        await PauseIfRequired();
+                                    }
+
+                                    Position.UndoMoveInSitu(opponentsMove);
+
+                                    if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
+                                }
+                            }
+
+                            if (allMovesLeadToForcedWin)
+                            {
+                                continueOwnMoves = false;
+
+                                result = RecursionResult.DoesLeadToForcedWin;
+                            }
+                        }
+                        else
+                        {
+                            Position.GetMovesAndTakes();
+
+                            if (! Position.HasMoves)
+                            {
+                                continueOwnMoves = false;
+
+                                result = RecursionResult.DoesLeadToForcedWin;
+                            }
+                        }
+                    }
+
+                    Position.UndoMoveInSitu(ownMove);
+
+                    if (! Position.PositionEquals(originalFields)) throw new Exception();
 
                     await PauseIfRequired();
 
-                    Position.GetTakes();
-
-                    if (Position.NumberOfMoves > 0)
-                    {
-                        List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
-
-                        foreach (Move opponentsMove in possibleOpponentsMoves)
-                        {
-                            opponentsMoves.Push(opponentsMove.ToString());
-
-                            byte[] fieldsAfterTake = Position.CopyFields();
-
-                            Position.MoveInSitu(opponentsMove);
-
-                            if (! alreadyHandledPositions.ContainsKey(Position._fields))
-                            {
-                                alreadyHandledPositions.Add(Position._fields, Position._fields);
-
-                                count += 1;
-
-                                await PauseIfRequired();
-
-                                var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
-
-                                count += a.count;
-
-                                if (! a.result)
-                                {
-                                    break;
-                                }
-
-                                await PauseIfRequired();
-
-                                opponentsMoves.Pop();
-                            }
-
-                            Position.UndoMoveInSitu(opponentsMove);
-
-                            if (! Position.PositionEquals(fieldsAfterTake)) throw new Exception();
-                        }
-                    }
-                    else
-                    {
-                        Position.GetMovesAndTakes();
-
-                        if (! Position.HasMoves)
-                        {
-                            result = true;
-                            break;
-                        }
-                    }
+                    ownMoves.Pop();
                 }
-
-                Position.UndoMoveInSitu(ownMove);
-
-                if (! Position.PositionEquals(originalFields)) throw new Exception();
-
-                await PauseIfRequired();
-
-                ownMoves.Pop();
             }
 
             return (result, count);

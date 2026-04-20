@@ -166,6 +166,8 @@ namespace Check.Models
             }
 
             WhiteOrBlacksTurn = TurnEnum.White;
+
+            GetMovesAndTakes();
         }
 
         #endregion
@@ -174,17 +176,6 @@ namespace Check.Models
 
         public IEnumerable<Move> PossibleMoves                         => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
         public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) =>  PossibleMoves.Where(move => move.FromField == fromFieldIndex);
-
-        public TurnEnum WhiteOrBlacksTurn
-        {
-            get => (TurnEnum) _fields[0];
-            set
-            {
-               _fields[0] = (byte) value;
-
-                GetMovesAndTakes();
-            }
-        }
 
         public bool HasMoves      =>  NumberOfMoves > 0;
 
@@ -803,12 +794,13 @@ namespace Check.Models
 
             byte fieldContentFrom  =       _fields[fromFieldIndex];
 
-           _fields[  toFieldIndex] =        fieldContentFrom;
+            // Mind the order (says Alex)!
            _fields[fromFieldIndex] = (byte) FieldContentEnum.Empty;
+           _fields[  toFieldIndex] =        fieldContentFrom;
 
             if (move.TakeFields?.Count > 0)
             {
-                move.FieldContentsTaken = new List<FieldContentEnum>();
+                //move.FieldContentsTaken = new List<FieldContentEnum>();
 
                 foreach (int takeIndex in move.TakeFields)
                 {
@@ -839,29 +831,35 @@ namespace Check.Models
 
             if (WhiteOrBlacksTurn == TurnEnum.Black)
             {
-                if (move.Promoted)                                        switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: { _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteMan ; move.Promoted = false; } break; }
+                if (move.Promoted)                                      /* switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: */ { _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteMan ; move.Promoted = false; } /* break; } */
 
                 WhiteOrBlacksTurn  = TurnEnum.White;
             }
             else
             {
-                if (move.Promoted)                                        switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: { _fields[toFieldIndex] = (byte) FieldContentEnum.BlackMan ; move.Promoted = false; } break; }
+                if (move.Promoted)                                      /*  switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: */ { _fields[toFieldIndex] = (byte) FieldContentEnum.BlackMan ; move.Promoted = false; }/* break; } */
 
                 WhiteOrBlacksTurn  = TurnEnum.Black;
             }
 
             if (move.TakeFields?.Count > 0)
             {
-                Debug.Assert(move.FieldContentsTaken != null);
+                //Debug.Assert(move.FieldContentsTaken != null);
+
+                int index = 0;
 
                 foreach (int takeIndex in move.TakeFields)
                 {
-                   _fields[takeIndex] = (byte) move.FieldContentsTaken[takeIndex];
+                   _fields[takeIndex] = (byte) move.FieldContentsTaken[index];
+
+                    index += 1;
                 }
             }
 
-           _fields[fromFieldIndex] = _fields[toFieldIndex];
+            byte toFieldContent    = _fields[toFieldIndex];
+
            _fields[  toFieldIndex] =  (byte) FieldContentEnum.Empty;
+           _fields[fromFieldIndex] =         toFieldContent;
         }
 
         public void Save(string filename = "default.pos")
@@ -893,6 +891,8 @@ namespace Check.Models
             }
 
             WhiteOrBlacksTurn = (TurnEnum) _fields[0];
+
+            GetMovesAndTakes();
         }
 
       //public bool PositionEquals(byte[] fields) => _fields.AsSpan().SequenceEqual(fields);
@@ -904,8 +904,6 @@ namespace Check.Models
             {
                 if (_fields[fieldIndex] != fields[fieldIndex])
                 {
-                    throw new Exception();
-
                     result = false;
                     break;
                 }
@@ -944,6 +942,16 @@ namespace Check.Models
             }
 
             return whiteManCount - blackManCount + whiteKingCount * 3d - blackKingCount * 3d;
+        }
+
+        #endregion
+
+        #region Private properties
+
+        private TurnEnum WhiteOrBlacksTurn
+        {
+            get => (TurnEnum) _fields[0];
+            set =>            _fields[0] = (byte) value;
         }
 
         #endregion
