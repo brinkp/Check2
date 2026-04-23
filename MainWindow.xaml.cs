@@ -27,9 +27,10 @@ namespace Check
 
         #region Event handlers
 
-        protected override void OnKeyDown(KeyEventArgs ea)
+        // ReSharper disable once AsyncVoidEventHandlerMethod
+        protected override async void OnKeyDown(KeyEventArgs ea)
         {
-            PositionView.CheckForControlKeys(ea);
+            await PositionView.CheckForControlKeys(ea);
         }
 
         #endregion

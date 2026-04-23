@@ -1,13 +1,13 @@
 ﻿using Check.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 #if DEBUG
-using System.Diagnostics;
 #pragma warning disable IDE0047
 #endif
 
@@ -198,8 +198,6 @@ namespace Check.Models
 
 #if DEBUG
             Debug.WriteLine((DateTime.Now - now).Milliseconds + " mSec");
-#else
-            MessageBox.Show((DateTime.Now - now).Milliseconds + " mSec");
 #endif
         }
 
@@ -787,8 +785,10 @@ namespace Check.Models
 
         #region Public methods
 
-        public void MoveInSitu(Move move)
+        public bool MoveInSitu(Move move)
         {
+            bool result = false;
+
             int fromFieldIndex = move.FromField;
             int   toFieldIndex = move.  ToField;
 
@@ -800,7 +800,7 @@ namespace Check.Models
 
             if (move.TakeFields?.Count > 0)
             {
-                //move.FieldContentsTaken = new List<FieldContentEnum>();
+                move.FieldContentsTaken.Clear();
 
                 foreach (int takeIndex in move.TakeFields)
                 {
@@ -812,32 +812,70 @@ namespace Check.Models
 
             if (WhiteOrBlacksTurn == TurnEnum.White)
             {
-                if (fieldContentFrom == (byte) FieldContentEnum.WhiteMan) switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: { _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteKing; move.Promoted = true ; } break; }
+                if (fieldContentFrom == (byte) FieldContentEnum.WhiteMan)
+                {
+                    switch (toFieldIndex)
+                    {
+                        case  1: case  2: case  3: case  4: case  5:
+                            result = true;
+
+                           _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteKing;
+                            break;
+                    }
+                }
 
                 WhiteOrBlacksTurn  = TurnEnum.Black;
             }
             else
             {
-                if (fieldContentFrom == (byte) FieldContentEnum.BlackMan) switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: { _fields[toFieldIndex] = (byte) FieldContentEnum.BlackKing; move.Promoted = true ; } break; }
+                if (fieldContentFrom == (byte) FieldContentEnum.BlackMan)
+                {
+                    switch (toFieldIndex)
+                    {
+                        case 46: case 47: case 48: case 49: case 50:
+                            result = true;
+
+                           _fields[toFieldIndex] = (byte) FieldContentEnum.BlackKing;
+                            break;
+                    }
+                }
 
                 WhiteOrBlacksTurn  = TurnEnum.White;
             }
+
+            return result;
         }
 
-        public void UndoMoveInSitu(Move move)
+        public bool UndoMoveInSitu(Move move)
         {
+            bool        result = move.Promoted;
+
             int fromFieldIndex = move.FromField;
             int   toFieldIndex = move.  ToField;
 
             if (WhiteOrBlacksTurn == TurnEnum.Black)
             {
-                if (move.Promoted)                                      /* switch (toFieldIndex) { case  1: case  2: case  3: case  4: case  5: */ { _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteMan ; move.Promoted = false; } /* break; } */
+                if (move.Promoted)
+                {
+                    result = false;
+
+                    Debug.Assert((toFieldIndex >= 1) && (toFieldIndex <= 5));
+
+                   _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteMan; 
+                }
 
                 WhiteOrBlacksTurn  = TurnEnum.White;
             }
             else
             {
-                if (move.Promoted)                                      /*  switch (toFieldIndex) { case 46: case 47: case 48: case 49: case 50: */ { _fields[toFieldIndex] = (byte) FieldContentEnum.BlackMan ; move.Promoted = false; }/* break; } */
+                if (move.Promoted)
+                {
+                    result = false;
+
+                    Debug.Assert((toFieldIndex >= 46) && (toFieldIndex <= 50));
+
+                   _fields[toFieldIndex] = (byte) FieldContentEnum.BlackMan; 
+                }
 
                 WhiteOrBlacksTurn  = TurnEnum.Black;
             }
@@ -860,6 +898,8 @@ namespace Check.Models
 
            _fields[  toFieldIndex] =  (byte) FieldContentEnum.Empty;
            _fields[fromFieldIndex] =         toFieldContent;
+
+            return result;
         }
 
         public void Save(string filename = "default.pos")
