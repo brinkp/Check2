@@ -785,10 +785,8 @@ namespace Check.Models
 
         #region Public methods
 
-        public bool MoveInSitu(Move move)
+        public void MoveInSitu(ref Move move)
         {
-            bool result = false;
-
             int fromFieldIndex = move.FromField;
             int   toFieldIndex = move.  ToField;
 
@@ -817,7 +815,7 @@ namespace Check.Models
                     switch (toFieldIndex)
                     {
                         case  1: case  2: case  3: case  4: case  5:
-                            result = true;
+                            move.Promoted = true;
 
                            _fields[toFieldIndex] = (byte) FieldContentEnum.WhiteKing;
                             break;
@@ -833,7 +831,7 @@ namespace Check.Models
                     switch (toFieldIndex)
                     {
                         case 46: case 47: case 48: case 49: case 50:
-                            result = true;
+                            move.Promoted = true;
 
                            _fields[toFieldIndex] = (byte) FieldContentEnum.BlackKing;
                             break;
@@ -842,14 +840,10 @@ namespace Check.Models
 
                 WhiteOrBlacksTurn  = TurnEnum.White;
             }
-
-            return result;
         }
 
-        public bool UndoMoveInSitu(Move move)
+        public void UndoMoveInSitu(ref Move move)
         {
-            bool        result = move.Promoted;
-
             int fromFieldIndex = move.FromField;
             int   toFieldIndex = move.  ToField;
 
@@ -857,7 +851,7 @@ namespace Check.Models
             {
                 if (move.Promoted)
                 {
-                    result = false;
+                    move.Promoted = false;
 
                     Debug.Assert((toFieldIndex >= 1) && (toFieldIndex <= 5));
 
@@ -870,7 +864,7 @@ namespace Check.Models
             {
                 if (move.Promoted)
                 {
-                    result = false;
+                    move.Promoted = false;
 
                     Debug.Assert((toFieldIndex >= 46) && (toFieldIndex <= 50));
 
@@ -898,8 +892,6 @@ namespace Check.Models
 
            _fields[  toFieldIndex] =  (byte) FieldContentEnum.Empty;
            _fields[fromFieldIndex] =         toFieldContent;
-
-            return result;
         }
 
         public void Save(string filename = "default.pos")

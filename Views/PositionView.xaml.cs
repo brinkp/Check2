@@ -94,6 +94,12 @@ namespace Check.Views
 
         #endregion
 
+        #region Delegates
+
+        private delegate void Callback(Stack<string> ownMoves, Stack<string> opponentsMoves);
+
+        #endregion
+
         #region Event handlers
 
         internal void OnFieldMouseEnter(int fieldIndex, FieldViewModel fieldViewModel)
@@ -157,13 +163,18 @@ namespace Check.Views
                     }
                     else
                     {
+                        List<Move> possibleMoves      = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
+                        int        possibleMovesCount = possibleMoves.Count;
+
                         bool moved = false;
 
-                        foreach (Move move in Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)))
+                        for (int possibleMoveIndex = 0; possibleMoveIndex < possibleMovesCount; possibleMoveIndex += 1)
                         {
+                            Move move = possibleMoves[possibleMoveIndex];
+
                             moved = true;
 
-                            Position.MoveInSitu(move);
+                            Position.MoveInSitu(ref move);
 
                             Position.GetMovesAndTakes();
 
@@ -442,7 +453,7 @@ namespace Check.Views
 
                 Move move = Position.PossibleMoves.ElementAt(randomIndex);
 
-                Position.MoveInSitu(move);
+                Position.MoveInSitu(ref move);
 
                 RefreshFields();
             }
@@ -462,7 +473,7 @@ namespace Check.Views
 
                 Move move = Position.PossibleMoves.ElementAt(randomIndex);
 
-                Position.MoveInSitu(move);
+                Position.MoveInSitu(ref move);
 
                 await PauseIfRequired();
 
@@ -484,7 +495,12 @@ namespace Check.Views
 
             Dictionary<byte[], int> alreadyHandledPositions = new Dictionary<byte[], int>(new ByteArrayComparer());
 
-            var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
+            Callback callback = (ownMovesSolution, opponentsMovesSolution) =>
+            {
+
+            } ;
+
+            var a = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions, callback);
         }
 
         private enum RecursionResult
@@ -493,29 +509,32 @@ namespace Check.Views
             DoesLeadToForcedWin
         }
 
-        private async Task<(RecursionResult result, int count)> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], int> alreadyHandledPositions)
+        private async Task<(RecursionResult result, int count)> BeginAndWin(Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], int> alreadyHandledPositions, Callback callback)
         {
             RecursionResult result = RecursionResult.DoesNotLeadToForcedWin;
             int             count  = 0;
 
-            List<Move> possibleOwnMoves = CopyListOfMoves(Position.PossibleMoves);
+            List<Move> possibleOwnMoves      = CopyListOfMoves(Position.PossibleMoves);
+            int        possibleOwnMovesCount = possibleOwnMoves.Count;
 
             bool continueOwnMoves = true;
 
-            foreach (Move ownMove in possibleOwnMoves)
+            for (int ownMoveIndex = 0; ownMoveIndex < possibleOwnMovesCount; ownMoveIndex += 1)
             {
                 if (continueOwnMoves)
                 {
-                    Move ownMoveCopy = ownMove.Copy();
+                    Move ownMove = possibleOwnMoves[ownMoveIndex];
 
-                    ownMoves.Push(ownMoveCopy.ToString());
+                    ownMoves.Push(ownMove.ToString());
 #if DEBUG
                     byte[] fieldsBeforeMove = Position.CopyFields();
 #endif
-                    ownMoveCopy.Promoted = Position.    MoveInSitu(ownMoveCopy);
-                    ownMoveCopy.Promoted = Position.UndoMoveInSitu(ownMoveCopy);
+                    Position.    MoveInSitu(ref ownMove);
+                    Position.UndoMoveInSitu(ref ownMove);
+#if DEBUG
                     if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
-                    ownMoveCopy.Promoted = Position.    MoveInSitu(ownMoveCopy);
+#endif
+                    Position.    MoveInSitu(ref ownMove);
 
                   //if (! alreadyHandledPositions.ContainsKey(Position._fields))
                   //{
@@ -529,22 +548,25 @@ namespace Check.Views
 
                         if (Position.NumberOfMoves > 0)
                         {
-                            List<Move> possibleOpponentsMoves = CopyListOfMoves(Position.PossibleMoves);
+                            List<Move> possibleOpponentsMoves      = CopyListOfMoves(Position.PossibleMoves);
+                            int        possibleOpponentsMovesCount = possibleOpponentsMoves.Count;
 
                             bool allMovesLeadToForcedWin = true;
 
-                            foreach (Move opponentsMove in possibleOpponentsMoves)
+                            for (int opponentIndex = 0; opponentIndex < possibleOpponentsMovesCount; opponentIndex += 1)
                             {
                                 if (allMovesLeadToForcedWin)
                                 {
-                                    Move opponentsMoveCopy = opponentsMove.Copy();
+                                    Move      opponentsMove = possibleOpponentsMoves[opponentIndex];
 #if DEBUG
                                     byte[] fieldsBeforeTake = Position.CopyFields();
 #endif
-                                    opponentsMoveCopy.Promoted = Position.    MoveInSitu(opponentsMoveCopy);
-                                    opponentsMoveCopy.Promoted = Position.UndoMoveInSitu(opponentsMoveCopy);
+                                    Position.    MoveInSitu(ref opponentsMove);
+                                    Position.UndoMoveInSitu(ref opponentsMove);
+#if DEBUG
                                     if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
-                                    opponentsMoveCopy.Promoted = Position.    MoveInSitu(opponentsMoveCopy);
+#endif
+                                    Position.    MoveInSitu(ref opponentsMove);
 
                                   //if (! alreadyHandledPositions.ContainsKey(Position._fields))
                                   //{
@@ -554,11 +576,11 @@ namespace Check.Views
 
                                         await PauseIfRequired();
 
-                                        opponentsMoves.Push(opponentsMoveCopy.ToString());
+                                        opponentsMoves.Push(opponentsMove.ToString());
 
                                         Position.GetMovesAndTakes();
 
-                                        (RecursionResult result, int count) recursionResult = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions);
+                                        (RecursionResult result, int count) recursionResult = await BeginAndWin(ownMoves, opponentsMoves, alreadyHandledPositions, callback);
 
                                         opponentsMoves.Pop();
 
@@ -572,7 +594,7 @@ namespace Check.Views
                                         await PauseIfRequired();
                                   //}
 
-                                  opponentsMoveCopy.Promoted = Position.UndoMoveInSitu(opponentsMoveCopy);
+                                    Position.UndoMoveInSitu(ref opponentsMove);
 #if DEBUG
                                     if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
 #endif
@@ -584,6 +606,8 @@ namespace Check.Views
                                 continueOwnMoves = false;
 
                                 result = RecursionResult.DoesLeadToForcedWin;
+
+                                callback(ownMoves, opponentsMoves);
                             }
                         }
                         else
@@ -595,11 +619,13 @@ namespace Check.Views
                                 continueOwnMoves = false;
 
                                 result = RecursionResult.DoesLeadToForcedWin;
+
+                                callback(ownMoves, opponentsMoves);
                             }
                         }
                   //}
 
-                    ownMoveCopy.Promoted = Position.UndoMoveInSitu(ownMoveCopy);
+                    Position.UndoMoveInSitu(ref ownMove);
 #if DEBUG
                     if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
 #endif
