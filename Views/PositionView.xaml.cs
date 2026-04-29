@@ -531,20 +531,20 @@ namespace Check.Views
                     ownMoves.Push(ownMove.ToString());
 #if CHECK_MOVES
                     byte[] fieldsBeforeMove = Position.CopyFields();
-#endif
+
                     Position.    MoveInSitu(ref ownMove);
                     Position.UndoMoveInSitu(ref ownMove);
-#if CHECK_MOVES
+
                     if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
 #endif
                     Position.    MoveInSitu(ref ownMove);
 
-                    if (alreadyHandledPositions.ContainsKey(Position._fields))
-                    {
-                        result = alreadyHandledPositions[Position._fields];
-                    }
-                    else
-                    {
+                  //if (alreadyHandledPositions.ContainsKey(Position._fields))
+                  //{
+                  //    result = alreadyHandledPositions[Position._fields];
+                  //}
+                  //else
+                  //{
                         await PauseIfRequired();
 
                         Position.GetTakes();
@@ -573,12 +573,12 @@ namespace Check.Views
 
                                     RecursionResult recursionResult;
 
-                                    if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
-                                    {
-                                        recursionResult = recursionResult2;
-                                    }
-                                    else
-                                    {
+                                  //if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
+                                  //{
+                                  //    recursionResult = recursionResult2;
+                                  //}
+                                  //else
+                                  //{
                                         await PauseIfRequired();
 
                                         opponentsMoves.Push(opponentsMove.ToString());
@@ -596,8 +596,8 @@ namespace Check.Views
 
                                         await PauseIfRequired();
 
-                                        alreadyHandledPositions.Add(Position._fields, recursionResult);
-                                    }
+                                  //    alreadyHandledPositions.Add(Position._fields, recursionResult);
+                                  //}
 
                                     Position.UndoMoveInSitu(ref opponentsMove);
 #if CHECK_MOVES
@@ -629,8 +629,8 @@ namespace Check.Views
                             }
                         }
 
-                        alreadyHandledPositions.Add(Position._fields, result);
-                    }
+                  //    alreadyHandledPositions.Add(Position._fields, result);
+                  //}
 
                     Position.UndoMoveInSitu(ref ownMove);
 #if CHECK_MOVES
