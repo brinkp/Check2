@@ -454,6 +454,7 @@ namespace Check.Views
                 Move move = Position.PossibleMoves.ElementAt(randomIndex);
 
                 Position.MoveInSitu(ref move);
+                Position.GetMovesAndTakes();
 
                 RefreshFields();
             }
@@ -474,6 +475,7 @@ namespace Check.Views
                 Move move = Position.PossibleMoves.ElementAt(randomIndex);
 
                 Position.MoveInSitu(ref move);
+                Position.GetMovesAndTakes();
 
                 await PauseIfRequired();
 
