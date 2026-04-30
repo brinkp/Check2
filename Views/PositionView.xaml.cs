@@ -96,7 +96,7 @@ namespace Check.Views
 
         #region Delegates
 
-        private delegate void Callback(Stack<string> ownMoves, Stack<string> opponentsMoves);
+        private delegate void Callback(Stack<Move> ownMoves, Stack<Move> opponentsMoves);
 
         #endregion
 
@@ -487,20 +487,27 @@ namespace Check.Views
         {
             ResetStatus();
 
-            byte[] originalFields = Position.CopyFields();
-            double originalValue  = Position.Evaluate  ();
-
-            Stack<string> ownMoves       = new Stack<string>();
-            Stack<string> opponentsMoves = new Stack<string>();
+            Stack<Move> ownMoves       = new Stack<Move>();
+            Stack<Move> opponentsMoves = new Stack<Move>();
 
             Dictionary<byte[], RecursionResult> alreadyHandledPositions = new Dictionary<byte[], RecursionResult>(new ByteArrayComparer());
 
-            Callback callback = (ownMovesSolution, opponentsMovesSolution) =>
-            {
-                MessageBox.Show(ownMoves.Peek());
-            } ;
+            Move bestMove = new Move();
 
-            var a = await BeginAndWin(0, ownMoves, opponentsMoves, alreadyHandledPositions, callback);
+            await BeginAndWin(0, ownMoves, opponentsMoves, alreadyHandledPositions, (ownMovesSolution, opponentsMovesSolution) =>
+            {
+                if (ownMoves.Count > 0)
+                {
+                    bestMove = ownMoves.Peek();
+                }
+            } );
+
+            if (bestMove.IsValid)
+            {
+                Position.MoveInSitu(ref bestMove);
+
+                RefreshFields();
+            }
 
             Position.GetMovesAndTakes();
         }
@@ -511,7 +518,7 @@ namespace Check.Views
             DoesLeadToForcedWin
         }
 
-        private async Task<RecursionResult> BeginAndWin(int depth, Stack<string> ownMoves, Stack<string> opponentsMoves, Dictionary<byte[], RecursionResult> alreadyHandledPositions, Callback callback)
+        private async Task<RecursionResult> BeginAndWin(int depth, Stack<Move> ownMoves, Stack<Move> opponentsMoves, Dictionary<byte[], RecursionResult> alreadyHandledPositions, Callback callback)
         {
             depth += 1;
 
@@ -528,7 +535,7 @@ namespace Check.Views
                 {
                     Move ownMove = possibleOwnMoves[ownMoveIndex];
 
-                    ownMoves.Push(ownMove.ToString());
+                    ownMoves.Push(ownMove);
 #if CHECK_MOVES
                     byte[] fieldsBeforeMove = Position.CopyFields();
 
@@ -569,40 +576,39 @@ namespace Check.Views
 
                                     if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
 #endif
+                                    opponentsMoves.Push(opponentsMove);
+
                                     Position.    MoveInSitu(ref opponentsMove);
 
                                     RecursionResult recursionResult;
 
-                                  //if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
-                                  //{
-                                  //    recursionResult = recursionResult2;
-                                  //}
-                                  //else
-                                  //{
+                                    if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
+                                    {
+                                        recursionResult = recursionResult2;
+                                    }
+                                    else
+                                    {
                                         await PauseIfRequired();
-
-                                        opponentsMoves.Push(opponentsMove.ToString());
 
                                         Position.GetMovesAndTakes();
 
                                         recursionResult = await BeginAndWin(depth, ownMoves, opponentsMoves, alreadyHandledPositions, callback);
 
-                                        opponentsMoves.Pop();
-
-                                        if (recursionResult == RecursionResult.DoesNotLeadToForcedWin)
-                                        {
-                                            allMovesLeadToForcedWin = false;
-                                        }
-
                                         await PauseIfRequired();
 
-                                  //    alreadyHandledPositions.Add(Position._fields, recursionResult);
-                                  //}
+                                        alreadyHandledPositions.Add(Position._fields, recursionResult);
+                                    }
+
+                                    if (recursionResult == RecursionResult.DoesNotLeadToForcedWin)
+                                    {
+                                        allMovesLeadToForcedWin = false;
+                                    }
 
                                     Position.UndoMoveInSitu(ref opponentsMove);
 #if CHECK_MOVES
                                     if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
 #endif
+                                    opponentsMoves.Pop();
                                 }
                             }
 
