@@ -64,7 +64,8 @@ namespace Check.ViewModels
 
         public      bool                                 Promoted { get;         set; }
 
-        public bool IsValid => FromField != 0;
+        public      bool IsTake  => NumberOfTakes > 0;
+        public      bool IsValid => FromField    != 0;
 
         #endregion
 

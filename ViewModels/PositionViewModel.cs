@@ -173,9 +173,28 @@ namespace Check.ViewModels
                   //{
                         if (updateUiIfRequired != null) await updateUiIfRequired();
 
-                        Position.GetTakes();
+                        Position.GetMovesAndTakes();
 
-                        if (Position.NumberOfMoves > 0)
+                        bool forcedMove = false;
+
+                        switch (Position.NumberOfMoves)
+                        {
+                            case 0:
+                                continueOwnMoves = false;
+
+                                result = RecursionResult.DoesLeadToForcedWin;
+
+                                if (depth == 1) callback(ownMoves, opponentsMoves);
+                                break;
+                            case 1:
+                                forcedMove = true;
+                                break;
+                            default:
+                                forcedMove = Position.HasTakes;
+                                break;
+                        }
+
+                        if (forcedMove)
                         {
                             List<Move> possibleOpponentsMoves      = CopyListOfMoves(Position.PossibleMoves);
                             int        possibleOpponentsMovesCount = possibleOpponentsMoves.Count;
@@ -232,19 +251,6 @@ namespace Check.ViewModels
                             }
 
                             if (allMovesLeadToForcedWin)
-                            {
-                                continueOwnMoves = false;
-
-                                result = RecursionResult.DoesLeadToForcedWin;
-
-                                if (depth == 1) callback(ownMoves, opponentsMoves);
-                            }
-                        }
-                        else
-                        {
-                            Position.GetMovesAndTakes();
-
-                            if (! Position.HasMoves)
                             {
                                 continueOwnMoves = false;
 

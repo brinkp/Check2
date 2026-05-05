@@ -177,7 +177,8 @@ namespace Check.Models
         public IEnumerable<Move> PossibleMoves                         => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
         public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) =>  PossibleMoves.Where(move => move.FromField == fromFieldIndex);
 
-        public bool HasMoves      =>  NumberOfMoves > 0;
+      //public bool HasMoves      =>  NumberOfMoves > 0;
+        public bool HasTakes      => _moves.Take(1).First(move => move.IsValid).IsTake;
 
         public int  NumberOfMoves => _moves.Take(_numberOfMoves).Count(move => move.IsValid);
 
@@ -223,7 +224,7 @@ namespace Check.Models
                         case (byte) FieldContentEnum.WhiteKing:
                            _fields[fromFieldIndex] = (byte) FieldContentEnum.Empty;
 
-                            GetTakesForKing(FieldContentEnum.BlackMan, FieldContentEnum.BlackKing, fromFieldIndex, 0, fromFieldIndex);
+                            GetTakesForKing(FieldContentEnum.BlackMan, FieldContentEnum.BlackKing, fromFieldIndex, fromFieldIndex);
 
                            _fields[fromFieldIndex] = (byte) FieldContentEnum.WhiteKing;
                             break;
@@ -246,7 +247,7 @@ namespace Check.Models
                         case (byte) FieldContentEnum.BlackKing:
                            _fields[fromFieldIndex] = (byte) FieldContentEnum.Empty;
 
-                            GetTakesForKing(FieldContentEnum.WhiteMan, FieldContentEnum.WhiteKing, fromFieldIndex, 0, fromFieldIndex);
+                            GetTakesForKing(FieldContentEnum.WhiteMan, FieldContentEnum.WhiteKing, fromFieldIndex, fromFieldIndex);
 
                            _fields[fromFieldIndex] = (byte) FieldContentEnum.BlackKing;
                             break;
@@ -523,21 +524,21 @@ namespace Check.Models
 
         #region Get takes for king
 
-        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom)
+        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexFrom)
         {
             // ReSharper disable once ReplaceWithSingleAssignment.False
             bool result = false;
 
             // ReSharper disable once ConvertIfToOrExpression
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upLefts )) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom,   _upRights)) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downLefts )) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, fieldIndexFrom, _downRights)) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   _upLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   _upRights)) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, _downLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, _downRights)) result = true;
 
             return result;
         }
 
-        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexEnd, int fieldIndexFrom, int[] tryFields)
+        private bool GetTakesForKing(FieldContentEnum manToTake, FieldContentEnum kingToTake, int fieldIndexStart, int fieldIndexFrom, int[] tryFields)
         {
             bool result        = false         ;
             bool tryNext       = true          ;
@@ -557,7 +558,8 @@ namespace Check.Models
                         if (_fields[tryFieldIndex2] == (byte) FieldContentEnum.Empty)
                         {
                             result = true;
-                            fieldIndexEnd = tryFieldIndex2;
+
+                            int fieldIndexEnd = tryFieldIndex2;
 
                             _fields[fieldIndexTake] = (byte) FieldContentEnum.Taken;
 
@@ -565,7 +567,7 @@ namespace Check.Models
 
                             _numberOfTakesInMove += 1;
 
-                            if (!GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexEnd, tryFieldIndex2))
+                            if (! GetTakesForKing(manToTake, kingToTake, fieldIndexStart, tryFieldIndex2))
                             {
                                 if (_numberOfTakesInMove > 0)
                                 {
