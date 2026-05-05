@@ -94,12 +94,6 @@ namespace Check.Views
 
         #endregion
 
-        #region Delegates
-
-        private delegate void Callback(Stack<Move> ownMoves, Stack<Move> opponentsMoves);
-
-        #endregion
-
         #region Event handlers
 
         internal void OnFieldMouseEnter(int fieldIndex, FieldViewModel fieldViewModel)
@@ -266,17 +260,17 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.M:
-                        Move();
+                        MoveRandom();
 
                         ea.Handled = true;
                         break;
                     case Key.P:
-                        await Play();
+                        await PlayRandom();
 
                         ea.Handled = true;
                         break;
                     case Key.W:
-                        await WhiteBeginsAndWins();
+                        await SolveCombinationForWhite();
 
                         ea.Handled = true;
                         break;
@@ -419,7 +413,7 @@ namespace Check.Views
 
         private void SetDefaultStatus(FieldViewModel fieldViewModel)
         {
-            fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+            if (fieldViewModel != null) fieldViewModel.FieldStatus = FieldStatusEnum.Default;
 
           //FromFieldViewModel = null;
             FromFieldIndex     =    0;
@@ -439,72 +433,31 @@ namespace Check.Views
             }
         }
 
-        private void Move()
+        private void MoveRandom()
         {
             ResetStatus();
 
-            Random random = new Random();
+            Move move = PositionViewModel.MoveRandom();
 
-            int count = Position.PossibleMoves.Count();
-
-            if (count > 0)
-            {
-                int randomIndex = random.Next(count);
-
-                Move move = Position.PossibleMoves.ElementAt(randomIndex);
-
-                Position.MoveInSitu(ref move);
-                Position.GetMovesAndTakes();
-
-                RefreshFields();
-            }
+            if  (move.IsValid) SetDefaultStatus(null);
         }
 
-        private async Task Play()
+        private async Task PlayRandom()
         {
             ResetStatus();
 
-            Random random = new Random();
-
-            int count = Position.PossibleMoves.Count();
-
-            while (count > 0)
-            {
-                int randomIndex = random.Next(count);
-
-                Move move = Position.PossibleMoves.ElementAt(randomIndex);
-
-                Position.MoveInSitu(ref move);
-                Position.GetMovesAndTakes();
-
-                await PauseIfRequired();
-
-                count = Position.PossibleMoves.Count();
-            }
+            await PositionViewModel.PlayRandom(PauseIfRequired);
 
             RefreshFields();
         }
 
-        private async Task WhiteBeginsAndWins()
+        private async Task SolveCombinationForWhite()
         {
             ResetStatus();
 
-            Stack<Move> ownMoves       = new Stack<Move>();
-            Stack<Move> opponentsMoves = new Stack<Move>();
+            Move bestMove = await PositionViewModel.SolveCombinationForWhite(PauseIfRequired);
 
-            Dictionary<byte[], RecursionResult> alreadyHandledPositions = new Dictionary<byte[], RecursionResult>(new ByteArrayComparer());
-
-            Move bestMove = new Move();
-
-            await BeginAndWin(0, ownMoves, opponentsMoves, alreadyHandledPositions, (ownMovesSolution, opponentsMovesSolution) =>
-            {
-                if (ownMoves.Count > 0)
-                {
-                    bestMove = ownMoves.Peek();
-                }
-            } );
-
-            if (bestMove.IsValid)
+            if  (bestMove.IsValid)
             {
                 Position.MoveInSitu(ref bestMove);
 
@@ -512,145 +465,8 @@ namespace Check.Views
             }
 
             Position.GetMovesAndTakes();
-        }
 
-        private enum RecursionResult
-        {
-            DoesNotLeadToForcedWin,
-            DoesLeadToForcedWin
-        }
-
-        private async Task<RecursionResult> BeginAndWin(int depth, Stack<Move> ownMoves, Stack<Move> opponentsMoves, Dictionary<byte[], RecursionResult> alreadyHandledPositions, Callback callback)
-        {
-            depth += 1;
-
-            RecursionResult           result = RecursionResult.DoesNotLeadToForcedWin;
-
-            List<Move> possibleOwnMoves      = CopyListOfMoves(Position.PossibleMoves);
-            int        possibleOwnMovesCount = possibleOwnMoves.Count;
-
-            bool continueOwnMoves = true;
-
-            for (int ownMoveIndex = 0; ownMoveIndex < possibleOwnMovesCount; ownMoveIndex += 1)
-            {
-                if (continueOwnMoves)
-                {
-                    Move ownMove = possibleOwnMoves[ownMoveIndex];
-
-                    ownMoves.Push(ownMove);
-#if CHECK_MOVES
-                    byte[] fieldsBeforeMove = Position.CopyFields();
-
-                    Position.    MoveInSitu(ref ownMove);
-                    Position.UndoMoveInSitu(ref ownMove);
-
-                    if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
-#endif
-                    Position.    MoveInSitu(ref ownMove);
-
-                  //if (alreadyHandledPositions.ContainsKey(Position._fields))
-                  //{
-                  //    result = alreadyHandledPositions[Position._fields];
-                  //}
-                  //else
-                  //{
-                        await PauseIfRequired();
-
-                        Position.GetTakes();
-
-                        if (Position.NumberOfMoves > 0)
-                        {
-                            List<Move> possibleOpponentsMoves      = CopyListOfMoves(Position.PossibleMoves);
-                            int        possibleOpponentsMovesCount = possibleOpponentsMoves.Count;
-
-                            bool allMovesLeadToForcedWin = true;
-
-                            for (int opponentIndex = 0; opponentIndex < possibleOpponentsMovesCount; opponentIndex += 1)
-                            {
-                                if (allMovesLeadToForcedWin)
-                                {
-                                    Move      opponentsMove = possibleOpponentsMoves[opponentIndex];
-#if CHECK_MOVES
-                                    byte[] fieldsBeforeTake = Position.CopyFields();
-
-                                    Position.    MoveInSitu(ref opponentsMove);
-                                    Position.UndoMoveInSitu(ref opponentsMove);
-
-                                    if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
-#endif
-                                    opponentsMoves.Push(opponentsMove);
-
-                                    Position.    MoveInSitu(ref opponentsMove);
-
-                                    RecursionResult recursionResult;
-
-                                    if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
-                                    {
-                                        recursionResult = recursionResult2;
-                                    }
-                                    else
-                                    {
-                                        await PauseIfRequired();
-
-                                        Position.GetMovesAndTakes();
-
-                                        recursionResult = await BeginAndWin(depth, ownMoves, opponentsMoves, alreadyHandledPositions, callback);
-
-                                        await PauseIfRequired();
-
-                                        alreadyHandledPositions.Add(Position._fields, recursionResult);
-                                    }
-
-                                    if (recursionResult == RecursionResult.DoesNotLeadToForcedWin)
-                                    {
-                                        allMovesLeadToForcedWin = false;
-                                    }
-
-                                    Position.UndoMoveInSitu(ref opponentsMove);
-#if CHECK_MOVES
-                                    if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
-#endif
-                                    opponentsMoves.Pop();
-                                }
-                            }
-
-                            if (allMovesLeadToForcedWin)
-                            {
-                                continueOwnMoves = false;
-
-                                result = RecursionResult.DoesLeadToForcedWin;
-
-                                if (depth == 1) callback(ownMoves, opponentsMoves);
-                            }
-                        }
-                        else
-                        {
-                            Position.GetMovesAndTakes();
-
-                            if (! Position.HasMoves)
-                            {
-                                continueOwnMoves = false;
-
-                                result = RecursionResult.DoesLeadToForcedWin;
-
-                                if (depth == 1) callback(ownMoves, opponentsMoves);
-                            }
-                        }
-
-                  //    alreadyHandledPositions.Add(Position._fields, result);
-                  //}
-
-                    Position.UndoMoveInSitu(ref ownMove);
-#if CHECK_MOVES
-                    if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
-#endif
-                    await PauseIfRequired();
-
-                    ownMoves.Pop();
-                }
-            }
-
-            return result;
+            SetDefaultStatus(null);
         }
 
         private async Task PauseIfRequired()
@@ -661,18 +477,6 @@ namespace Check.Views
 
                 await Task.Delay(DelayOfDisplayOfIntermediatePositions);
             }
-        }
-
-        private List<Move> CopyListOfMoves(IEnumerable<Move> moves)
-        {
-            List<Move> result = new List<Move>();
-
-            if (moves != null)
-            {
-                result.AddRange(moves.Select(move => move.Copy()));
-            }
-
-            return result;
         }
 
         #endregion

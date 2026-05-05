@@ -1,10 +1,19 @@
-﻿using Check.Models;
+﻿#if DEBUG
+#define CHECK_MOVES
+#endif
+
+using System;
+using Check.Models;
+using Check.Views;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Check.ViewModels
 {
     internal class PositionViewModel : BaseViewModel
     {
-        #region ENumerations
+        #region Enumerations
 
         public enum PositionStatusEnum
         {
@@ -12,6 +21,12 @@ namespace Check.ViewModels
             FromGiven,
             TakeInProgress
         }
+
+        #endregion
+
+        #region Delegates
+
+        private delegate void Callback(Stack<Move> ownMoves, Stack<Move> opponentsMoves);
 
         #endregion
 
@@ -36,68 +51,224 @@ namespace Check.ViewModels
 
         #region Public methods
 
-        //public Position.FieldContentEnum* GetFieldContentAddress(int fieldIndex)
-        //{
-        //    Position.FieldContentEnum* result;
+        public Move MoveRandom()
+        {
+            Move result = new Move();
 
-        //    switch (fieldIndex)
-        //    {
-        //        case  1: fixed (Position.FieldContentEnum* p = &_position.Fields[ 1]) result = p; break;
-        //        case  2: fixed (Position.FieldContentEnum* p = &_position.Fields[ 2]) result = p; break;
-        //        case  3: fixed (Position.FieldContentEnum* p = &_position.Fields[ 3]) result = p; break;
-        //        case  4: fixed (Position.FieldContentEnum* p = &_position.Fields[ 4]) result = p; break;
-        //        case  5: fixed (Position.FieldContentEnum* p = &_position.Fields[ 5]) result = p; break;
-        //        case  6: fixed (Position.FieldContentEnum* p = &_position.Fields[ 6]) result = p; break;
-        //        case  7: fixed (Position.FieldContentEnum* p = &_position.Fields[ 7]) result = p; break;
-        //        case  8: fixed (Position.FieldContentEnum* p = &_position.Fields[ 8]) result = p; break;
-        //        case  9: fixed (Position.FieldContentEnum* p = &_position.Fields[ 9]) result = p; break;
-        //        case 10: fixed (Position.FieldContentEnum* p = &_position.Fields[10]) result = p; break;
-        //        case 11: fixed (Position.FieldContentEnum* p = &_position.Fields[11]) result = p; break;
-        //        case 12: fixed (Position.FieldContentEnum* p = &_position.Fields[12]) result = p; break;
-        //        case 13: fixed (Position.FieldContentEnum* p = &_position.Fields[13]) result = p; break;
-        //        case 14: fixed (Position.FieldContentEnum* p = &_position.Fields[14]) result = p; break;
-        //        case 15: fixed (Position.FieldContentEnum* p = &_position.Fields[15]) result = p; break;
-        //        case 16: fixed (Position.FieldContentEnum* p = &_position.Fields[16]) result = p; break;
-        //        case 17: fixed (Position.FieldContentEnum* p = &_position.Fields[17]) result = p; break;
-        //        case 18: fixed (Position.FieldContentEnum* p = &_position.Fields[18]) result = p; break;
-        //        case 19: fixed (Position.FieldContentEnum* p = &_position.Fields[19]) result = p; break;
-        //        case 20: fixed (Position.FieldContentEnum* p = &_position.Fields[20]) result = p; break;
-        //        case 21: fixed (Position.FieldContentEnum* p = &_position.Fields[21]) result = p; break;
-        //        case 22: fixed (Position.FieldContentEnum* p = &_position.Fields[22]) result = p; break;
-        //        case 23: fixed (Position.FieldContentEnum* p = &_position.Fields[23]) result = p; break;
-        //        case 24: fixed (Position.FieldContentEnum* p = &_position.Fields[24]) result = p; break;
-        //        case 25: fixed (Position.FieldContentEnum* p = &_position.Fields[25]) result = p; break;
-        //        case 26: fixed (Position.FieldContentEnum* p = &_position.Fields[26]) result = p; break;
-        //        case 27: fixed (Position.FieldContentEnum* p = &_position.Fields[27]) result = p; break;
-        //        case 28: fixed (Position.FieldContentEnum* p = &_position.Fields[28]) result = p; break;
-        //        case 29: fixed (Position.FieldContentEnum* p = &_position.Fields[29]) result = p; break;
-        //        case 30: fixed (Position.FieldContentEnum* p = &_position.Fields[30]) result = p; break;
-        //        case 31: fixed (Position.FieldContentEnum* p = &_position.Fields[31]) result = p; break;
-        //        case 32: fixed (Position.FieldContentEnum* p = &_position.Fields[32]) result = p; break;
-        //        case 33: fixed (Position.FieldContentEnum* p = &_position.Fields[33]) result = p; break;
-        //        case 34: fixed (Position.FieldContentEnum* p = &_position.Fields[34]) result = p; break;
-        //        case 35: fixed (Position.FieldContentEnum* p = &_position.Fields[35]) result = p; break;
-        //        case 36: fixed (Position.FieldContentEnum* p = &_position.Fields[36]) result = p; break;
-        //        case 37: fixed (Position.FieldContentEnum* p = &_position.Fields[37]) result = p; break;
-        //        case 38: fixed (Position.FieldContentEnum* p = &_position.Fields[38]) result = p; break;
-        //        case 39: fixed (Position.FieldContentEnum* p = &_position.Fields[39]) result = p; break;
-        //        case 40: fixed (Position.FieldContentEnum* p = &_position.Fields[40]) result = p; break;
-        //        case 41: fixed (Position.FieldContentEnum* p = &_position.Fields[41]) result = p; break;
-        //        case 42: fixed (Position.FieldContentEnum* p = &_position.Fields[42]) result = p; break;
-        //        case 43: fixed (Position.FieldContentEnum* p = &_position.Fields[43]) result = p; break;
-        //        case 44: fixed (Position.FieldContentEnum* p = &_position.Fields[44]) result = p; break;
-        //        case 45: fixed (Position.FieldContentEnum* p = &_position.Fields[45]) result = p; break;
-        //        case 46: fixed (Position.FieldContentEnum* p = &_position.Fields[46]) result = p; break;
-        //        case 47: fixed (Position.FieldContentEnum* p = &_position.Fields[47]) result = p; break;
-        //        case 48: fixed (Position.FieldContentEnum* p = &_position.Fields[48]) result = p; break;
-        //        case 49: fixed (Position.FieldContentEnum* p = &_position.Fields[49]) result = p; break;
-        //        case 50: fixed (Position.FieldContentEnum* p = &_position.Fields[50]) result = p; break;
-        //        default:
-        //            throw new ArgumentOutOfRangeException(nameof(fieldIndex), "Invalid switch value");
-        //    }
-        //
-        //    return result;
-        //}
+            int count = Position.PossibleMoves.Count();
+
+            if (count > 0)
+            {
+                int randomIndex = Random.Next(count);
+
+                result = Position.PossibleMoves.ElementAt(randomIndex);
+
+                Position.MoveInSitu(ref result);
+                Position.GetMovesAndTakes();
+            }
+
+            return result;
+        }
+
+        public async Task PlayRandom(Func<Task> updateUiIfRequired)
+        {
+            int count = Position.PossibleMoves.Count();
+
+            while (count > 0)
+            {
+                int randomIndex = Random.Next(count);
+
+                Move move = Position.PossibleMoves.ElementAt(randomIndex);
+
+                Position.MoveInSitu(ref move);
+                Position.GetMovesAndTakes();
+
+                if (updateUiIfRequired != null) await updateUiIfRequired();
+
+                count = Position.PossibleMoves.Count();
+            }
+        }
+
+        public async Task<Move> SolveCombinationForWhite(Func<Task> updateUiIfRequired)
+        {
+            Move result = new Move();
+
+            Stack<Move> ownMoves       = new Stack<Move>();
+            Stack<Move> opponentsMoves = new Stack<Move>();
+
+            Dictionary<byte[], RecursionResult> alreadyHandledPositions = new Dictionary<byte[], RecursionResult>(new ByteArrayComparer());
+
+            await SolveCombination(0, ownMoves, opponentsMoves, alreadyHandledPositions, (ownMovesSolution, opponentsMovesSolution) =>
+            {
+                if (ownMoves.Count > 0)
+                {
+                    result = ownMoves.Peek();
+                }
+            } , updateUiIfRequired);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Private properties
+
+        private Random Random { get; } = new Random();
+
+        #endregion
+
+        #region Private methods
+
+        private List<Move> CopyListOfMoves(IEnumerable<Move> moves)
+        {
+            List<Move> result = new List<Move>();
+
+            if (moves != null)
+            {
+                result.AddRange(moves.Select(move => move.Copy()));
+            }
+
+            return result;
+        }
+
+        private enum RecursionResult
+        {
+            DoesNotLeadToForcedWin,
+            DoesLeadToForcedWin
+        }
+
+        private async Task<RecursionResult> SolveCombination(int depth, Stack<Move> ownMoves, Stack<Move> opponentsMoves, Dictionary<byte[], RecursionResult> alreadyHandledPositions, Callback callback, Func<Task> updateUiIfRequired)
+        {
+            depth += 1;
+
+            RecursionResult           result = RecursionResult.DoesNotLeadToForcedWin;
+
+            List<Move> possibleOwnMoves      = CopyListOfMoves(Position.PossibleMoves);
+            int        possibleOwnMovesCount = possibleOwnMoves.Count;
+
+            bool continueOwnMoves = true;
+
+            for (int ownMoveIndex = 0; ownMoveIndex < possibleOwnMovesCount; ownMoveIndex += 1)
+            {
+                if (continueOwnMoves)
+                {
+                    Move ownMove = possibleOwnMoves[ownMoveIndex];
+
+                    ownMoves.Push(ownMove);
+#if CHECK_MOVES
+                    byte[] fieldsBeforeMove = Position.CopyFields();
+
+                    Position.    MoveInSitu(ref ownMove);
+                    Position.UndoMoveInSitu(ref ownMove);
+
+                    if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
+#endif
+                    Position.    MoveInSitu(ref ownMove);
+
+                  //if (alreadyHandledPositions.ContainsKey(Position._fields))
+                  //{
+                  //    result = alreadyHandledPositions[Position._fields];
+                  //}
+                  //else
+                  //{
+                        if (updateUiIfRequired != null) await updateUiIfRequired();
+
+                        Position.GetTakes();
+
+                        if (Position.NumberOfMoves > 0)
+                        {
+                            List<Move> possibleOpponentsMoves      = CopyListOfMoves(Position.PossibleMoves);
+                            int        possibleOpponentsMovesCount = possibleOpponentsMoves.Count;
+
+                            bool allMovesLeadToForcedWin = true;
+
+                            for (int opponentIndex = 0; opponentIndex < possibleOpponentsMovesCount; opponentIndex += 1)
+                            {
+                                if (allMovesLeadToForcedWin)
+                                {
+                                    Move      opponentsMove = possibleOpponentsMoves[opponentIndex];
+#if CHECK_MOVES
+                                    byte[] fieldsBeforeTake = Position.CopyFields();
+
+                                    Position.    MoveInSitu(ref opponentsMove);
+                                    Position.UndoMoveInSitu(ref opponentsMove);
+
+                                    if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
+#endif
+                                    opponentsMoves.Push(opponentsMove);
+
+                                    Position.    MoveInSitu(ref opponentsMove);
+
+                                    RecursionResult recursionResult;
+
+                                    if (alreadyHandledPositions.TryGetValue(Position._fields, out var recursionResult2))
+                                    {
+                                        recursionResult = recursionResult2;
+                                    }
+                                    else
+                                    {
+                                        if (updateUiIfRequired != null) await updateUiIfRequired();
+
+                                        Position.GetMovesAndTakes();
+
+                                        recursionResult = await SolveCombination(depth, ownMoves, opponentsMoves, alreadyHandledPositions, callback, updateUiIfRequired);
+
+                                        if (updateUiIfRequired != null) await updateUiIfRequired();
+
+                                        alreadyHandledPositions.Add(Position._fields, recursionResult);
+                                    }
+
+                                    if (recursionResult == RecursionResult.DoesNotLeadToForcedWin)
+                                    {
+                                        allMovesLeadToForcedWin = false;
+                                    }
+
+                                    Position.UndoMoveInSitu(ref opponentsMove);
+#if CHECK_MOVES
+                                    if (! Position.PositionEquals(fieldsBeforeTake)) throw new Exception();
+#endif
+                                    opponentsMoves.Pop();
+                                }
+                            }
+
+                            if (allMovesLeadToForcedWin)
+                            {
+                                continueOwnMoves = false;
+
+                                result = RecursionResult.DoesLeadToForcedWin;
+
+                                if (depth == 1) callback(ownMoves, opponentsMoves);
+                            }
+                        }
+                        else
+                        {
+                            Position.GetMovesAndTakes();
+
+                            if (! Position.HasMoves)
+                            {
+                                continueOwnMoves = false;
+
+                                result = RecursionResult.DoesLeadToForcedWin;
+
+                                if (depth == 1) callback(ownMoves, opponentsMoves);
+                            }
+                        }
+
+                  //    alreadyHandledPositions.Add(Position._fields, result);
+                  //}
+
+                    Position.UndoMoveInSitu(ref ownMove);
+#if CHECK_MOVES
+                    if (! Position.PositionEquals(fieldsBeforeMove)) throw new Exception();
+#endif
+                    if (updateUiIfRequired != null) await updateUiIfRequired();
+
+                    ownMoves.Pop();
+                }
+            }
+
+            return result;
+        }
 
         #endregion
     }
