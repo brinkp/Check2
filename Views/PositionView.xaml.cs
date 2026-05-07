@@ -174,7 +174,10 @@ namespace Check.Views
 
                             SetDefaultStatus(fieldViewModel);
 
-                            UndoMoveStack.Push(move);
+                            //if (RedoMoveStack.Peek().Equals(move))
+                            {
+                                UndoMoveStack.Push(move);
+                            }
 
                             break;
                         }
@@ -284,12 +287,36 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.Y:
-                        RedoLastMove();
+                        if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                        {
+                            while (RedoMoveStack.Count > 0)
+                            {
+                                RedoLastMove();
+
+                                await PauseIfRequired();
+                            }
+                        }
+                        else
+                        {
+                            RedoLastMove();
+                        }
 
                         ea.Handled = false;
                         break;
                     case Key.Z:
-                        UndoLastMove();
+                        if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                        {
+                            while (UndoMoveStack.Count > 0)
+                            {
+                                UndoLastMove();
+
+                                await PauseIfRequired();
+                            }
+                        }
+                        else
+                        {
+                            UndoLastMove();
+                        }
 
                         ea.Handled = false;
                         break;
