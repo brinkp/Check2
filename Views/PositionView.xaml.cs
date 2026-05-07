@@ -141,7 +141,7 @@ namespace Check.Views
             }
         }
 
-        internal void OnFieldMouseLeftButtonDown(int fieldIndex, FieldViewModel fieldViewModel)
+        internal async Task OnFieldMouseLeftButtonDown(int fieldIndex, FieldViewModel fieldViewModel)
         {
             Debug.Assert(fieldViewModel != null);
 
@@ -158,15 +158,10 @@ namespace Check.Views
                     else
                     {
                         List<Move> possibleMoves      = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
-                        int        possibleMovesCount = possibleMoves.Count;
 
-                        bool moved = false;
-
-                        for (int possibleMoveIndex = 0; possibleMoveIndex < possibleMovesCount; possibleMoveIndex += 1)
+                        if (possibleMoves.Count > 0)
                         {
-                            Move move = possibleMoves[possibleMoveIndex];
-
-                            moved = true;
+                            Move move = possibleMoves.First();
 
                             Position.MoveInSitu(ref move);
 
@@ -174,15 +169,14 @@ namespace Check.Views
 
                             SetDefaultStatus(fieldViewModel);
 
-                            //if (RedoMoveStack.Peek().Equals(move))
+                          //if (RedoMoveStack.Peek().Equals(ref move))
                             {
                                 UndoMoveStack.Push(move);
                             }
 
-                            break;
+                            await CheckAutomaticMoves();
                         }
-
-                        if (! moved)
+                        else
                         {
                             if (! CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
                             {
@@ -230,20 +224,18 @@ namespace Check.Views
             {
                 switch (ea.Key)
                 {
-                    case Key.N:
-                        Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+                    case Key.A:
+                        AutomaticMoves = ! AutomaticMoves;
+                        break;
+                    case Key.F:
+                        GiveVisualFeedback = ! GiveVisualFeedback;
 
-                        ResetStatus();
-
-                        IndicatePossibleFromFields();
-
-                        UndoMoveStack.Clear();
-                        RedoMoveStack.Clear();
+                        RefreshFields();
 
                         ea.Handled = true;
                         break;
-                    case Key.S:
-                        Position.Save();
+                    case Key.I:
+                        DisplayIntermediatePositions = ! DisplayIntermediatePositions;
 
                         ea.Handled = true;
                         break;
@@ -259,25 +251,30 @@ namespace Check.Views
 
                         ea.Handled = true;
                         break;
-                    case Key.F:
-                        GiveVisualFeedback = ! GiveVisualFeedback;
-
-                        RefreshFields();
-
-                        ea.Handled = true;
-                        break;
-                    case Key.I:
-                        DisplayIntermediatePositions = ! DisplayIntermediatePositions;
-
-                        ea.Handled = true;
-                        break;
                     case Key.M:
                         MoveRandom();
 
                         ea.Handled = true;
                         break;
+                    case Key.N:
+                        Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+
+                        ResetStatus();
+
+                        IndicatePossibleFromFields();
+
+                        UndoMoveStack.Clear();
+                        RedoMoveStack.Clear();
+
+                        ea.Handled = true;
+                        break;
                     case Key.P:
                         await PlayRandom();
+
+                        ea.Handled = true;
+                        break;
+                    case Key.S:
+                        Position.Save();
 
                         ea.Handled = true;
                         break;
@@ -376,6 +373,22 @@ namespace Check.Views
         private int            FromFieldIndex     { get; set; }
       //private FieldViewModel FromFieldViewModel { get; set; }
 
+        private bool _automaticMoves = Properties.Settings.Default.AutomaticMoves;
+        private bool  AutomaticMoves
+        {
+            get => _automaticMoves;
+            set
+            {
+                if (_automaticMoves != value)
+                {
+                    _automaticMoves  = value;
+
+                    Properties.Settings.Default.AutomaticMoves = value;
+                    Properties.Settings.Default.Save();
+                }
+            }
+        }
+
         private bool _giveVisualFeedback = Properties.Settings.Default.GiveVisualFeedback;
         private bool  GiveVisualFeedback
         {
@@ -435,6 +448,25 @@ namespace Check.Views
         #endregion
 
         #region Private methods
+
+        private async Task CheckAutomaticMoves()
+        {
+            if (AutomaticMoves)
+            {
+                while (Position.NumberOfMoves == 1)
+                {
+                    Move move = Position.PossibleMoves.First();
+
+                    Position.MoveInSitu(ref move);
+
+                    Position.GetMovesAndTakes();
+
+                    RefreshFields();
+
+                    await PauseIfRequired();
+                }
+            }
+        }
 
         private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
         private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }

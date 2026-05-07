@@ -71,7 +71,7 @@ namespace Check.ViewModels
 
         #region Public methods
 
-        public bool Equals(Move move)
+        public bool Equals(ref Move move)
         {
             bool result = false;
 

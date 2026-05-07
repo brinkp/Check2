@@ -71,13 +71,22 @@ namespace Check.Views
             ea.Handled = true;
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs ea)
+        protected override async void OnMouseLeftButtonDown(MouseButtonEventArgs ea)
         {
-            base.OnMouseLeftButtonDown(ea);
+            try
+            {
+                base.OnMouseLeftButtonDown(ea);
 
-            PositionView.OnFieldMouseLeftButtonDown(FieldIndex, FieldViewModel);
+                await PositionView.OnFieldMouseLeftButtonDown(FieldIndex, FieldViewModel);
 
-            ea.Handled = true;
+                ea.Handled = true;
+            }
+            catch (Exception e)
+            {
+                Debugger.Break();
+
+                Debug.WriteLine("Exception thrown in OnMouseLeftButtonDown: " + e.Message);
+            }
         }
 
         #endregion

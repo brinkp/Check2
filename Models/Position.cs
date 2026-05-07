@@ -265,7 +265,7 @@ namespace Check.Models
                         {
                             if (_moves[moveIndex2].IsValid)
                             {
-                                if (_moves[moveIndex1].Equals(_moves[moveIndex2]))
+                                if (_moves[moveIndex1].Equals(ref _moves[moveIndex2]))
                                 {
                                     _moves[moveIndex2].Invalidate();
                                 }
