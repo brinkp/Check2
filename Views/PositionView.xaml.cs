@@ -173,6 +173,9 @@ namespace Check.Views
                             Position.GetMovesAndTakes();
 
                             SetDefaultStatus(fieldViewModel);
+
+                            UndoMoveStack.Push(move);
+
                             break;
                         }
 
@@ -231,6 +234,9 @@ namespace Check.Views
 
                         IndicatePossibleFromFields();
 
+                        UndoMoveStack.Clear();
+                        RedoMoveStack.Clear();
+
                         ea.Handled = true;
                         break;
                     case Key.S:
@@ -244,6 +250,9 @@ namespace Check.Views
                         ResetStatus();
 
                         IndicatePossibleFromFields();
+
+                        UndoMoveStack.Clear();
+                        RedoMoveStack.Clear();
 
                         ea.Handled = true;
                         break;
@@ -273,6 +282,16 @@ namespace Check.Views
                         await SolveCombinationForWhite();
 
                         ea.Handled = true;
+                        break;
+                    case Key.Y:
+                        RedoLastMove();
+
+                        ea.Handled = false;
+                        break;
+                    case Key.Z:
+                        UndoLastMove();
+
+                        ea.Handled = false;
                         break;
                 }
             }
@@ -383,6 +402,9 @@ namespace Check.Views
             }
         }
 
+        private Stack<Move> UndoMoveStack { get; } = new Stack<Move>();
+        private Stack<Move> RedoMoveStack { get; } = new Stack<Move>();
+
         #endregion
 
         #region Private methods
@@ -439,14 +461,19 @@ namespace Check.Views
 
             Move move = PositionViewModel.MoveRandom();
 
-            if  (move.IsValid) SetDefaultStatus(null);
+            if  (move.IsValid)
+            {
+                SetDefaultStatus(null);
+
+                UndoMoveStack.Push(move);
+            }
         }
 
         private async Task PlayRandom()
         {
             ResetStatus();
 
-            await PositionViewModel.PlayRandom(PauseIfRequired);
+            await PositionViewModel.PlayRandom(PauseIfRequiredExt);
 
             RefreshFields();
         }
@@ -462,6 +489,8 @@ namespace Check.Views
                 Position.MoveInSitu(ref bestMove);
 
                 RefreshFields();
+
+                UndoMoveStack.Push(bestMove);
             }
 
             Position.GetMovesAndTakes();
@@ -476,6 +505,45 @@ namespace Check.Views
                 RefreshFields();
 
                 await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+            }
+        }
+
+        private async Task PauseIfRequiredExt(Move move)
+        {
+            await PauseIfRequired();
+
+            UndoMoveStack.Push(move);
+        }
+
+        private void UndoLastMove()
+        {
+            if (UndoMoveStack.Count > 0)
+            {
+                Move move = UndoMoveStack.Pop();
+
+                RedoMoveStack.Push(move);
+
+                Position.UndoMoveInSitu(ref move);
+
+                Position.GetMovesAndTakes();
+
+                SetDefaultStatus(null);
+            }
+        }
+
+        private void RedoLastMove()
+        {
+            if (RedoMoveStack.Count > 0)
+            {
+                Move move = RedoMoveStack.Pop();
+
+                UndoMoveStack.Push(move);
+
+                Position.MoveInSitu(ref move);
+
+                Position.GetMovesAndTakes();
+
+                SetDefaultStatus(null);
             }
         }
 

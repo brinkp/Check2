@@ -70,7 +70,7 @@ namespace Check.ViewModels
             return result;
         }
 
-        public async Task PlayRandom(Func<Task> updateUiIfRequired)
+        public async Task PlayRandom(Func<Move, Task> updateUiIfRequired)
         {
             int count = Position.PossibleMoves.Count();
 
@@ -83,7 +83,7 @@ namespace Check.ViewModels
                 Position.MoveInSitu(ref move);
                 Position.GetMovesAndTakes();
 
-                if (updateUiIfRequired != null) await updateUiIfRequired();
+                if (updateUiIfRequired != null) await updateUiIfRequired(move);
 
                 count = Position.PossibleMoves.Count();
             }
