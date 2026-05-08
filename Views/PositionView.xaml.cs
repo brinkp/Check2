@@ -192,30 +192,6 @@ namespace Check.Views
             }
         }
 
-        private bool CheckIfFieldCanBeFrom(int fieldIndex, FieldViewModel fieldViewModel)
-        {
-            bool result = false;
-
-            if (Position.PossibleMoves.Any(move => move.FromField == fieldIndex))
-            {
-                ResetStatus();
-
-                fieldViewModel.FieldStatus = FieldStatusEnum.FromGiven;
-
-                IndicatePossibleToFields  (fieldIndex);
-                IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
-
-              //FromFieldViewModel = fieldViewModel;
-                FromFieldIndex     = fieldIndex    ;
-
-                PositionStatus = PositionViewModel.PositionStatusEnum.FromGiven;
-
-                result = true;
-            }
-
-            return result;
-        }
-
         internal async Task CheckForControlKeys(KeyEventArgs ea)
         {
             base.OnKeyDown(ea);
@@ -370,8 +346,7 @@ namespace Check.Views
             }
         }
 
-        private int            FromFieldIndex     { get; set; }
-      //private FieldViewModel FromFieldViewModel { get; set; }
+        private int   FromFieldIndex { get; set; }
 
         private bool _automaticMoves = Properties.Settings.Default.AutomaticMoves;
         private bool  AutomaticMoves
@@ -447,72 +422,7 @@ namespace Check.Views
 
         #endregion
 
-        #region Private methods
-
-        private async Task CheckAutomaticMoves()
-        {
-            if (AutomaticMoves)
-            {
-                while (Position.NumberOfMoves == 1)
-                {
-                    Move move = Position.PossibleMoves.First();
-
-                    Position.MoveInSitu(ref move);
-
-                    Position.GetMovesAndTakes();
-
-                    RefreshFields();
-
-                    await PauseIfRequired();
-                }
-            }
-        }
-
-        private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
-        private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }
-        private void IndicatePossibleTakeFields(int fromFieldIndex, FieldStatusEnum fieldStatus)
-        {
-            foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex))
-            {
-                if (move.TakeFields?.Count > 0)
-                {
-                    foreach (int fieldIndexTake in move.TakeFields)
-                    {
-                        FieldViewModels[fieldIndexTake - 1].FieldStatus = fieldStatus;
-                    }
-                }
-            }
-        }
-
-        private void ResetStatus()
-        {
-            foreach (FieldViewModel fieldViewModel in FieldViewModels)
-            {
-                fieldViewModel.ResetStatus();
-            }
-        }
-
-        private void SetDefaultStatus(FieldViewModel fieldViewModel)
-        {
-            if (fieldViewModel != null) fieldViewModel.FieldStatus = FieldStatusEnum.Default;
-
-          //FromFieldViewModel = null;
-            FromFieldIndex     =    0;
-
-            PositionStatus = PositionViewModel.PositionStatusEnum.Default;
-
-            ResetStatus();
-
-            IndicatePossibleFromFields();
-        }
-
-        private void RefreshFields()
-        {
-            foreach (FieldViewModel fieldViewModel in FieldViewModels)
-            {
-                fieldViewModel.Refresh();
-            }
-        }
+        #region Commands
 
         private void MoveRandom()
         {
@@ -557,22 +467,9 @@ namespace Check.Views
             SetDefaultStatus(null);
         }
 
-        private async Task PauseIfRequired()
-        {
-            if (DisplayIntermediatePositions && (DelayOfDisplayOfIntermediatePositions > 1))
-            {
-                RefreshFields();
+        #endregion
 
-                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
-            }
-        }
-
-        private async Task PauseIfRequiredExt(Move move)
-        {
-            await PauseIfRequired();
-
-            UndoMoveStack.Push(move);
-        }
+        #region Undo and Redo
 
         private void UndoLastMove()
         {
@@ -603,6 +500,129 @@ namespace Check.Views
                 Position.GetMovesAndTakes();
 
                 SetDefaultStatus(null);
+            }
+        }
+
+        #endregion
+
+        #region Support methods
+
+        private async Task CheckAutomaticMoves()
+        {
+            if (AutomaticMoves)
+            {
+                while (Position.NumberOfMoves == 1)
+                {
+                    Move move = Position.PossibleMoves.First();
+
+                    Position.MoveInSitu(ref move);
+
+                    Position.GetMovesAndTakes();
+
+                    RefreshFields();
+
+                    await PauseIfRequired();
+                }
+            }
+        }
+
+        private bool CheckIfFieldCanBeFrom(int fieldIndex, FieldViewModel fieldViewModel)
+        {
+            bool result = false;
+
+            if (Position.PossibleMoves.Any(move => move.FromField == fieldIndex))
+            {
+                ResetStatus();
+
+                fieldViewModel.FieldStatus = FieldStatusEnum.FromGiven;
+
+                IndicatePossibleToFields  (fieldIndex);
+                IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
+
+                FromFieldIndex = fieldIndex;
+
+                PositionStatus = PositionViewModel.PositionStatusEnum.FromGiven;
+
+                result = true;
+            }
+
+            return result;
+        }
+
+        private async Task PauseIfRequired()
+        {
+            if (DisplayIntermediatePositions && (DelayOfDisplayOfIntermediatePositions > 1))
+            {
+                RefreshFields();
+
+                await Task.Delay(DelayOfDisplayOfIntermediatePositions);
+            }
+        }
+
+        private async Task PauseIfRequiredExt(Move move)
+        {
+            await PauseIfRequired();
+
+            UndoMoveStack.Push(move);
+        }
+
+        #endregion
+
+        #region User interface update methods
+
+        private void UpdateUserInterface()
+        {
+            // ResetStatus               (): clear statuses of all fields and trigger bindings for all fields
+            // Position.GetMovesAndTakes (): get all moves and takes in a new Position
+            // IndicatePossibleFromFields(): for all moves set From field  status
+            // IndicatePossibleToFields  (): for one move  set To   field  status
+            // IndicatePossibleTakeFields(): for one move  set Take fields statuses
+            // SetDefaultStatus          (): 
+            // RefreshFields             (): trigger bindings for all fields
+        }
+
+
+        private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
+        private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }
+        private void IndicatePossibleTakeFields(int fromFieldIndex, FieldStatusEnum fieldStatus)
+        {
+            foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex))
+            {
+                if (move.TakeFields?.Count > 0)
+                {
+                    foreach (int fieldIndexTake in move.TakeFields)
+                    {
+                        FieldViewModels[fieldIndexTake - 1].FieldStatus = fieldStatus;
+                    }
+                }
+            }
+        }
+        private void ResetStatus()
+        {
+            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+            {
+                fieldViewModel.ResetStatus();
+            }
+        }
+
+        private void SetDefaultStatus(FieldViewModel fieldViewModel)
+        {
+            if (fieldViewModel != null) fieldViewModel.FieldStatus = FieldStatusEnum.Default;
+
+            FromFieldIndex = 0;
+
+            PositionStatus = PositionViewModel.PositionStatusEnum.Default;
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+        }
+
+        private void RefreshFields()
+        {
+            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+            {
+                fieldViewModel.Refresh();
             }
         }
 
