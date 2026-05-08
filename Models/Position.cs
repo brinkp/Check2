@@ -174,8 +174,9 @@ namespace Check.Models
 
         #region Public properties
 
-        public IEnumerable<Move> PossibleMoves                         => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
-        public IEnumerable<Move> PossibleMovesFrom(int fromFieldIndex) =>  PossibleMoves.Where(move => move.FromField == fromFieldIndex);
+        public IEnumerable<Move> PossibleMoves                              => _moves.Take(_numberOfMoves).Where(move => move.IsValid);
+        public IEnumerable<Move> PossibleMovesFrom     (int fromFieldIndex) =>  PossibleMoves.Where(move => move.FromField == fromFieldIndex);
+        public int               PossibleMovesFromCount(int fromFieldIndex) =>  PossibleMoves.Count(move => move.FromField == fromFieldIndex);
 
       //public bool HasMoves      =>  NumberOfMoves > 0;
         public bool HasTakes      => _moves.Take(1).First(move => move.IsValid).IsTake;

@@ -148,7 +148,7 @@ namespace Check.Views
             switch (PositionStatus)
             {
                 case PositionViewModel.PositionStatusEnum.Default:
-                    CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
+                    await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
                     break;
                 case PositionViewModel.PositionStatusEnum.FromGiven:
                     if (fieldIndex == FromFieldIndex)
@@ -157,28 +157,15 @@ namespace Check.Views
                     }
                     else
                     {
-                        List<Move> possibleMoves      = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
+                        List<Move> possibleMoves = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
 
                         if (possibleMoves.Count > 0)
                         {
-                            Move move = possibleMoves.First();
-
-                            Position.MoveInSitu(ref move);
-
-                            Position.GetMovesAndTakes();
-
-                            SetDefaultStatus(fieldViewModel);
-
-                          //if (RedoMoveStack.Peek().Equals(ref move))
-                            {
-                                UndoMoveStack.Push(move);
-                            }
-
-                            await CheckAutomaticMoves();
+                            await HandleMoveExt(possibleMoves.First(), fieldViewModel);
                         }
                         else
                         {
-                            if (! CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
+                            if (! await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
                             {
                                 SetDefaultStatus(fieldViewModel);
                             }
@@ -507,30 +494,67 @@ namespace Check.Views
 
         #region Support methods
 
-        private async Task CheckAutomaticMoves()
-        {
-            if (AutomaticMoves)
-            {
-                while (Position.NumberOfMoves == 1)
-                {
-                    Move move = Position.PossibleMoves.First();
-
-                    Position.MoveInSitu(ref move);
-
-                    Position.GetMovesAndTakes();
-
-                    RefreshFields();
-
-                    await PauseIfRequired();
-                }
-            }
-        }
-
-        private bool CheckIfFieldCanBeFrom(int fieldIndex, FieldViewModel fieldViewModel)
+        private async Task<bool> CheckAutomaticMoves(int fieldIndex = 0)
         {
             bool result = false;
 
-            if (Position.PossibleMoves.Any(move => move.FromField == fieldIndex))
+            if (AutomaticMoves)
+            {
+                bool tempDisplay =          DisplayIntermediatePositions;
+                int  tempDelay   = DelayOfDisplayOfIntermediatePositions;
+
+                try
+                {
+                             DisplayIntermediatePositions = true;
+                    DelayOfDisplayOfIntermediatePositions = 800 ;
+
+                    int  numberOfMoves = (fieldIndex == 0) ? Position.NumberOfMoves         : Position.PossibleMovesFromCount(fieldIndex)        ;
+                    Move move          = (fieldIndex == 0) ? Position.PossibleMoves.First() : Position.PossibleMovesFrom     (fieldIndex).First();
+
+                    while (numberOfMoves == 1)
+                    {
+                        result = true;
+
+                        HandleMove(move);
+
+                        await PauseIfRequired();
+
+                        numberOfMoves = Position.NumberOfMoves                 ;
+                        move          = Position.PossibleMoves.FirstOrDefault();
+                    }
+                }
+                finally
+                {
+                             DisplayIntermediatePositions = tempDisplay;
+                    DelayOfDisplayOfIntermediatePositions = tempDelay;
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<bool> CheckIfFieldCanBeFrom(int fieldIndex, FieldViewModel fieldViewModel)
+        {
+            bool result      ;
+            bool movePossible;
+
+            switch (Position.PossibleMovesFromCount(fieldIndex))
+            {
+                case 0:
+                    result       =   false;
+                    movePossible =   false;
+                    break;
+                case 1:
+                    result       =   true ;
+                    movePossible = ! await CheckAutomaticMoves(fieldIndex);
+                    break;
+                default:
+                    result       =   true ;
+                    movePossible =   true ;
+                    break;
+            }
+
+            if (movePossible)
             {
                 ResetStatus();
 
@@ -542,8 +566,6 @@ namespace Check.Views
                 FromFieldIndex = fieldIndex;
 
                 PositionStatus = PositionViewModel.PositionStatusEnum.FromGiven;
-
-                result = true;
             }
 
             return result;
@@ -581,6 +603,30 @@ namespace Check.Views
             // RefreshFields             (): trigger bindings for all fields
         }
 
+        private async Task HandleMoveExt(Move move, FieldViewModel fieldViewModel)
+        {
+            if ((RedoMoveStack.Count > 0) && (RedoMoveStack.Peek().Equals(ref move)))
+            {
+                RedoLastMove();
+            }
+            else
+            {
+                HandleMove(move, fieldViewModel);
+            }
+
+            await CheckAutomaticMoves();
+        }
+
+        private void HandleMove(Move move, FieldViewModel fieldViewModel = null)
+        {
+            Position.MoveInSitu(ref move);
+
+            Position.GetMovesAndTakes();
+
+            UndoMoveStack.Push(move);
+
+            SetDefaultStatus(fieldViewModel);
+        }
 
         private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }
         private void IndicatePossibleToFields  (int fromFieldIndex) { foreach (Move move in Position.PossibleMovesFrom(fromFieldIndex)) { FieldViewModels[move.  ToField - 1].FieldStatus = FieldStatusEnum.CanBeTo  ; } }
