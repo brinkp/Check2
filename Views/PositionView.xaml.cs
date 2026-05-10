@@ -18,6 +18,12 @@ namespace Check.Views
 {
     public partial class PositionView
     {
+        #region Constants
+
+        private const int DisplayOfIntermediatePositionsDelay = 1000;
+
+        #endregion
+
         #region Constructors
 
         internal PositionView(PositionViewModel positionViewModel)
@@ -506,10 +512,10 @@ namespace Check.Views
                 try
                 {
                              DisplayIntermediatePositions = true;
-                    DelayOfDisplayOfIntermediatePositions = 800 ;
+                    DelayOfDisplayOfIntermediatePositions = DisplayOfIntermediatePositionsDelay;
 
-                    int  numberOfMoves = (fieldIndex == 0) ? Position.NumberOfMoves         : Position.PossibleMovesFromCount(fieldIndex)        ;
-                    Move move          = (fieldIndex == 0) ? Position.PossibleMoves.First() : Position.PossibleMovesFrom     (fieldIndex).First();
+                    int  numberOfMoves = (fieldIndex == 0) ? Position.NumberOfMoves                  : Position.PossibleMovesFromCount(fieldIndex)                 ;
+                    Move move          = (fieldIndex == 0) ? Position.PossibleMoves.FirstOrDefault() : Position.PossibleMovesFrom     (fieldIndex).FirstOrDefault();
 
                     while (numberOfMoves == 1)
                     {
@@ -603,6 +609,17 @@ namespace Check.Views
             // RefreshFields             (): trigger bindings for all fields
         }
 
+        private void HandleMove(Move move, FieldViewModel fieldViewModel = null)
+        {
+            Position.MoveInSitu(ref move);
+
+            Position.GetMovesAndTakes();
+
+            UndoMoveStack.Push(move);
+
+            SetDefaultStatus(fieldViewModel);
+        }
+
         private async Task HandleMoveExt(Move move, FieldViewModel fieldViewModel)
         {
             if ((RedoMoveStack.Count > 0) && (RedoMoveStack.Peek().Equals(ref move)))
@@ -615,17 +632,6 @@ namespace Check.Views
             }
 
             await CheckAutomaticMoves();
-        }
-
-        private void HandleMove(Move move, FieldViewModel fieldViewModel = null)
-        {
-            Position.MoveInSitu(ref move);
-
-            Position.GetMovesAndTakes();
-
-            UndoMoveStack.Push(move);
-
-            SetDefaultStatus(fieldViewModel);
         }
 
         private void IndicatePossibleFromFields(                  ) { foreach (Move move in Position.PossibleMoves                    ) { FieldViewModels[move.FromField - 1].FieldStatus = FieldStatusEnum.CanBeFrom; } }

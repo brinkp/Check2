@@ -18,9 +18,21 @@ namespace Check
 
             PositionView positionView = PositionView = new PositionView(new PositionViewModel(new Position())) { Margin = new Thickness(10d) };
 
-            Viewbox viewBox = new Viewbox { Stretch = Stretch.Uniform, Child = positionView };
+            Viewbox      viewBox      =                new Viewbox { Stretch = Stretch.Uniform, Child = positionView };
 
-            Content = viewBox;
+            SettingsView settingsView =                new SettingsView(); Grid.SetColumn(settingsView, 1);
+
+            Grid         grid         =                new Grid();
+
+            grid.   RowDefinitions.Add(new    RowDefinition());
+
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+
+            grid.Children.Add(viewBox     );
+            grid.Children.Add(settingsView);
+
+            Content = grid;
         }
 
         #endregion
