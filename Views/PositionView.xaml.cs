@@ -209,14 +209,7 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.L:
-                        Position.Load();
-
-                        ResetStatus();
-
-                        IndicatePossibleFromFields();
-
-                        UndoMoveStack.Clear();
-                        RedoMoveStack.Clear();
+                        LoadPosition();
 
                         ea.Handled = true;
                         break;
@@ -243,7 +236,7 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.S:
-                        Position.Save();
+                        SavePosition();
 
                         ea.Handled = true;
                         break;
@@ -415,9 +408,31 @@ namespace Check.Views
 
         #endregion
 
+
         #region Commands
 
-        private void MoveRandom()
+        public void ToggleAutomaticMoves              () { AutomaticMoves               = ! AutomaticMoves              ; }
+        public void ToggleGiveVisualFeedback          () { GiveVisualFeedback           = ! GiveVisualFeedback          ; }
+        public void ToggleDisplayIntermediatePositions() { DisplayIntermediatePositions = ! DisplayIntermediatePositions; }
+
+        public void LoadPosition()
+        {
+            Position.Load();
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+
+            UndoMoveStack.Clear();
+            RedoMoveStack.Clear();
+        }
+
+        public void SavePosition()
+        {
+            Position.Save();
+        }
+
+        public void MoveRandom()
         {
             ResetStatus();
 
@@ -431,7 +446,7 @@ namespace Check.Views
             }
         }
 
-        private async Task PlayRandom()
+        public async Task PlayRandom()
         {
             ResetStatus();
 
@@ -464,7 +479,7 @@ namespace Check.Views
 
         #region Undo and Redo
 
-        private void UndoLastMove()
+        public void UndoLastMove()
         {
             if (UndoMoveStack.Count > 0)
             {
@@ -480,7 +495,7 @@ namespace Check.Views
             }
         }
 
-        private void RedoLastMove()
+        public void RedoLastMove()
         {
             if (RedoMoveStack.Count > 0)
             {

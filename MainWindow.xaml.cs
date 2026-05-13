@@ -20,7 +20,7 @@ namespace Check
 
             Viewbox      viewBox      =                new Viewbox { Stretch = Stretch.Uniform, Child = positionView };
 
-            SettingsView settingsView =                new SettingsView(); Grid.SetColumn(settingsView, 1);
+            SettingsView settingsView =                new SettingsView(positionView); Grid.SetColumn(settingsView, 1);
 
             Grid         grid         =                new Grid();
 
