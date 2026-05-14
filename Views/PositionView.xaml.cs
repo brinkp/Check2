@@ -1,4 +1,5 @@
-﻿using Check.ViewModels;
+﻿using Check.Models;
+using Check.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using Check.Models;
 using static Check.ViewModels.FieldViewModel;
 // ReSharper disable LocalizableElement
 
@@ -20,7 +20,21 @@ namespace Check.Views
     {
         #region Constants
 
+        private const int NumberOfRows          = 10;
+        private const int NumberOfColumns       = 10;
+
+        private const int NumberOfRowsOrColumns = 10;
+
+        private const int NumberOfRows1         = NumberOfRows    - 1;
+        private const int NumberOfColumns1      = NumberOfColumns - 1;
+
         private const int DisplayOfIntermediatePositionsDelay = 1000;
+
+        #endregion
+
+        #region Fields
+
+        private FieldView[,] _fieldViews = new FieldView[NumberOfRows, NumberOfColumns];
 
         #endregion
 
@@ -36,7 +50,7 @@ namespace Check.Views
 
             Grid grid = new Grid();
 
-            for (int index = 0; index < 10; index += 1)
+            for (int index = 0; index < NumberOfRowsOrColumns; index += 1)
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(50d) } );
                 grid.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength(50d) } );
@@ -49,23 +63,23 @@ namespace Check.Views
             int       delta = 0;
             int  fieldIndex = 1;
 
-            for (int rowIndex = 0; rowIndex < 10; rowIndex += 1)
+            for (int rowIndex = 0; rowIndex < NumberOfRows; rowIndex += 1)
             {
-                bool  lastRow = rowIndex == 9;
+                bool  lastRow = rowIndex == (NumberOfRows1);
 
-                for (int columnIndex = 0; columnIndex < 10; columnIndex += 2)
+                for (int columnIndex = 0; columnIndex < NumberOfColumns; columnIndex += 2)
                 {
                     int      columnBorder    = columnIndex + delta    ;
                     int      columnFieldView = columnIndex - delta + 1;
 
-                    bool lastColumnBorder    = columnBorder    == 9   ;
-                    bool lastColumnFieldView = columnFieldView == 9   ;
+                    bool lastColumnBorder    = columnBorder    == NumberOfColumns1;
+                    bool lastColumnFieldView = columnFieldView == NumberOfColumns1;
 
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
-                    FieldView      fieldView      =                                      new FieldView     (this,    fieldViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1]   = new FieldViewModel(      positionViewModel, fieldIndex);
+                    FieldView      fieldView      =   _fieldViews[rowIndex, columnIndex] = new FieldView     (this,    fieldViewModel, fieldIndex);
 
                     border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = this } );
 
@@ -89,7 +103,7 @@ namespace Check.Views
                 delta = 1 - delta;
             }
 
-            Content = grid;
+            Content     = grid;
 
             DataContext = positionViewModel;
 
@@ -455,7 +469,7 @@ namespace Check.Views
             RefreshFields();
         }
 
-        private async Task SolveCombinationForWhite()
+        public async Task SolveCombinationForWhite()
         {
             ResetStatus();
 
@@ -473,6 +487,40 @@ namespace Check.Views
             Position.GetMovesAndTakes();
 
             SetDefaultStatus(null);
+        }
+
+        public void FlipBoard()
+        {
+            int delta = 0;
+
+            for (int rowIndex = 0; rowIndex < NumberOfRows / 2; rowIndex += 1)
+            {
+                for (int columnIndex = 0; columnIndex < NumberOfColumns; columnIndex += 2)
+                {
+                    int columnFieldView  = columnIndex - delta + 1;
+
+                    FieldView fieldView1 = _fieldViews[                rowIndex,                   columnIndex    ];
+                    FieldView fieldView2 = _fieldViews[NumberOfRows1 - rowIndex, NumberOfColumns - columnIndex - 2];
+
+                    Debug.Assert(fieldView1 != fieldView2);
+
+                    int       tempRow    =     Grid.GetRow   (fieldView1) ;
+                    int       tempColumn =     Grid.GetColumn(fieldView1) ;
+
+                    Grid.SetRow   (fieldView1, Grid.GetRow   (fieldView2));
+                    Grid.SetColumn(fieldView1, Grid.GetColumn(fieldView2));
+
+                    Grid.SetRow   (fieldView2, tempRow                   );
+                    Grid.SetColumn(fieldView2, tempColumn                );
+                }
+
+                delta = 1 - delta;
+            }
+        }
+
+        public void FlipTurn()
+        {
+            
         }
 
         #endregion

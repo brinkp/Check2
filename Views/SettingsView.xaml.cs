@@ -42,9 +42,12 @@ namespace Check.Views
                       button    = new Button    { Content = new TextBlock { Text = "Save current position" , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Save current position <Ctrl+S>"              } ; button  .Click += OnSavePosition         ; Grid.SetRow(button   , 4); Grid.SetColumn(button   , 1); grid.Children.Add(button   );
                       button    = new Button    { Content = new TextBlock { Text = "Do a move"             , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Do a move <Ctrl+M>"                          } ; button  .Click += OnMove                 ; Grid.SetRow(button   , 5); Grid.SetColumn(button   , 0); grid.Children.Add(button   );
                       button    = new Button    { Content = new TextBlock { Text = "Play until end"        , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Play until end <Ctrl+P>"                     } ; button  .Click += OnPlay                 ; Grid.SetRow(button   , 5); Grid.SetColumn(button   , 1); grid.Children.Add(button   );
+                      button    = new Button    { Content = new TextBlock { Text = "Flip the board"        , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Flip the board"                              } ; button  .Click += OnFlipBoard            ; Grid.SetRow(button   , 6); Grid.SetColumn(button   , 0); grid.Children.Add(button   );
+                      button    = new Button    { Content = new TextBlock { Text = "Flip whose turn it is" , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Flip whose turn it is"                       } ; button  .Click += OnFlipTurn             ; Grid.SetRow(button   , 6); Grid.SetColumn(button   , 1); grid.Children.Add(button   );
 
             Content = grid;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             void OnUndoMove             (object sender, RoutedEventArgs e) { PositionView.UndoLastMove                      (); }
             void OnRedoMove             (object sender, RoutedEventArgs e) { PositionView.RedoLastMove                      (); }
             void OnAutomaticMoves       (object sender, RoutedEventArgs e) { PositionView.ToggleAutomaticMoves              (); }
@@ -54,6 +57,9 @@ namespace Check.Views
             void OnSavePosition         (object sender, RoutedEventArgs e) { PositionView.SavePosition                      (); }
             void OnMove                 (object sender, RoutedEventArgs e) { PositionView.MoveRandom                        (); }
             void OnPlay                 (object sender, RoutedEventArgs e) { PositionView.PlayRandom                        (); }
+            void OnFlipBoard            (object sender, RoutedEventArgs e) { PositionView.FlipBoard                         (); }
+            void OnFlipTurn             (object sender, RoutedEventArgs e) { PositionView.FlipTurn                          (); }
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         private PositionView PositionView { get; }
