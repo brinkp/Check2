@@ -28,13 +28,16 @@ namespace Check.Views
         private const int NumberOfRows1         = NumberOfRows    - 1;
         private const int NumberOfColumns1      = NumberOfColumns - 1;
 
+        private const int NumberOfFields        = 50;
+        private const int NumberOfFields2       = NumberOfFields / 2;
+
         private const int DisplayOfIntermediatePositionsDelay = 1000;
 
         #endregion
 
         #region Fields
 
-        private FieldView[,] _fieldViews = new FieldView[NumberOfRows, NumberOfColumns];
+        private readonly FieldView[] _fieldViews = new FieldView[NumberOfFields];
 
         #endregion
 
@@ -48,12 +51,10 @@ namespace Check.Views
 
             PositionViewModel = positionViewModel;
 
-            Grid grid = new Grid();
-
             for (int index = 0; index < NumberOfRowsOrColumns; index += 1)
             {
-                grid.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(50d) } );
-                grid.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength(50d) } );
+                Grid.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(50d) } );
+                Grid.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength(50d) } );
             }
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
@@ -78,8 +79,8 @@ namespace Check.Views
                     Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
                     Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
-                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1]   = new FieldViewModel(      positionViewModel, fieldIndex);
-                    FieldView      fieldView      =   _fieldViews[rowIndex, columnIndex] = new FieldView     (this,    fieldViewModel, fieldIndex);
+                    FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
+                    FieldView      fieldView      =   _fieldViews     [fieldIndex - 1] = new FieldView     (this,    fieldViewModel, fieldIndex);
 
                     border2.SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModel, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = this } );
 
@@ -94,16 +95,16 @@ namespace Check.Views
                     Grid.SetRow   (fieldView, rowIndex       );
                     Grid.SetColumn(fieldView, columnFieldView);
 
-                    grid.Children.Add(border1  );
-                    grid.Children.Add(border2  );
+                    Grid.Children.Add(border1  );
+                    Grid.Children.Add(border2  );
 
-                    grid.Children.Add(fieldView);
+                    Grid.Children.Add(fieldView);
                 }
 
                 delta = 1 - delta;
             }
 
-            Content     = grid;
+            Content     = Grid;
 
             DataContext = positionViewModel;
 
@@ -333,6 +334,8 @@ namespace Check.Views
 
         #region Private properties
 
+        private Grid Grid { get; } =  new Grid();
+
         private PositionViewModel PositionViewModel { get; }
         private FieldViewModel[]  FieldViewModels   { get; }
 
@@ -491,31 +494,29 @@ namespace Check.Views
 
         public void FlipBoard()
         {
-            int delta = 0;
-
-            for (int rowIndex = 0; rowIndex < NumberOfRows / 2; rowIndex += 1)
+            for (int fieldIndex1 = 0; fieldIndex1 < NumberOfFields2; fieldIndex1 += 1)
             {
-                for (int columnIndex = 0; columnIndex < NumberOfColumns; columnIndex += 2)
-                {
-                    int columnFieldView  = columnIndex - delta + 1;
+                int  fieldIndex2 = NumberOfFields - fieldIndex1 - 1;
 
-                    FieldView fieldView1 = _fieldViews[                rowIndex,                   columnIndex    ];
-                    FieldView fieldView2 = _fieldViews[NumberOfRows1 - rowIndex, NumberOfColumns - columnIndex - 2];
+                FieldView fieldView1 = _fieldViews[fieldIndex1];
+                FieldView fieldView2 = _fieldViews[fieldIndex2];
 
-                    Debug.Assert(fieldView1 != fieldView2);
+                int       tempRow    =     Grid.GetRow   (fieldView1) ;
+                int       tempColumn =     Grid.GetColumn(fieldView1) ;
 
-                    int       tempRow    =     Grid.GetRow   (fieldView1) ;
-                    int       tempColumn =     Grid.GetColumn(fieldView1) ;
+                Grid.SetRow   (fieldView1, Grid.GetRow   (fieldView2));
+                Grid.SetColumn(fieldView1, Grid.GetColumn(fieldView2));
 
-                    Grid.SetRow   (fieldView1, Grid.GetRow   (fieldView2));
-                    Grid.SetColumn(fieldView1, Grid.GetColumn(fieldView2));
+                Grid.SetRow   (fieldView2, tempRow                   );
+                Grid.SetColumn(fieldView2, tempColumn                );
 
-                    Grid.SetRow   (fieldView2, tempRow                   );
-                    Grid.SetColumn(fieldView2, tempColumn                );
-                }
-
-                delta = 1 - delta;
+                Grid.Children.Remove(fieldView1);
+                Grid.Children.Remove(fieldView2);
+                Grid.Children.Add   (fieldView1);
+                Grid.Children.Add   (fieldView2);
             }
+
+            IndicatePossibleFromFields();
         }
 
         public void FlipTurn()
