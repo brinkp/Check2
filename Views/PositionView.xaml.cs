@@ -38,6 +38,7 @@ namespace Check.Views
         #region Fields
 
         private readonly FieldView[] _fieldViews = new FieldView[NumberOfFields];
+        private readonly Border   []   _borders2 = new Border   [NumberOfFields];
 
         #endregion
 
@@ -59,7 +60,7 @@ namespace Check.Views
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
-            FieldViewModels = new FieldViewModel[50];
+            FieldViewModels = new FieldViewModel[NumberOfFields];
 
             int       delta = 0;
             int  fieldIndex = 1;
@@ -76,8 +77,8 @@ namespace Check.Views
                     bool lastColumnBorder    = columnBorder    == NumberOfColumns1;
                     bool lastColumnFieldView = columnFieldView == NumberOfColumns1;
 
-                    Border       border1 = new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
-                    Border       border2 = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
+                    Border       border1 =                             new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
+                    Border       border2 = _borders2[fieldIndex - 1] = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
 
                     FieldViewModel fieldViewModel =    FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
                     FieldView      fieldView      =   _fieldViews     [fieldIndex - 1] = new FieldView     (this,    fieldViewModel, fieldIndex);
@@ -498,17 +499,28 @@ namespace Check.Views
             {
                 int  fieldIndex2 = NumberOfFields - fieldIndex1 - 1;
 
-                FieldView fieldView1 = _fieldViews[fieldIndex1];
-                FieldView fieldView2 = _fieldViews[fieldIndex2];
+                FieldView fieldView1  = _fieldViews[fieldIndex1];
+                FieldView fieldView2  = _fieldViews[fieldIndex2];
 
-                int       tempRow    =     Grid.GetRow   (fieldView1) ;
-                int       tempColumn =     Grid.GetColumn(fieldView1) ;
+                Border    border21    = _borders2  [fieldIndex1];
+                Border    border22    = _borders2  [fieldIndex2];
 
-                Grid.SetRow   (fieldView1, Grid.GetRow   (fieldView2));
-                Grid.SetColumn(fieldView1, Grid.GetColumn(fieldView2));
+                int       tempRow1    =    Grid.GetRow   (fieldView1) ;
+                int       tempRow2    =    Grid.GetRow   (fieldView2) ;
+                int       tempColumn1 =    Grid.GetColumn(fieldView1) ;
+                int       tempColumn2 =    Grid.GetColumn(fieldView2) ;
 
-                Grid.SetRow   (fieldView2, tempRow                   );
-                Grid.SetColumn(fieldView2, tempColumn                );
+                Grid.SetRow   (fieldView1, tempRow2   );
+                Grid.SetColumn(fieldView1, tempColumn2);
+
+                Grid.SetRow   (border21  , tempRow2   );
+                Grid.SetColumn(border21  , tempColumn2);
+
+                Grid.SetRow   (fieldView2, tempRow1   );
+                Grid.SetColumn(fieldView2, tempColumn1);
+
+                Grid.SetRow   (border22  , tempRow1   );
+                Grid.SetColumn(border22  , tempColumn1);
 
                 Grid.Children.Remove(fieldView1);
                 Grid.Children.Remove(fieldView2);
