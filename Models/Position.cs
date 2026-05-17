@@ -788,6 +788,11 @@ namespace Check.Models
 
         #region Public methods
 
+        public void FlipTurn()
+        {
+            WhiteOrBlacksTurn = (WhiteOrBlacksTurn == TurnEnum.White) ? TurnEnum.Black : TurnEnum.White;
+        }
+
         public void MoveInSitu(ref Move move)
         {
             int fromFieldIndex = move.FromField;

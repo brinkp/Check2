@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -495,6 +496,8 @@ namespace Check.Views
 
         public void FlipBoard()
         {
+            // This could also be done with a RenderTransform, maybe combined with an animation
+
             for (int fieldIndex1 = 0; fieldIndex1 < NumberOfFields2; fieldIndex1 += 1)
             {
                 int  fieldIndex2 = NumberOfFields - fieldIndex1 - 1;
@@ -533,7 +536,11 @@ namespace Check.Views
 
         public void FlipTurn()
         {
-            
+            Position.FlipTurn();
+
+            Position.GetMovesAndTakes();
+
+            SetDefaultStatus(null);
         }
 
         #endregion
