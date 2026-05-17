@@ -89,7 +89,7 @@ namespace Check.ViewModels
             }
         }
 
-        public async Task<Move> SolveCombinationForWhite(Func<Task> updateUiIfRequired)
+        public async Task<Move> SolveCombination(Func<Task> updateUiIfRequired)
         {
             Move result = new Move();
 

@@ -44,6 +44,7 @@ namespace Check.Views
                       button    = new Button    { Content = new TextBlock { Text = "Play until end"        , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Play until end <Ctrl+P>"                     } ; button  .Click += OnPlay                 ; Grid.SetRow(button   , 5); Grid.SetColumn(button   , 1); grid.Children.Add(button   );
                       button    = new Button    { Content = new TextBlock { Text = "Flip the board"        , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Flip the board"                              } ; button  .Click += OnFlipBoard            ; Grid.SetRow(button   , 6); Grid.SetColumn(button   , 0); grid.Children.Add(button   );
                       button    = new Button    { Content = new TextBlock { Text = "Flip whose turn it is" , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Flip whose turn it is"                       } ; button  .Click += OnFlipTurn             ; Grid.SetRow(button   , 6); Grid.SetColumn(button   , 1); grid.Children.Add(button   );
+                      button    = new Button    { Content = new TextBlock { Text = "Solve combination"     , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Solve combination"                           } ; button  .Click += OnSolveCombination     ; Grid.SetRow(button   , 7); Grid.SetColumn(button   , 0); grid.Children.Add(button   );
 
             Content = grid;
 
@@ -59,6 +60,7 @@ namespace Check.Views
             void OnPlay                 (object sender, RoutedEventArgs e) { PositionView.PlayRandom                        (); }
             void OnFlipBoard            (object sender, RoutedEventArgs e) { PositionView.FlipBoard                         (); }
             void OnFlipTurn             (object sender, RoutedEventArgs e) { PositionView.FlipTurn                          (); }
+            void OnSolveCombination     (object sender, RoutedEventArgs e) { PositionView.SolveCombination                  (); }
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 

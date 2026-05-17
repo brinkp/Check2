@@ -258,7 +258,7 @@ namespace Check.Views
                         ea.Handled = true;
                         break;
                     case Key.W:
-                        await SolveCombinationForWhite();
+                        await SolveCombination();
 
                         ea.Handled = true;
                         break;
@@ -474,11 +474,11 @@ namespace Check.Views
             RefreshFields();
         }
 
-        public async Task SolveCombinationForWhite()
+        public async Task SolveCombination()
         {
             ResetStatus();
 
-            Move bestMove = await PositionViewModel.SolveCombinationForWhite(PauseIfRequired);
+            Move bestMove = await PositionViewModel.SolveCombination(PauseIfRequired);
 
             if  (bestMove.IsValid)
             {
