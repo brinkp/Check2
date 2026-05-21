@@ -97,8 +97,14 @@
     <Compile Include="ViewModels\Move.cs" />
     <Compile Include="ViewModels\FieldViewModel.cs" />
     <Compile Include="ViewModels\PositionViewModel.cs" />
+    <Compile Include="Views\SettingsEditingView.xaml.cs">
+      <DependentUpon>SettingsEditingView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\FieldView.xaml.cs">
       <DependentUpon>FieldView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsPlayingView.xaml.cs">
+      <DependentUpon>SettingsPlayingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PositionView.xaml.cs">
       <DependentUpon>PositionView.xaml</DependentUpon>
@@ -118,7 +124,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\SettingsEditingView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\FieldView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsPlayingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
