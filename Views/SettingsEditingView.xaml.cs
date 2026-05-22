@@ -19,11 +19,11 @@ namespace Check.Views
 
             PositionView = positionView;
 
-            Border    borderEmpty            = new Border   { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderWhiteMan         = new Border   { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderBlackMan         = new Border   { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderWhiteKing        = new Border   { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderBlackKing        = new Border   { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border    borderEmpty            = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border    borderWhiteMan         = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border    borderBlackMan         = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border    borderWhiteKing        = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border    borderBlackKing        = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
@@ -37,11 +37,11 @@ namespace Check.Views
             positionEditing._fields[4] = (byte) Position.FieldContentEnum.BlackMan ;
             positionEditing._fields[5] = (byte) Position.FieldContentEnum.BlackKing;
 
-            FieldViewModel       fieldViewModelEmpty     = new    FieldViewModel(positionViewModelEditing, 1);
-            FieldViewModel       fieldViewModelWhiteMan  = new    FieldViewModel(positionViewModelEditing, 2);
-            FieldViewModel       fieldViewModelBlackMan  = new    FieldViewModel(positionViewModelEditing, 3);
-            FieldViewModel       fieldViewModelWhiteKing = new    FieldViewModel(positionViewModelEditing, 4);
-            FieldViewModel       fieldViewModelBlackKing = new    FieldViewModel(positionViewModelEditing, 5);
+            FieldViewModel       fieldViewModelEmpty     = new    FieldViewModel(positionViewModelEditing, 1) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
+            FieldViewModel       fieldViewModelWhiteMan  = new    FieldViewModel(positionViewModelEditing, 2) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
+            FieldViewModel       fieldViewModelBlackMan  = new    FieldViewModel(positionViewModelEditing, 3) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
+            FieldViewModel       fieldViewModelWhiteKing = new    FieldViewModel(positionViewModelEditing, 4) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
+            FieldViewModel       fieldViewModelBlackKing = new    FieldViewModel(positionViewModelEditing, 5) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
 
             borderEmpty    .SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModelEmpty    , Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = positionViewEditing } );
             borderWhiteMan .SetBinding(Border.BackgroundProperty, new Binding { Source = fieldViewModelWhiteMan , Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = positionViewEditing } );

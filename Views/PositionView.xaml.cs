@@ -18,6 +18,16 @@ namespace Check.Views
 {
     public partial class PositionView
     {
+        #region Enumerations
+
+        public enum OperationStatusEnum
+        {
+            Playing,
+            Editing
+        }
+
+        #endregion
+
         #region Constants
 
         private const int NumberOfRows          = 10;
@@ -44,6 +54,8 @@ namespace Check.Views
             InitializeComponent();
 
             PositionViewModel = positionViewModel;
+
+            Grid = new Grid();
 
             for (int index = 0; index < NumberOfRowsOrColumns; index += 1)
             {
@@ -117,23 +129,26 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            switch (PositionStatus)
+            if (CanPlay)
             {
-                case PositionViewModel.PositionStatusEnum.Default:
-                    if (Position.PossibleMoves.Any(move => (move.FromField == fieldIndex)))
-                    {
-                        fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
+                switch (PositionStatus)
+                {
+                    case PositionViewModel.PositionStatusEnum.Default:
+                        if (Position.PossibleMoves.Any(move => (move.FromField == fieldIndex)))
+                        {
+                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
 
-                        IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
-                    }
-                    break;
-                case PositionViewModel.PositionStatusEnum.FromGiven:
-                    if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
-                    break;
-                case PositionViewModel.PositionStatusEnum.TakeInProgress:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                            IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
+                        }
+                        break;
+                    case PositionViewModel.PositionStatusEnum.FromGiven:
+                        if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
+                        break;
+                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                }
             }
         }
 
@@ -141,20 +156,23 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            switch (PositionStatus)
+            if (CanPlay)
             {
-                case PositionViewModel.PositionStatusEnum.Default:
-                    if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
+                switch (PositionStatus)
+                {
+                    case PositionViewModel.PositionStatusEnum.Default:
+                        if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
 
-                    IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.Default);
-                    break;
-                case PositionViewModel.PositionStatusEnum.FromGiven:
-                    if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
-                    break;
-                case PositionViewModel.PositionStatusEnum.TakeInProgress:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.Default);
+                        break;
+                    case PositionViewModel.PositionStatusEnum.FromGiven:
+                        if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
+                        break;
+                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                }
             }
         }
 
@@ -162,37 +180,40 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            switch (PositionStatus)
+            if (CanPlay)
             {
-                case PositionViewModel.PositionStatusEnum.Default:
-                    await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
-                    break;
-                case PositionViewModel.PositionStatusEnum.FromGiven:
-                    if (fieldIndex == FromFieldIndex)
-                    {
-                        SetDefaultStatus(fieldViewModel);
-                    }
-                    else
-                    {
-                        List<Move> possibleMoves = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
-
-                        if (possibleMoves.Count > 0)
+                switch (PositionStatus)
+                {
+                    case PositionViewModel.PositionStatusEnum.Default:
+                        await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
+                        break;
+                    case PositionViewModel.PositionStatusEnum.FromGiven:
+                        if (fieldIndex == FromFieldIndex)
                         {
-                            await HandleMoveExt(possibleMoves.First(), fieldViewModel);
+                            SetDefaultStatus();
                         }
                         else
                         {
-                            if (! await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
+                            List<Move> possibleMoves = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
+
+                            if (possibleMoves.Count > 0)
                             {
-                                SetDefaultStatus(fieldViewModel);
+                                await HandleMoveExt(possibleMoves.First(), fieldViewModel);
+                            }
+                            else
+                            {
+                                if (! await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
+                                {
+                                    SetDefaultStatus();
+                                }
                             }
                         }
-                    }
-                    break;
-                case PositionViewModel.PositionStatusEnum.TakeInProgress:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        break;
+                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                }
             }
         }
 
@@ -200,128 +221,131 @@ namespace Check.Views
         {
             base.OnKeyDown(ea);
 
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            if (CanPlay)
             {
-                switch (ea.Key)
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                 {
-                    case Key.A:
-                        AutomaticMoves = ! AutomaticMoves;
-                        break;
-                    case Key.F:
-                        GiveVisualFeedback = ! GiveVisualFeedback;
+                    switch (ea.Key)
+                    {
+                        case Key.A:
+                            AutomaticMoves = ! AutomaticMoves;
+                            break;
+                        case Key.F:
+                            GiveVisualFeedback = ! GiveVisualFeedback;
 
-                        RefreshFields();
+                            RefreshFields();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.I:
-                        DisplayIntermediatePositions = ! DisplayIntermediatePositions;
+                            ea.Handled = true;
+                            break;
+                        case Key.I:
+                            DisplayIntermediatePositions = ! DisplayIntermediatePositions;
 
-                        ea.Handled = true;
-                        break;
-                    case Key.L:
-                        LoadPosition();
+                            ea.Handled = true;
+                            break;
+                        case Key.L:
+                            LoadPosition();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.M:
-                        MoveRandom();
+                            ea.Handled = true;
+                            break;
+                        case Key.M:
+                            MoveRandom();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.N:
-                        Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
+                            ea.Handled = true;
+                            break;
+                        case Key.N:
+                            Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
 
-                        ResetStatus();
+                            ResetStatus();
 
-                        IndicatePossibleFromFields();
+                            IndicatePossibleFromFields();
 
-                        UndoMoveStack.Clear();
-                        RedoMoveStack.Clear();
+                            UndoMoveStack.Clear();
+                            RedoMoveStack.Clear();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.P:
-                        await PlayRandom();
+                            ea.Handled = true;
+                            break;
+                        case Key.P:
+                            await PlayRandom();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.S:
-                        SavePosition();
+                            ea.Handled = true;
+                            break;
+                        case Key.S:
+                            SavePosition();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.W:
-                        await SolveCombination();
+                            ea.Handled = true;
+                            break;
+                        case Key.W:
+                            await SolveCombination();
 
-                        ea.Handled = true;
-                        break;
-                    case Key.Y:
-                        if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
-                        {
-                            while (RedoMoveStack.Count > 0)
+                            ea.Handled = true;
+                            break;
+                        case Key.Y:
+                            if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                            {
+                                while (RedoMoveStack.Count > 0)
+                                {
+                                    RedoLastMove();
+
+                                    await PauseIfRequired();
+                                }
+                            }
+                            else
                             {
                                 RedoLastMove();
-
-                                await PauseIfRequired();
                             }
-                        }
-                        else
-                        {
-                            RedoLastMove();
-                        }
 
-                        ea.Handled = false;
-                        break;
-                    case Key.Z:
-                        if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
-                        {
-                            while (UndoMoveStack.Count > 0)
+                            ea.Handled = false;
+                            break;
+                        case Key.Z:
+                            if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                            {
+                                while (UndoMoveStack.Count > 0)
+                                {
+                                    UndoLastMove();
+
+                                    await PauseIfRequired();
+                                }
+                            }
+                            else
                             {
                                 UndoLastMove();
-
-                                await PauseIfRequired();
                             }
-                        }
-                        else
-                        {
-                            UndoLastMove();
-                        }
 
-                        ea.Handled = false;
-                        break;
+                            ea.Handled = false;
+                            break;
+                    }
                 }
-            }
-            else
-            {
-                switch (ea.Key)
+                else
                 {
-                    case Key.Add    :
-                    case Key.OemPlus:
-                        if (DelayOfDisplayOfIntermediatePositions ==   1)
-                        {
-                            DelayOfDisplayOfIntermediatePositions  = 100;
-                        }
-                        else
-                        {
-                            DelayOfDisplayOfIntermediatePositions += 100;
-                        }
+                    switch (ea.Key)
+                    {
+                        case Key.Add    :
+                        case Key.OemPlus:
+                            if (DelayOfDisplayOfIntermediatePositions ==   1)
+                            {
+                                DelayOfDisplayOfIntermediatePositions  = 100;
+                            }
+                            else
+                            {
+                                DelayOfDisplayOfIntermediatePositions += 100;
+                            }
 
-                        ea.Handled = true;
-                        break;
-                    case Key.Subtract:
-                    case Key.OemMinus:
-                        if (DelayOfDisplayOfIntermediatePositions == 100)
-                        {
-                            DelayOfDisplayOfIntermediatePositions  =   1;
-                        }
-                        else
-                        {
-                            DelayOfDisplayOfIntermediatePositions -= 100;
-                        }
+                            ea.Handled = true;
+                            break;
+                        case Key.Subtract:
+                        case Key.OemMinus:
+                            if (DelayOfDisplayOfIntermediatePositions == 100)
+                            {
+                                DelayOfDisplayOfIntermediatePositions  =   1;
+                            }
+                            else
+                            {
+                                DelayOfDisplayOfIntermediatePositions -= 100;
+                            }
 
-                        ea.Handled = true;
-                        break;
+                            ea.Handled = true;
+                            break;
+                    }
                 }
             }
         }
@@ -330,12 +354,45 @@ namespace Check.Views
 
         #region Private properties
 
-        private Grid Grid { get; } =  new Grid();
+        private Grid                 Grid              { get;      }
+        private PositionViewModel    PositionViewModel { get;      }
+        private FieldViewModel[]     FieldViewModels   { get;      }
+        private FieldView     []     FieldViews        { get;      }
+        private Border        []     Borders           { get;      }
 
-        private PositionViewModel PositionViewModel { get; }
-        private FieldViewModel[]  FieldViewModels   { get; }
-        private FieldView     []  FieldViews        { get; }
-        private Border        []  Borders           { get; }
+        private bool                 Busy              { get; set; }
+
+        private OperationStatusEnum _operationStatus = OperationStatusEnum.Playing;
+        public  OperationStatusEnum  OperationStatus
+        {
+            get => _operationStatus;
+            set
+            {
+                if (_operationStatus != value)
+                {
+                    _operationStatus  = value;
+
+                    switch (value)
+                    {
+                        case OperationStatusEnum.Editing:
+                            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+                            {
+                                fieldViewModel.StartEditingMode();
+                            }
+                            break;
+                        case OperationStatusEnum.Playing:
+                            Position.GetMovesAndTakes();
+
+                            SetDefaultStatus();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(value), "Invalid switch value");
+                    }
+                }
+            }
+        }
+
+        private bool CanPlay => (OperationStatus == OperationStatusEnum.Playing) && (! Busy);
 
         private Position                             Position       => PositionViewModel?.Position;
         private PositionViewModel.PositionStatusEnum PositionStatus
@@ -432,111 +489,195 @@ namespace Check.Views
 
         public void LoadPosition()
         {
-            Position.Load();
+            if (CanPlay)
+            {
+                Busy = true;
 
-            ResetStatus();
+                try
+                {
+                    Position.Load();
 
-            IndicatePossibleFromFields();
+                    ResetStatus();
 
-            UndoMoveStack.Clear();
-            RedoMoveStack.Clear();
+                    IndicatePossibleFromFields();
+
+                    UndoMoveStack.Clear();
+                    RedoMoveStack.Clear();
+                }
+                finally
+                {
+                    Busy = false;
+                }
+            }
         }
 
         public void SavePosition()
         {
-            Position.Save();
+            if (CanPlay)
+            {
+                Busy = true;
+
+                try
+                {
+                    Position.Save();
+                }
+                finally
+                {
+                    Busy = false;
+                }
+            }
         }
 
         public void MoveRandom()
         {
-            ResetStatus();
-
-            Move move = PositionViewModel.MoveRandom();
-
-            if  (move.IsValid)
+            if (CanPlay)
             {
-                SetDefaultStatus(null);
+                Busy = true;
 
-                UndoMoveStack.Push(move);
+                try
+                {
+                    ResetStatus();
+
+                    Move move = PositionViewModel.MoveRandom();
+
+                    if  (move.IsValid)
+                    {
+                        SetDefaultStatus();
+
+                        UndoMoveStack.Push(move);
+                    }
+                }
+                finally
+                {
+                    Busy = false;
+                }
             }
         }
 
         public async Task PlayRandom()
         {
-            ResetStatus();
+            if (CanPlay)
+            {
+                Busy = true;
 
-            await PositionViewModel.PlayRandom(PauseIfRequiredExt);
+                try
+                {
+                    ResetStatus();
 
-            RefreshFields();
+                    await PositionViewModel.PlayRandom(PauseIfRequiredExt);
+
+                    RefreshFields();
+                }
+                finally
+                {
+                    Busy = false;
+                }
+            }
         }
 
         public async Task SolveCombination()
         {
-            ResetStatus();
-
-            Move bestMove = await PositionViewModel.SolveCombination(PauseIfRequired);
-
-            if  (bestMove.IsValid)
+            if (CanPlay)
             {
-                Position.MoveInSitu(ref bestMove);
+                Busy = true;
 
-                RefreshFields();
+                try
+                {
+                    ResetStatus();
 
-                UndoMoveStack.Push(bestMove);
+                    Move bestMove = await PositionViewModel.SolveCombination(PauseIfRequired);
+
+                    if  (bestMove.IsValid)
+                    {
+                        Position.MoveInSitu(ref bestMove);
+
+                        RefreshFields();
+
+                        UndoMoveStack.Push(bestMove);
+                    }
+
+                    Position.GetMovesAndTakes();
+
+                    SetDefaultStatus();
+                }
+                finally
+                {
+                    Busy = false;
+                }
             }
-
-            Position.GetMovesAndTakes();
-
-            SetDefaultStatus(null);
         }
 
         public void FlipBoard()
         {
             // This could also be done with a RenderTransform, maybe combined with an animation
 
-            for (int fieldIndex1 = 0; fieldIndex1 < NumberOfFields2; fieldIndex1 += 1)
+            if (CanPlay)
             {
-                int  fieldIndex2 = NumberOfFields - fieldIndex1 - 1;
+                Busy = true;
 
-                FieldView fieldView1  = FieldViews[fieldIndex1];
-                FieldView fieldView2  = FieldViews[fieldIndex2];
+                try
+                {
+                    for (int fieldIndex1 = 0; fieldIndex1 < NumberOfFields2; fieldIndex1 += 1)
+                    {
+                        int  fieldIndex2 = NumberOfFields - fieldIndex1 - 1;
 
-                Border    border21    = Borders[fieldIndex1];
-                Border    border22    = Borders[fieldIndex2];
+                        FieldView fieldView1  = FieldViews[fieldIndex1];
+                        FieldView fieldView2  = FieldViews[fieldIndex2];
 
-                int       tempRow1    = Grid.GetRow   (fieldView1) ;
-                int       tempRow2    = Grid.GetRow   (fieldView2) ;
-                int       tempColumn1 = Grid.GetColumn(fieldView1) ;
-                int       tempColumn2 = Grid.GetColumn(fieldView2) ;
+                        Border    border21    = Borders[fieldIndex1];
+                        Border    border22    = Borders[fieldIndex2];
 
-                Grid.SetRow   (fieldView1, tempRow2   );
-                Grid.SetColumn(fieldView1, tempColumn2);
+                        int       tempRow1    = Grid.GetRow   (fieldView1) ;
+                        int       tempRow2    = Grid.GetRow   (fieldView2) ;
+                        int       tempColumn1 = Grid.GetColumn(fieldView1) ;
+                        int       tempColumn2 = Grid.GetColumn(fieldView2) ;
 
-                Grid.SetRow   (border21  , tempRow2   );
-                Grid.SetColumn(border21  , tempColumn2);
+                        Grid.SetRow   (fieldView1, tempRow2   );
+                        Grid.SetColumn(fieldView1, tempColumn2);
 
-                Grid.SetRow   (fieldView2, tempRow1   );
-                Grid.SetColumn(fieldView2, tempColumn1);
+                        Grid.SetRow   (border21  , tempRow2   );
+                        Grid.SetColumn(border21  , tempColumn2);
 
-                Grid.SetRow   (border22  , tempRow1   );
-                Grid.SetColumn(border22  , tempColumn1);
+                        Grid.SetRow   (fieldView2, tempRow1   );
+                        Grid.SetColumn(fieldView2, tempColumn1);
 
-                Grid.Children.Remove(fieldView1);
-                Grid.Children.Remove(fieldView2);
-                Grid.Children.Add   (fieldView1);
-                Grid.Children.Add   (fieldView2);
+                        Grid.SetRow   (border22  , tempRow1   );
+                        Grid.SetColumn(border22  , tempColumn1);
+
+                        Grid.Children.Remove(fieldView1);
+                        Grid.Children.Remove(fieldView2);
+                        Grid.Children.Add   (fieldView1);
+                        Grid.Children.Add   (fieldView2);
+                    }
+
+                    IndicatePossibleFromFields();
+                }
+                finally
+                {
+                    Busy = false;
+                }
             }
-
-            IndicatePossibleFromFields();
         }
 
         public void FlipTurn()
         {
-            Position.FlipTurn();
+            if (CanPlay)
+            {
+                Busy = true;
 
-            Position.GetMovesAndTakes();
+                try
+                {
+                    Position.FlipTurn();
 
-            SetDefaultStatus(null);
+                    Position.GetMovesAndTakes();
+
+                    SetDefaultStatus();
+                }
+                finally
+                {
+                    Busy = false;
+                }
+            }
         }
 
         #endregion
@@ -545,33 +686,57 @@ namespace Check.Views
 
         public void UndoLastMove()
         {
-            if (UndoMoveStack.Count > 0)
+            if (CanPlay)
             {
-                Move move = UndoMoveStack.Pop();
+                Busy = true;
 
-                RedoMoveStack.Push(move);
+                try
+                {
+                    if (UndoMoveStack.Count > 0)
+                    {
+                        Move move = UndoMoveStack.Pop();
 
-                Position.UndoMoveInSitu(ref move);
+                        RedoMoveStack.Push(move);
 
-                Position.GetMovesAndTakes();
+                        Position.UndoMoveInSitu(ref move);
 
-                SetDefaultStatus(null);
+                        Position.GetMovesAndTakes();
+
+                        SetDefaultStatus();
+                    }
+                }
+                finally
+                {
+                    Busy = false;
+                }
             }
         }
 
         public void RedoLastMove()
         {
-            if (RedoMoveStack.Count > 0)
+            if (CanPlay)
             {
-                Move move = RedoMoveStack.Pop();
+                Busy = true;
 
-                UndoMoveStack.Push(move);
+                try
+                {
+                    if (RedoMoveStack.Count > 0)
+                    {
+                        Move move = RedoMoveStack.Pop();
 
-                Position.MoveInSitu(ref move);
+                        UndoMoveStack.Push(move);
 
-                Position.GetMovesAndTakes();
+                        Position.MoveInSitu(ref move);
 
-                SetDefaultStatus(null);
+                        Position.GetMovesAndTakes();
+
+                        SetDefaultStatus();
+                    }
+                }
+                finally
+                {
+                    Busy = false;
+                }
             }
         }
 
@@ -696,7 +861,7 @@ namespace Check.Views
 
             UndoMoveStack.Push(move);
 
-            SetDefaultStatus(fieldViewModel);
+            SetDefaultStatus();
         }
 
         private async Task HandleMoveExt(Move move, FieldViewModel fieldViewModel)
@@ -728,6 +893,7 @@ namespace Check.Views
                 }
             }
         }
+
         private void ResetStatus()
         {
             foreach (FieldViewModel fieldViewModel in FieldViewModels)
@@ -736,7 +902,7 @@ namespace Check.Views
             }
         }
 
-        private void SetDefaultStatus(FieldViewModel fieldViewModel)
+        private void SetDefaultStatus(FieldViewModel fieldViewModel = null)
         {
             if (fieldViewModel != null) fieldViewModel.FieldStatus = FieldStatusEnum.Default;
 
@@ -804,6 +970,9 @@ namespace Check.Views
                             break;
                         case FieldStatusEnum.CanBeTaken:
                             result = Brushes.Red;
+                            break;
+                        case FieldStatusEnum.Editing:
+                            result = Brushes.LightSteelBlue;
                             break;
                         default:
                             result = Brushes.Transparent;

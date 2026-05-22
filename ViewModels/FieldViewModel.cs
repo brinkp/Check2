@@ -17,7 +17,8 @@ namespace Check.ViewModels
             CanBeTo           ,
             MouseOverCanBeTo  ,
             FromGiven         ,
-            CanBeTaken
+            CanBeTaken        ,
+            Editing
         }
 
         #endregion
@@ -26,8 +27,8 @@ namespace Check.ViewModels
 
         public FieldViewModel(PositionViewModel positionViewModel, int fieldIndex)
         {
-            Debug.Assert(positionViewModel                 != null);
-            Debug.Assert(positionViewModel.Position        != null);
+            Debug.Assert(positionViewModel                  != null);
+            Debug.Assert(positionViewModel.Position         != null);
             Debug.Assert(positionViewModel.Position._fields != null);
 
             Debug.Assert((fieldIndex >= 1) && (fieldIndex <= 50));
@@ -43,14 +44,16 @@ namespace Check.ViewModels
         private readonly byte[] _fields    ;
         private readonly int    _fieldIndex;
 
+        private FieldStatusEnum _previousPlayingStatus;
+
         #endregion
 
         #region Public properties
 
         public FieldContentEnum FieldContent
         {
-            get => (FieldContentEnum) _fields[_fieldIndex]        ;
-            set => _fields[_fieldIndex] = (byte) value;
+            get => (FieldContentEnum) _fields[_fieldIndex]               ;
+            set =>                    _fields[_fieldIndex] = (byte) value;
         }
 
         private FieldStatusEnum _fieldStatus = FieldStatusEnum.Default;
@@ -83,6 +86,17 @@ namespace Check.ViewModels
         {
             OnPropertyChanged(nameof(FieldContent));
             OnPropertyChanged(nameof(FieldStatus ));
+        }
+
+        public void StartEditingMode()
+        {
+           _previousPlayingStatus = FieldStatus;
+            FieldStatus           = FieldStatusEnum.Editing;
+        }
+
+        public void RestartPlayingMode()
+        {
+            FieldStatus          = _previousPlayingStatus;
         }
 
         #endregion
