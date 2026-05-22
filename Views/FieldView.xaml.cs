@@ -91,11 +91,16 @@ namespace Check.Views
 
         #endregion
 
+        #region Public properties
+
+        internal FieldViewModel FieldViewModel { get; }
+
+        #endregion
+
         #region Private properties
 
-        private PositionView   PositionView   { get; }
-        private FieldViewModel FieldViewModel { get; }
-        private int            FieldIndex     { get; }
+        private  PositionView   PositionView   { get; }
+        private  int            FieldIndex     { get; }
 
         #endregion
 

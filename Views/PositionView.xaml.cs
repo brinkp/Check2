@@ -129,25 +129,35 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            if (CanPlay)
+            if (! Busy)
             {
-                switch (PositionStatus)
+                switch (OperationStatus)
                 {
-                    case PositionViewModel.PositionStatusEnum.Default:
-                        if (Position.PossibleMoves.Any(move => (move.FromField == fieldIndex)))
+                    case OperationStatusEnum.Playing:
+                        switch (PositionStatus)
                         {
-                            fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
+                            case PositionViewModel.PositionStatusEnum.Default:
+                                if (Position.PossibleMoves.Any(move => (move.FromField == fieldIndex)))
+                                {
+                                    fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeFrom;
 
-                            IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
+                                    IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.CanBeTaken);
+                                }
+                                break;
+                            case PositionViewModel.PositionStatusEnum.FromGiven:
+                                if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
+                                break;
+                            case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
-                    case PositionViewModel.PositionStatusEnum.FromGiven:
-                        if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
-                        break;
-                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                    case OperationStatusEnum.Editing:
+                        fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
                 }
             }
         }
@@ -156,22 +166,32 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            if (CanPlay)
+            if (! Busy)
             {
-                switch (PositionStatus)
+                switch (OperationStatus)
                 {
-                    case PositionViewModel.PositionStatusEnum.Default:
-                        if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
+                    case OperationStatusEnum.Playing:
+                        switch (PositionStatus)
+                        {
+                            case PositionViewModel.PositionStatusEnum.Default:
+                                if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeFrom) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeFrom;
 
-                        IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.Default);
+                                IndicatePossibleTakeFields(fieldIndex, FieldStatusEnum.Default);
+                                break;
+                            case PositionViewModel.PositionStatusEnum.FromGiven:
+                                if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
+                                break;
+                            case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        }
                         break;
-                    case PositionViewModel.PositionStatusEnum.FromGiven:
-                        if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
-                        break;
-                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                    case OperationStatusEnum.Editing:
+                        fieldViewModel.FieldStatus = FieldStatusEnum.Editing;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
                 }
             }
         }
@@ -180,39 +200,49 @@ namespace Check.Views
         {
             Debug.Assert(fieldViewModel != null);
 
-            if (CanPlay)
+            if (! Busy)
             {
-                switch (PositionStatus)
+                switch (OperationStatus)
                 {
-                    case PositionViewModel.PositionStatusEnum.Default:
-                        await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
-                        break;
-                    case PositionViewModel.PositionStatusEnum.FromGiven:
-                        if (fieldIndex == FromFieldIndex)
+                    case OperationStatusEnum.Playing:
+                        switch (PositionStatus)
                         {
-                            SetDefaultStatus();
-                        }
-                        else
-                        {
-                            List<Move> possibleMoves = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
-
-                            if (possibleMoves.Count > 0)
-                            {
-                                await HandleMoveExt(possibleMoves.First(), fieldViewModel);
-                            }
-                            else
-                            {
-                                if (! await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
+                            case PositionViewModel.PositionStatusEnum.Default:
+                                await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel);
+                                break;
+                            case PositionViewModel.PositionStatusEnum.FromGiven:
+                                if (fieldIndex == FromFieldIndex)
                                 {
                                     SetDefaultStatus();
                                 }
-                            }
+                                else
+                                {
+                                    List<Move> possibleMoves = Position.PossibleMoves.Where(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex)).ToList();
+
+                                    if (possibleMoves.Count > 0)
+                                    {
+                                        await HandleMoveExt(possibleMoves.First(), fieldViewModel);
+                                    }
+                                    else
+                                    {
+                                        if (! await CheckIfFieldCanBeFrom(fieldIndex, fieldViewModel))
+                                        {
+                                            SetDefaultStatus();
+                                        }
+                                    }
+                                }
+                                break;
+                            case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                                fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
-                    case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                    case OperationStatusEnum.Editing:
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
                 }
             }
         }
@@ -973,6 +1003,9 @@ namespace Check.Views
                             break;
                         case FieldStatusEnum.Editing:
                             result = Brushes.LightSteelBlue;
+                            break;
+                        case FieldStatusEnum.EditingSelected:
+                            result = Brushes.Green;
                             break;
                         default:
                             result = Brushes.Transparent;

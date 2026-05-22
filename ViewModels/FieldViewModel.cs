@@ -18,7 +18,8 @@ namespace Check.ViewModels
             MouseOverCanBeTo  ,
             FromGiven         ,
             CanBeTaken        ,
-            Editing
+            Editing           ,
+            EditingSelected
         }
 
         #endregion
@@ -43,8 +44,6 @@ namespace Check.ViewModels
 
         private readonly byte[] _fields    ;
         private readonly int    _fieldIndex;
-
-        private FieldStatusEnum _previousPlayingStatus;
 
         #endregion
 
@@ -90,13 +89,7 @@ namespace Check.ViewModels
 
         public void StartEditingMode()
         {
-           _previousPlayingStatus = FieldStatus;
-            FieldStatus           = FieldStatusEnum.Editing;
-        }
-
-        public void RestartPlayingMode()
-        {
-            FieldStatus          = _previousPlayingStatus;
+            FieldStatus = FieldStatusEnum.Editing;
         }
 
         #endregion
