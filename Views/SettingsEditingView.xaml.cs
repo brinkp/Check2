@@ -1,4 +1,5 @@
-﻿using Check.Models;
+﻿using System;
+using Check.Models;
 using Check.ViewModels;
 using System.Diagnostics;
 using System.Windows;
@@ -20,13 +21,14 @@ namespace Check.Views
 
             InitializeComponent();
 
-            PositionView = positionView;
+            PositionView                     = positionView;
+            PositionView.SettingsEditingView = this        ;
 
-            Border    borderEmpty            = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderWhiteMan         = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderBlackMan         = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderWhiteKing        = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
-            Border    borderBlackKing        = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border borderEmpty     = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border borderWhiteMan  = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border borderBlackMan  = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border borderWhiteKing = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
+            Border borderBlackKing = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
 
             FieldToBackgroundColorConverterFill fieldToBackgroundColorConverterFill = new FieldToBackgroundColorConverterFill();
 
@@ -52,11 +54,11 @@ namespace Check.Views
             borderWhiteKing.SetBinding(Border.BackgroundProperty, new Binding { Source = FieldViewModelWhiteKing, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = positionViewEditing } );
             borderBlackKing.SetBinding(Border.BackgroundProperty, new Binding { Source = FieldViewModelBlackKing, Path = new PropertyPath(nameof(FieldViewModel.FieldStatus)), Converter = fieldToBackgroundColorConverterFill, ConverterParameter = positionViewEditing } );
 
-            FieldView fieldViewEmpty     = new FieldView(positionViewEditing, FieldViewModelEmpty    , 1) { Width = 80d, Height = 80d }; fieldViewEmpty    .MouseDown += FieldViewEmptyOnMouseDown;
-            FieldView fieldViewWhiteMan  = new FieldView(positionViewEditing, FieldViewModelWhiteMan , 1) { Width = 80d, Height = 80d }; fieldViewWhiteMan .MouseDown += FieldViewEmptyOnMouseDown;
-            FieldView fieldViewBlackMan  = new FieldView(positionViewEditing, FieldViewModelBlackMan , 1) { Width = 80d, Height = 80d }; fieldViewBlackMan .MouseDown += FieldViewEmptyOnMouseDown;
-            FieldView fieldViewWhiteKing = new FieldView(positionViewEditing, FieldViewModelWhiteKing, 1) { Width = 80d, Height = 80d }; fieldViewWhiteKing.MouseDown += FieldViewEmptyOnMouseDown;
-            FieldView fieldViewBlackKing = new FieldView(positionViewEditing, FieldViewModelBlackKing, 1) { Width = 80d, Height = 80d }; fieldViewBlackKing.MouseDown += FieldViewEmptyOnMouseDown;
+            FieldView fieldViewEmpty     = new FieldView(positionView, FieldViewModelEmpty    , 1) { Width = 80d, Height = 80d } ;
+            FieldView fieldViewWhiteMan  = new FieldView(positionView, FieldViewModelWhiteMan , 1) { Width = 80d, Height = 80d } ;
+            FieldView fieldViewBlackMan  = new FieldView(positionView, FieldViewModelBlackMan , 1) { Width = 80d, Height = 80d } ;
+            FieldView fieldViewWhiteKing = new FieldView(positionView, FieldViewModelWhiteKing, 1) { Width = 80d, Height = 80d } ;
+            FieldView fieldViewBlackKing = new FieldView(positionView, FieldViewModelBlackKing, 1) { Width = 80d, Height = 80d } ;
 
             Grid gridEditing = new Grid { Margin = new Thickness(16d, 16d, 16d, 0d ) } ;
             
@@ -68,7 +70,7 @@ namespace Check.Views
             gridEditing.ColumnDefinitions.Add(new ColumnDefinition { Width   = new GridLength(200d) } );
             gridEditing.ColumnDefinitions.Add(new ColumnDefinition { Width   = new GridLength(200d) } );
 
-            Button buttonClearPosition = new Button { Content = "Clear position" } ; Grid.SetRow(buttonClearPosition, 0); Grid.SetColumn(buttonClearPosition, 0); Grid.SetColumnSpan(buttonClearPosition, 2);
+            Button buttonClearPosition = new Button { Content = "Clear position" } ; Grid.SetRow(buttonClearPosition, 0); Grid.SetColumn(buttonClearPosition, 0); Grid.SetColumnSpan(buttonClearPosition, 2); buttonClearPosition.Click += OnClearPosition;
 
             Grid.SetRow(borderEmpty    , 1); Grid.SetColumn(borderEmpty    , 0);     Grid.SetRow(fieldViewEmpty     , 1); Grid.SetColumn(fieldViewEmpty     , 0); Grid.SetColumnSpan(borderEmpty        , 2); Grid.SetColumnSpan(fieldViewEmpty, 2);
             Grid.SetRow(borderWhiteMan , 2); Grid.SetColumn(borderWhiteMan , 0);     Grid.SetRow(fieldViewWhiteMan  , 2); Grid.SetColumn(fieldViewWhiteMan  , 0);
@@ -83,7 +85,11 @@ namespace Check.Views
             gridEditing.Children.Add(borderWhiteKing    ); gridEditing.Children.Add(fieldViewWhiteKing);
             gridEditing.Children.Add(borderBlackKing    ); gridEditing.Children.Add(fieldViewBlackKing);
 
-            Content = gridEditing;
+            Content      = gridEditing;
+
+            FieldContent = Position.FieldContentEnum.Empty;
+
+            void OnClearPosition(object sender, RoutedEventArgs e) { positionView.ClearBoard(); positionView.ShowEditingMode(); }
         }
 
         #endregion
@@ -108,15 +114,58 @@ namespace Check.Views
 
         #endregion
 
+        #region Public properties
+
+        private  Position.FieldContentEnum _fieldContent = Position.FieldContentEnum.Taken; // Force initial update
+        internal Position.FieldContentEnum  FieldContent
+        {
+            get => _fieldContent;
+            set
+            {
+                if (_fieldContent != value)
+                {
+                    _fieldContent  = value;
+
+                     UpdateFieldContents();
+                }
+            }
+        }
+
+        #endregion
+
         #region Prive properties
 
-        private PositionView PositionView { get; }
+        private  PositionView   PositionView            { get; }
 
-        private FieldViewModel FieldViewModelEmpty     { get; }
-        private FieldViewModel FieldViewModelWhiteMan  { get; }
-        private FieldViewModel FieldViewModelBlackMan  { get; }
-        private FieldViewModel FieldViewModelWhiteKing { get; }
-        private FieldViewModel FieldViewModelBlackKing { get; }
+        private  FieldViewModel FieldViewModelEmpty     { get; }
+        private  FieldViewModel FieldViewModelWhiteMan  { get; }
+        private  FieldViewModel FieldViewModelBlackMan  { get; }
+        private  FieldViewModel FieldViewModelWhiteKing { get; }
+        private  FieldViewModel FieldViewModelBlackKing { get; }
+
+        #endregion
+
+        #region Private methods
+
+        private void UpdateFieldContents()
+        {
+                                                          FieldViewModelEmpty     .FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
+                                                          FieldViewModelWhiteMan  .FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
+                                                          FieldViewModelBlackMan  .FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
+                                                          FieldViewModelWhiteKing .FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
+                                                          FieldViewModelBlackKing .FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
+            switch (FieldContent)
+            {
+                case Position.FieldContentEnum.Empty    : FieldViewModelEmpty     .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Position.FieldContentEnum.WhiteMan : FieldViewModelWhiteMan  .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Position.FieldContentEnum.BlackMan : FieldViewModelBlackMan  .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Position.FieldContentEnum.WhiteKing: FieldViewModelWhiteKing .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Position.FieldContentEnum.BlackKing: FieldViewModelBlackKing .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Position.FieldContentEnum.Taken    :
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(FieldContent), "Invalid switch value");
+            }
+        }
 
         #endregion
     }

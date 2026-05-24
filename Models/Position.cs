@@ -140,8 +140,6 @@ namespace Check.Models
             }
             else
             {
-              //for (int index =  1; index <= 50; index += 1) { _fields[index] = FieldContentEnum.Empty;    }
-
               // Nice combination
 
               //_fields[ 1] = (byte) FieldContentEnum.BlackMan; _fields[ 2] = (byte) FieldContentEnum.Empty   ; _fields[ 3] = (byte) FieldContentEnum.Empty   ; _fields[ 4] = (byte) FieldContentEnum.Empty   ; _fields[ 5] = (byte) FieldContentEnum.Empty   ;
@@ -802,6 +800,11 @@ namespace Check.Models
         #endregion
 
         #region Public methods
+
+        public void Clear()
+        {
+            for (int index =  1; index <= 50; index += 1) { _fields[index] = (byte) FieldContentEnum.Empty; }
+        }
 
         public void FlipTurn()
         {

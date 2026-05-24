@@ -47,13 +47,14 @@ namespace Check.Views
 
         #region Constructors
 
-        internal PositionView(PositionViewModel positionViewModel)
+        internal PositionView(PositionViewModel positionViewModel, SettingsEditingView settingsEditingView = null)
         {
             Debug.Assert(positionViewModel != null);
 
             InitializeComponent();
 
-            PositionViewModel = positionViewModel;
+            PositionViewModel   = positionViewModel  ;
+            SettingsEditingView = settingsEditingView;
 
             Grid = new Grid();
 
@@ -148,13 +149,14 @@ namespace Check.Views
                                 if (Position.PossibleMoves.Any(move => (move.FromField == FromFieldIndex) && (move.ToField == fieldIndex))) fieldViewModel.FieldStatus = FieldStatusEnum.MouseOverCanBeTo  ;
                                 break;
                             case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                                // Do nothing
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
                     case OperationStatusEnum.Editing:
-                        fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected;
+                        fieldViewModel.FieldStatus = FieldStatusEnum.EditingMouseOver;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
@@ -182,13 +184,28 @@ namespace Check.Views
                                 if (fieldViewModel.FieldStatus == FieldStatusEnum.MouseOverCanBeTo  ) fieldViewModel.FieldStatus = FieldStatusEnum.CanBeTo  ;
                                 break;
                             case PositionViewModel.PositionStatusEnum.TakeInProgress:
+                                // Do nothing
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
                     case OperationStatusEnum.Editing:
+                        Debug.Assert(SettingsEditingView != null);
+
                         fieldViewModel.FieldStatus = FieldStatusEnum.Editing;
+
+                        switch (fieldViewModel.FieldContent)
+                        {
+                            case Position.FieldContentEnum.Empty    : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.Empty    ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Position.FieldContentEnum.WhiteMan : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.WhiteMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Position.FieldContentEnum.BlackMan : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.BlackMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Position.FieldContentEnum.WhiteKing: if (SettingsEditingView.FieldContent == Position.FieldContentEnum.WhiteKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Position.FieldContentEnum.BlackKing: if (SettingsEditingView.FieldContent == Position.FieldContentEnum.BlackKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Position.FieldContentEnum.Taken    :
+                            default:
+                                throw new ArgumentOutOfRangeException(nameof(fieldViewModel.FieldContent), "Invalid switch value");
+                        }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
@@ -233,13 +250,16 @@ namespace Check.Views
                                 }
                                 break;
                             case PositionViewModel.PositionStatusEnum.TakeInProgress:
-                                fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected;
+                                // Do nothing
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
                     case OperationStatusEnum.Editing:
+                        Debug.Assert(SettingsEditingView != null);
+
+                        SettingsEditingView.FieldContent = fieldViewModel.FieldContent;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(OperationStatus), "Invalid switch value");
@@ -382,18 +402,24 @@ namespace Check.Views
 
         #endregion
 
+        #region Public properties
+
+        internal SettingsEditingView  SettingsEditingView { get; set; }
+
+        #endregion
+
         #region Private properties
 
-        private Grid                 Grid              { get;      }
-        private PositionViewModel    PositionViewModel { get;      }
-        private FieldViewModel[]     FieldViewModels   { get;      }
-        private FieldView     []     FieldViews        { get;      }
-        private Border        []     Borders           { get;      }
+        private  Grid                 Grid                { get;      }
+        private  PositionViewModel    PositionViewModel   { get;      }
+        private  FieldViewModel[]     FieldViewModels     { get;      }
+        private  FieldView     []     FieldViews          { get;      }
+        private  Border        []     Borders             { get;      }
 
-        private bool                 Busy              { get; set; }
+        private  bool                 Busy                { get; set; }
 
-        private OperationStatusEnum _operationStatus = OperationStatusEnum.Playing;
-        public  OperationStatusEnum  OperationStatus
+        private  OperationStatusEnum _operationStatus = OperationStatusEnum.Playing;
+        public   OperationStatusEnum  OperationStatus
         {
             get => _operationStatus;
             set
@@ -405,10 +431,7 @@ namespace Check.Views
                     switch (value)
                     {
                         case OperationStatusEnum.Editing:
-                            foreach (FieldViewModel fieldViewModel in FieldViewModels)
-                            {
-                                fieldViewModel.StartEditingMode();
-                            }
+                            ShowEditingMode();
                             break;
                         case OperationStatusEnum.Playing:
                             Position.GetMovesAndTakes();
@@ -423,6 +446,7 @@ namespace Check.Views
         }
 
         private bool CanPlay => (OperationStatus == OperationStatusEnum.Playing) && (! Busy);
+        private bool CanEdit => (OperationStatus == OperationStatusEnum.Editing) && (! Busy);
 
         private Position                             Position       => PositionViewModel?.Position;
         private PositionViewModel.PositionStatusEnum PositionStatus
@@ -637,6 +661,15 @@ namespace Check.Views
             }
         }
 
+        public void ClearBoard()
+        {
+            Position.Clear();
+
+            Position.GetMovesAndTakes();
+
+            SetDefaultStatus();
+        }
+
         public void FlipBoard()
         {
             // This could also be done with a RenderTransform, maybe combined with an animation
@@ -707,6 +740,14 @@ namespace Check.Views
                 {
                     Busy = false;
                 }
+            }
+        }
+
+        public void ShowEditingMode()
+        {
+            foreach (FieldViewModel fieldViewModel in FieldViewModels)
+            {
+                fieldViewModel.StartEditingMode();
             }
         }
 
@@ -1004,8 +1045,11 @@ namespace Check.Views
                         case FieldStatusEnum.Editing:
                             result = Brushes.LightSteelBlue;
                             break;
-                        case FieldStatusEnum.EditingSelected:
+                        case FieldStatusEnum.EditingMouseOver:
                             result = Brushes.Green;
+                            break;
+                        case FieldStatusEnum.EditingSelected:
+                            result = Brushes.Red;
                             break;
                         default:
                             result = Brushes.Transparent;

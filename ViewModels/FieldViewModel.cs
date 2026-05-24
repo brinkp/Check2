@@ -19,6 +19,7 @@ namespace Check.ViewModels
             FromGiven         ,
             CanBeTaken        ,
             Editing           ,
+            EditingMouseOver  ,
             EditingSelected
         }
 
