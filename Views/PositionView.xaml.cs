@@ -23,7 +23,8 @@ namespace Check.Views
         public enum OperationStatusEnum
         {
             Playing,
-            Editing
+            Editing,
+            Selecting
         }
 
         #endregion
@@ -47,14 +48,13 @@ namespace Check.Views
 
         #region Constructors
 
-        internal PositionView(PositionViewModel positionViewModel, SettingsEditingView settingsEditingView = null)
+        internal PositionView(PositionViewModel positionViewModel)
         {
             Debug.Assert(positionViewModel != null);
 
             InitializeComponent();
 
-            PositionViewModel   = positionViewModel  ;
-            SettingsEditingView = settingsEditingView;
+            PositionViewModel = positionViewModel;
 
             Grid = new Grid();
 
@@ -155,7 +155,8 @@ namespace Check.Views
                                 throw new ArgumentOutOfRangeException(nameof(PositionStatus), "Invalid switch value");
                         }
                         break;
-                    case OperationStatusEnum.Editing:
+                    case OperationStatusEnum.Editing  :
+                    case OperationStatusEnum.Selecting:
                         fieldViewModel.FieldStatus = FieldStatusEnum.EditingMouseOver;
                         break;
                     default:
@@ -191,6 +192,9 @@ namespace Check.Views
                         }
                         break;
                     case OperationStatusEnum.Editing:
+                        fieldViewModel.FieldStatus = FieldStatusEnum.Editing;
+                        break;
+                    case OperationStatusEnum.Selecting:
                         Debug.Assert(SettingsEditingView != null);
 
                         fieldViewModel.FieldStatus = FieldStatusEnum.Editing;
@@ -259,6 +263,11 @@ namespace Check.Views
                     case OperationStatusEnum.Editing:
                         Debug.Assert(SettingsEditingView != null);
 
+                        fieldViewModel.FieldContent = SettingsEditingView.FieldContent;
+
+                        fieldViewModel.Refresh();
+                        break;
+                    case OperationStatusEnum.Selecting:
                         SettingsEditingView.FieldContent = fieldViewModel.FieldContent;
                         break;
                     default:
@@ -430,13 +439,14 @@ namespace Check.Views
 
                     switch (value)
                     {
-                        case OperationStatusEnum.Editing:
-                            ShowEditingMode();
-                            break;
                         case OperationStatusEnum.Playing:
                             Position.GetMovesAndTakes();
 
                             SetDefaultStatus();
+                            break;
+                        case OperationStatusEnum.Editing  :
+                        case OperationStatusEnum.Selecting:
+                            ShowEditingMode();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException(nameof(value), "Invalid switch value");

@@ -19,7 +19,7 @@ namespace Check.Views
             tabControl.Items.Add(new TabItem { Header = "Playing", Content = new SettingsPlayingView(positionView) } );
             tabControl.Items.Add(new TabItem { Header = "Editing", Content = new SettingsEditingView(positionView) } );
 
-            tabControl.SelectionChanged += (object sender, SelectionChangedEventArgs ea) =>
+            tabControl.SelectionChanged += (sender, ea) =>
             {
                 switch (tabControl.SelectedContent)
                 {
