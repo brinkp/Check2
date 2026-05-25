@@ -46,6 +46,40 @@ namespace Check.Views
 
         #endregion
 
+        #region Interfaces
+
+        private interface IUndoableCommand
+        {
+            void Undo();
+            void Redo();
+        }
+
+        #endregion
+
+        #region Private classes
+
+        private class UndoableMove : IUndoableCommand
+        {
+            public UndoableMove(Move move)
+            {
+                Move = move;
+            }
+
+            public Move Move { get; }
+
+            public void Undo()
+            {
+
+            }
+
+            public void Redo()
+            {
+
+            }
+        }
+
+        #endregion
+
         #region Constructors
 
         internal PositionView(PositionViewModel positionViewModel)
@@ -318,8 +352,8 @@ namespace Check.Views
 
                             IndicatePossibleFromFields();
 
-                            UndoMoveStack.Clear();
-                            RedoMoveStack.Clear();
+                            UndoCommandStack.Clear();
+                            RedoCommandStack.Clear();
 
                             ea.Handled = true;
                             break;
@@ -341,16 +375,16 @@ namespace Check.Views
                         case Key.Y:
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                             {
-                                while (RedoMoveStack.Count > 0)
+                                while (RedoCommandStack.Count > 0)
                                 {
-                                    RedoLastMove();
+                                    RedoLastCommand();
 
                                     await PauseIfRequired();
                                 }
                             }
                             else
                             {
-                                RedoLastMove();
+                                RedoLastCommand();
                             }
 
                             ea.Handled = false;
@@ -358,16 +392,16 @@ namespace Check.Views
                         case Key.Z:
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                             {
-                                while (UndoMoveStack.Count > 0)
+                                while (UndoCommandStack.Count > 0)
                                 {
-                                    UndoLastMove();
+                                    UndoLastCommand();
 
                                     await PauseIfRequired();
                                 }
                             }
                             else
                             {
-                                UndoLastMove();
+                                UndoLastCommand();
                             }
 
                             ea.Handled = false;
@@ -539,8 +573,8 @@ namespace Check.Views
             }
         }
 
-        private Stack<Move> UndoMoveStack { get; } = new Stack<Move>();
-        private Stack<Move> RedoMoveStack { get; } = new Stack<Move>();
+        private Stack<IUndoableCommand> UndoCommandStack { get; } = new Stack<IUndoableCommand>();
+        private Stack<IUndoableCommand> RedoCommandStack { get; } = new Stack<IUndoableCommand>();
 
         #endregion
 
@@ -565,8 +599,8 @@ namespace Check.Views
 
                     IndicatePossibleFromFields();
 
-                    UndoMoveStack.Clear();
-                    RedoMoveStack.Clear();
+                    UndoCommandStack.Clear();
+                    RedoCommandStack.Clear();
                 }
                 finally
                 {
@@ -608,7 +642,7 @@ namespace Check.Views
                     {
                         SetDefaultStatus();
 
-                        UndoMoveStack.Push(move);
+                        UndoCommandStack.Push(new UndoableMove(move));
                     }
                 }
                 finally
@@ -657,7 +691,7 @@ namespace Check.Views
 
                         RefreshFields();
 
-                        UndoMoveStack.Push(bestMove);
+                        UndoCommandStack.Push(new UndoableMove(bestMove));
                     }
 
                     Position.GetMovesAndTakes();
@@ -765,7 +799,7 @@ namespace Check.Views
 
         #region Undo and Redo
 
-        public void UndoLastMove()
+        public void UndoLastCommand()
         {
             if (CanPlay)
             {
@@ -773,17 +807,22 @@ namespace Check.Views
 
                 try
                 {
-                    if (UndoMoveStack.Count > 0)
+                    if (UndoCommandStack.Count > 0)
                     {
-                        Move move = UndoMoveStack.Pop();
+                        IUndoableCommand undoableCommand = UndoCommandStack.Pop();
 
-                        RedoMoveStack.Push(move);
+                        if (undoableCommand is UndoableMove undoableMove)
+                        {
+                            Move move = undoableMove.Move;
 
-                        Position.UndoMoveInSitu(ref move);
+                            RedoCommandStack.Push(undoableMove);
 
-                        Position.GetMovesAndTakes();
+                            Position.UndoMoveInSitu(ref move);
 
-                        SetDefaultStatus();
+                            Position.GetMovesAndTakes();
+
+                            SetDefaultStatus();
+                        }
                     }
                 }
                 finally
@@ -793,7 +832,7 @@ namespace Check.Views
             }
         }
 
-        public void RedoLastMove()
+        public void RedoLastCommand()
         {
             if (CanPlay)
             {
@@ -801,17 +840,22 @@ namespace Check.Views
 
                 try
                 {
-                    if (RedoMoveStack.Count > 0)
+                    if (RedoCommandStack.Count > 0)
                     {
-                        Move move = RedoMoveStack.Pop();
+                        IUndoableCommand undoableCommand = UndoCommandStack.Pop();
 
-                        UndoMoveStack.Push(move);
+                        if (undoableCommand is UndoableMove undoableMove)
+                        {
+                            Move move = undoableMove.Move;
 
-                        Position.MoveInSitu(ref move);
+                            UndoCommandStack.Push(undoableMove);
 
-                        Position.GetMovesAndTakes();
+                            Position.MoveInSitu(ref move);
 
-                        SetDefaultStatus();
+                            Position.GetMovesAndTakes();
+
+                            SetDefaultStatus();
+                        }
                     }
                 }
                 finally
@@ -916,7 +960,7 @@ namespace Check.Views
         {
             await PauseIfRequired();
 
-            UndoMoveStack.Push(move);
+            UndoCommandStack.Push(new UndoableMove(move));
         }
 
         #endregion
@@ -940,16 +984,16 @@ namespace Check.Views
 
             Position.GetMovesAndTakes();
 
-            UndoMoveStack.Push(move);
+            UndoCommandStack.Push(new UndoableMove(move));
 
             SetDefaultStatus();
         }
 
         private async Task HandleMoveExt(Move move, FieldViewModel fieldViewModel)
         {
-            if ((RedoMoveStack.Count > 0) && (RedoMoveStack.Peek().Equals(ref move)))
+            if ((RedoCommandStack.Count > 0) && ((RedoCommandStack.Peek() as UndoableMove)?.Move.Equals(ref move) == true))
             {
-                RedoLastMove();
+                RedoLastCommand();
             }
             else
             {
