@@ -56,7 +56,7 @@ namespace Check.Views
 
         #endregion
 
-        #region Private classes
+        #region IUndoableCommand classes
 
         private class UndoableMove : IUndoableCommand
         {
@@ -75,6 +75,50 @@ namespace Check.Views
             public void Redo()
             {
 
+            }
+        }
+
+        private class UndoableFlipBoard : IUndoableCommand
+        {
+            public UndoableFlipBoard(PositionView positionView)
+            {
+                Debug.Assert(positionView != null);
+
+                PositionView = positionView;
+            }
+
+            private PositionView PositionView { get; }
+
+            public void Undo()
+            {
+                PositionView.FlipBoard();
+            }
+
+            public void Redo()
+            {
+                PositionView.FlipBoard();
+            }
+        }
+
+        private class UndoableFlipTurn : IUndoableCommand
+        {
+            public UndoableFlipTurn(PositionView positionView)
+            {
+                Debug.Assert(positionView != null);
+
+                PositionView = positionView;
+            }
+
+            private PositionView PositionView { get; }
+
+            public void Undo()
+            {
+                PositionView.FlipTurn();
+            }
+
+            public void Redo()
+            {
+                PositionView.FlipTurn();
             }
         }
 
@@ -276,7 +320,7 @@ namespace Check.Views
 
                                     if (possibleMoves.Count > 0)
                                     {
-                                        await HandleMoveExt(possibleMoves.First(), fieldViewModel);
+                                        await HandleMoveExt(possibleMoves.First());
                                     }
                                     else
                                     {
@@ -811,17 +855,27 @@ namespace Check.Views
                     {
                         IUndoableCommand undoableCommand = UndoCommandStack.Pop();
 
-                        if (undoableCommand is UndoableMove undoableMove)
+                        switch (undoableCommand)
                         {
-                            Move move = undoableMove.Move;
+                            case UndoableFlipBoard undoableFlipBoard:
+                                undoableFlipBoard.Undo();
+                                break;
+                            case UndoableFlipTurn undoableFlipTurn:
+                                undoableFlipTurn .Undo();
+                                break;
+                            case UndoableMove undoableMove:
+                            {
+                                Move move = undoableMove.Move;
 
-                            RedoCommandStack.Push(undoableMove);
+                                RedoCommandStack.Push(undoableMove);
 
-                            Position.UndoMoveInSitu(ref move);
+                                Position.UndoMoveInSitu(ref move);
 
-                            Position.GetMovesAndTakes();
+                                Position.GetMovesAndTakes();
 
-                            SetDefaultStatus();
+                                SetDefaultStatus();
+                                break;
+                            }
                         }
                     }
                 }
@@ -978,7 +1032,7 @@ namespace Check.Views
             // RefreshFields             (): trigger bindings for all fields
         }
 
-        private void HandleMove(Move move, FieldViewModel fieldViewModel = null)
+        private void HandleMove(Move move)
         {
             Position.MoveInSitu(ref move);
 
@@ -989,7 +1043,7 @@ namespace Check.Views
             SetDefaultStatus();
         }
 
-        private async Task HandleMoveExt(Move move, FieldViewModel fieldViewModel)
+        private async Task HandleMoveExt(Move move)
         {
             if ((RedoCommandStack.Count > 0) && ((RedoCommandStack.Peek() as UndoableMove)?.Move.Equals(ref move) == true))
             {
@@ -997,7 +1051,7 @@ namespace Check.Views
             }
             else
             {
-                HandleMove(move, fieldViewModel);
+                HandleMove(move);
             }
 
             await CheckAutomaticMoves();
