@@ -21,7 +21,8 @@ namespace Check.Views
 
             InitializeComponent();
 
-            positionView.SettingsEditingView = this;
+            PositionView                     = positionView;
+            PositionView.SettingsEditingView = this;
 
             Border borderEmpty     = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
             Border borderWhiteMan  = new Border   { Background = Brushes.LightSteelBlue, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d), Width = 80d, Height = 80d } ;
@@ -88,7 +89,13 @@ namespace Check.Views
 
             FieldContent = Position.FieldContentEnum.Empty;
 
-            void OnClearPosition(object sender, RoutedEventArgs e) { positionView.ClearBoard(); positionView.ShowEditingMode(); }
+            void OnClearPosition(object sender, RoutedEventArgs e)
+            {
+                positionView.ClearBoard     ();
+                positionView.ShowEditingMode();
+
+                positionView.PushUndoStack(new );
+            }
         }
 
         #endregion
@@ -133,6 +140,8 @@ namespace Check.Views
         #endregion
 
         #region Prive properties
+
+        private  PositionView   PositionView            { get; }
 
         private  FieldViewModel FieldViewModelEmpty     { get; }
         private  FieldViewModel FieldViewModelWhiteMan  { get; }
