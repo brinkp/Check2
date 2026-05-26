@@ -94,7 +94,7 @@ namespace Check.Views
                 positionView.ClearBoard     ();
                 positionView.ShowEditingMode();
 
-                positionView.PushUndoStack(new );
+                //positionView.PushUndoStack(new );
             }
         }
 

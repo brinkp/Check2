@@ -50,7 +50,11 @@ namespace Check.Views
 
         internal enum CommandIndexEnum
         {
-            ClearBoard,
+            ClearBoard
+        }
+
+        internal enum SimpleCommandIndexEnum
+        {
             FlipBoard ,
             FlipPosition
         }
@@ -61,7 +65,15 @@ namespace Check.Views
             void Redo();
         }
 
-        private class UndoableMove : IUndoableCommand
+        private abstract class UndoableBase : IUndoableCommand
+        {
+            protected PositionView PositionView { get; set; }
+
+            public abstract void Undo();
+            public abstract void Redo();
+        }
+
+        private class UndoableMove : UndoableBase
         {
             public UndoableMove(PositionView positionView, Move move)
             {
@@ -71,23 +83,24 @@ namespace Check.Views
                 Move         = move;
             }
 
-            private PositionView PositionView { get; }
-            private Move         Move         { get; }
+            private Move Move { get; }
 
-            public void Undo()
+            public override void Undo()
             {
                 PositionView.UndoLastMove(Move);
             }
 
-            public void Redo()
+            public override void Redo()
             {
                 PositionView.RedoLastMove(Move);
             }
+
+            public Move GetMove() => Move;
         }
 
-        private class UndoableCommand : IUndoableCommand
+        private class UndoablePositionCommand : UndoableBase
         {
-            public UndoableCommand(PositionView positionView, CommandIndexEnum commandIndex, Position position = null)
+            public UndoablePositionCommand(PositionView positionView, CommandIndexEnum commandIndex, Position position = null)
             {
                 Debug.Assert(positionView != null);
 
@@ -96,36 +109,27 @@ namespace Check.Views
                 Position     = position    ;
             }
 
-            private PositionView     PositionView { get; }
             private CommandIndexEnum CommandIndex { get; }
             private Position         Position     { get; }
 
-            public void Undo()
+            public override void Undo()
             {
                 switch (CommandIndex)
                 {
                     case CommandIndexEnum.ClearBoard:
                         Debug.Assert(Position != null);
-                        break;
-                    case CommandIndexEnum.FlipBoard:
-                        break;
-                    case CommandIndexEnum.FlipPosition:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(CommandIndex), "Invalid switch value");
                 }
             }
 
-            public void Redo()
+            public override void Redo()
             {
                 switch (CommandIndex)
                 {
                     case CommandIndexEnum.ClearBoard:
                         Debug.Assert(Position != null);
-                        break;
-                    case CommandIndexEnum.FlipBoard:
-                        break;
-                    case CommandIndexEnum.FlipPosition:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(CommandIndex), "Invalid switch value");
@@ -133,47 +137,46 @@ namespace Check.Views
             }
         }
 
-        private class UndoableFlipBoard : IUndoableCommand
+        private class UndoableSimpleCommand : UndoableBase
         {
-            public UndoableFlipBoard(PositionView positionView)
+            public UndoableSimpleCommand(PositionView positionView, SimpleCommandIndexEnum simpleCommandIndex)
             {
                 Debug.Assert(positionView != null);
 
-                PositionView = positionView;
+                PositionView       = positionView;
+                SimpleCommandIndex = simpleCommandIndex;
             }
 
-            private PositionView PositionView { get; }
+            private SimpleCommandIndexEnum SimpleCommandIndex { get; }
 
-            public void Undo()
+            public override void Undo()
             {
-                PositionView.FlipBoard();
+                switch (SimpleCommandIndex)
+                {
+                    case SimpleCommandIndexEnum.FlipBoard:
+                        PositionView.FlipBoard();
+                        break;
+                    case SimpleCommandIndexEnum.FlipPosition:
+                        PositionView.FlipTurn();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(SimpleCommandIndex), "Invalid switch value");
+                }
             }
 
-            public void Redo()
+            public override void Redo()
             {
-                PositionView.FlipBoard();
-            }
-        }
-
-        private class UndoableFlipTurn : IUndoableCommand
-        {
-            public UndoableFlipTurn(PositionView positionView)
-            {
-                Debug.Assert(positionView != null);
-
-                PositionView = positionView;
-            }
-
-            private PositionView PositionView { get; }
-
-            public void Undo()
-            {
-                PositionView.FlipTurn();
-            }
-
-            public void Redo()
-            {
-                PositionView.FlipTurn();
+                switch (SimpleCommandIndex)
+                {
+                    case SimpleCommandIndexEnum.FlipBoard:
+                        PositionView.FlipBoard();
+                        break;
+                    case SimpleCommandIndexEnum.FlipPosition:
+                        PositionView.FlipTurn();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(SimpleCommandIndex), "Invalid switch value");
+                }
             }
         }
 
@@ -741,7 +744,7 @@ namespace Check.Views
                     {
                         SetDefaultStatus();
 
-                        UndoCommandStack.Push(new UndoableMove(move));
+                        UndoCommandStack.Push(new UndoableMove(this, move));
                     }
                 }
                 finally
@@ -790,7 +793,7 @@ namespace Check.Views
 
                         RefreshFields();
 
-                        UndoCommandStack.Push(new UndoableMove(bestMove));
+                        UndoCommandStack.Push(new UndoableMove(this, bestMove));
                     }
 
                     Position.GetMovesAndTakes();
@@ -857,6 +860,8 @@ namespace Check.Views
                     }
 
                     IndicatePossibleFromFields();
+
+                    UndoCommandStack.Push(new UndoableSimpleCommand(this, SimpleCommandIndexEnum.FlipBoard));
                 }
                 finally
                 {
@@ -900,49 +905,49 @@ namespace Check.Views
 
         public void UndoLastCommand()
         {
-            if (CanPlay)
+            if (! Busy)
             {
-                Busy = true;
+              //Busy = true;
 
-                try
-                {
+              //try
+              //{
                     if (UndoCommandStack.Count > 0)
                     {
                         IUndoableCommand undoableCommand = UndoCommandStack.Pop();
 
                         undoableCommand.Undo();
 
-                        RedoCommandStack.Push(undoableCommand);
+                      //RedoCommandStack.Push(undoableCommand);
                     }
-                }
-                finally
-                {
-                    Busy = false;
-                }
+              //}
+              //finally
+              //{
+              //    Busy = false;
+              //}
             }
         }
 
         public void RedoLastCommand()
         {
-            if (CanPlay)
+            if (! Busy)
             {
-                Busy = true;
+              //Busy = true;
 
-                try
-                {
+              //try
+              //{
                     if (RedoCommandStack.Count > 0)
                     {
                         IUndoableCommand undoableCommand = UndoCommandStack.Pop();
 
                         undoableCommand.Redo();
 
-                        UndoCommandStack.Push(undoableCommand);
+                      //UndoCommandStack.Push(undoableCommand);
                     }
-                }
-                finally
-                {
-                    Busy = false;
-                }
+              //}
+              //finally
+              //{
+              //    Busy = false;
+              //}
             }
         }
 
@@ -1088,14 +1093,14 @@ namespace Check.Views
 
             Position.GetMovesAndTakes();
 
-            UndoCommandStack.Push(new UndoableMove(move));
+            UndoCommandStack.Push(new UndoableMove(this, move));
 
             SetDefaultStatus();
         }
 
         private async Task HandleMoveExt(Move move)
         {
-            if ((RedoCommandStack.Count > 0) && ((RedoCommandStack.Peek() as UndoableMove)?.Move.Equals(ref move) == true))
+            if ((RedoCommandStack.Count > 0) && ((RedoCommandStack.Peek() as UndoableMove)?.GetMove().Equals(ref move) == true))
             {
                 RedoLastCommand();
             }
