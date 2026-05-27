@@ -46,26 +46,26 @@ namespace Check.Views
 
         #endregion
 
-        #region IUndoableCommand
+        #region IUndoableAction
 
-        internal enum CommandIndexEnum
+        internal enum ActionIndexEnum
         {
             ClearBoard
         }
 
-        internal enum SimpleCommandIndexEnum
+        internal enum SimpleActionIndexEnum
         {
             FlipBoard ,
-            FlipPosition
+            FlipTurn
         }
 
-        internal interface IUndoableCommand
+        internal interface IUndoableAction
         {
             void Undo();
             void Redo();
         }
 
-        private abstract class UndoableBase : IUndoableCommand
+        private abstract class UndoableBase : IUndoableAction
         {
             protected PositionView PositionView { get; set; }
 
@@ -98,84 +98,84 @@ namespace Check.Views
             public Move GetMove() => Move;
         }
 
-        private class UndoablePositionCommand : UndoableBase
+        private class UndoablePositionAction : UndoableBase
         {
-            public UndoablePositionCommand(PositionView positionView, CommandIndexEnum commandIndex, Position position = null)
+            public UndoablePositionAction(PositionView positionView, ActionIndexEnum actionIndex, Position position = null)
             {
                 Debug.Assert(positionView != null);
 
                 PositionView = positionView;
-                CommandIndex = commandIndex;
+                ActionIndex  = actionIndex ;
                 Position     = position    ;
             }
 
-            private CommandIndexEnum CommandIndex { get; }
-            private Position         Position     { get; }
+            private ActionIndexEnum ActionIndex { get; }
+            private Position        Position    { get; }
 
             public override void Undo()
             {
-                switch (CommandIndex)
+                switch (ActionIndex)
                 {
-                    case CommandIndexEnum.ClearBoard:
+                    case ActionIndexEnum.ClearBoard:
                         Debug.Assert(Position != null);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(CommandIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
                 }
             }
 
             public override void Redo()
             {
-                switch (CommandIndex)
+                switch (ActionIndex)
                 {
-                    case CommandIndexEnum.ClearBoard:
+                    case ActionIndexEnum.ClearBoard:
                         Debug.Assert(Position != null);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(CommandIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
                 }
             }
         }
 
-        private class UndoableSimpleCommand : UndoableBase
+        private class UndoableSimpleAction : UndoableBase
         {
-            public UndoableSimpleCommand(PositionView positionView, SimpleCommandIndexEnum simpleCommandIndex)
+            public UndoableSimpleAction(PositionView positionView, SimpleActionIndexEnum simpleActionIndex)
             {
                 Debug.Assert(positionView != null);
 
-                PositionView       = positionView;
-                SimpleCommandIndex = simpleCommandIndex;
+                PositionView      = positionView;
+                SimpleActionIndex = simpleActionIndex;
             }
 
-            private SimpleCommandIndexEnum SimpleCommandIndex { get; }
+            private SimpleActionIndexEnum SimpleActionIndex { get; }
 
             public override void Undo()
             {
-                switch (SimpleCommandIndex)
+                switch (SimpleActionIndex)
                 {
-                    case SimpleCommandIndexEnum.FlipBoard:
+                    case SimpleActionIndexEnum.FlipBoard:
                         PositionView.FlipBoard();
                         break;
-                    case SimpleCommandIndexEnum.FlipPosition:
+                    case SimpleActionIndexEnum.FlipTurn:
                         PositionView.FlipTurn();
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(SimpleCommandIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
                 }
             }
 
             public override void Redo()
             {
-                switch (SimpleCommandIndex)
+                switch (SimpleActionIndex)
                 {
-                    case SimpleCommandIndexEnum.FlipBoard:
+                    case SimpleActionIndexEnum.FlipBoard:
                         PositionView.FlipBoard();
                         break;
-                    case SimpleCommandIndexEnum.FlipPosition:
+                    case SimpleActionIndexEnum.FlipTurn:
                         PositionView.FlipTurn();
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(SimpleCommandIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
                 }
             }
         }
@@ -454,8 +454,8 @@ namespace Check.Views
 
                             IndicatePossibleFromFields();
 
-                            UndoCommandStack.Clear();
-                            RedoCommandStack.Clear();
+                            UndoActionStack.Clear();
+                            RedoActionStack.Clear();
 
                             ea.Handled = true;
                             break;
@@ -477,16 +477,16 @@ namespace Check.Views
                         case Key.Y:
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                             {
-                                while (RedoCommandStack.Count > 0)
+                                while (RedoActionStack.Count > 0)
                                 {
-                                    RedoLastCommand();
+                                    RedoLastAction();
 
                                     await PauseIfRequired();
                                 }
                             }
                             else
                             {
-                                RedoLastCommand();
+                                RedoLastAction();
                             }
 
                             ea.Handled = false;
@@ -494,16 +494,16 @@ namespace Check.Views
                         case Key.Z:
                             if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
                             {
-                                while (UndoCommandStack.Count > 0)
+                                while (UndoActionStack.Count > 0)
                                 {
-                                    UndoLastCommand();
+                                    UndoLastAction();
 
                                     await PauseIfRequired();
                                 }
                             }
                             else
                             {
-                                UndoLastCommand();
+                                UndoLastAction();
                             }
 
                             ea.Handled = false;
@@ -675,13 +675,13 @@ namespace Check.Views
             }
         }
 
-        private Stack<IUndoableCommand> UndoCommandStack { get; } = new Stack<IUndoableCommand>();
-        private Stack<IUndoableCommand> RedoCommandStack { get; } = new Stack<IUndoableCommand>();
+        private Stack<IUndoableAction> UndoActionStack { get; } = new Stack<IUndoableAction>();
+        private Stack<IUndoableAction> RedoActionStack { get; } = new Stack<IUndoableAction>();
 
         #endregion
 
 
-        #region Commands
+        #region Actions
 
         public void ToggleAutomaticMoves              () { AutomaticMoves               = ! AutomaticMoves              ; }
         public void ToggleGiveVisualFeedback          () { GiveVisualFeedback           = ! GiveVisualFeedback          ; }
@@ -701,8 +701,8 @@ namespace Check.Views
 
                     IndicatePossibleFromFields();
 
-                    UndoCommandStack.Clear();
-                    RedoCommandStack.Clear();
+                    UndoActionStack.Clear();
+                    RedoActionStack.Clear();
                 }
                 finally
                 {
@@ -744,7 +744,7 @@ namespace Check.Views
                     {
                         SetDefaultStatus();
 
-                        UndoCommandStack.Push(new UndoableMove(this, move));
+                        UndoActionStack.Push(new UndoableMove(this, move));
                     }
                 }
                 finally
@@ -793,7 +793,7 @@ namespace Check.Views
 
                         RefreshFields();
 
-                        UndoCommandStack.Push(new UndoableMove(this, bestMove));
+                        UndoActionStack.Push(new UndoableMove(this, bestMove));
                     }
 
                     Position.GetMovesAndTakes();
@@ -861,7 +861,7 @@ namespace Check.Views
 
                     IndicatePossibleFromFields();
 
-                    UndoCommandStack.Push(new UndoableSimpleCommand(this, SimpleCommandIndexEnum.FlipBoard));
+                    //UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipBoard));
                 }
                 finally
                 {
@@ -883,6 +883,8 @@ namespace Check.Views
                     Position.GetMovesAndTakes();
 
                     SetDefaultStatus();
+
+                    UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipTurn));
                 }
                 finally
                 {
@@ -903,7 +905,7 @@ namespace Check.Views
 
         #region Undo and Redo
 
-        public void UndoLastCommand()
+        public void UndoLastAction()
         {
             if (! Busy)
             {
@@ -911,13 +913,13 @@ namespace Check.Views
 
               //try
               //{
-                    if (UndoCommandStack.Count > 0)
+                    if (UndoActionStack.Count > 0)
                     {
-                        IUndoableCommand undoableCommand = UndoCommandStack.Pop();
+                        IUndoableAction undoableAction = UndoActionStack.Pop();
 
-                        undoableCommand.Undo();
+                        RedoActionStack.Push(undoableAction);
 
-                      //RedoCommandStack.Push(undoableCommand);
+                        undoableAction.Undo();
                     }
               //}
               //finally
@@ -927,7 +929,7 @@ namespace Check.Views
             }
         }
 
-        public void RedoLastCommand()
+        public void RedoLastAction()
         {
             if (! Busy)
             {
@@ -935,13 +937,13 @@ namespace Check.Views
 
               //try
               //{
-                    if (RedoCommandStack.Count > 0)
+                    if (RedoActionStack.Count > 0)
                     {
-                        IUndoableCommand undoableCommand = UndoCommandStack.Pop();
+                        IUndoableAction undoableAction = UndoActionStack.Pop();
 
-                        undoableCommand.Redo();
+                        undoableAction.Redo();
 
-                      //UndoCommandStack.Push(undoableCommand);
+                      //UndoActionStack.Push(undoableAction);
                     }
               //}
               //finally
@@ -1064,12 +1066,12 @@ namespace Check.Views
         {
             await PauseIfRequired();
 
-            UndoCommandStack.Push(new UndoableMove(this, move));
+            UndoActionStack.Push(new UndoableMove(this, move));
         }
 
-        internal void PushUndoStack(IUndoableCommand undoableCommand)
+        internal void PushUndoStack(IUndoableAction undoableAction)
         {
-            UndoCommandStack.Push(undoableCommand);
+            UndoActionStack.Push(undoableAction);
         }
 
         #endregion
@@ -1093,16 +1095,16 @@ namespace Check.Views
 
             Position.GetMovesAndTakes();
 
-            UndoCommandStack.Push(new UndoableMove(this, move));
+            UndoActionStack.Push(new UndoableMove(this, move));
 
             SetDefaultStatus();
         }
 
         private async Task HandleMoveExt(Move move)
         {
-            if ((RedoCommandStack.Count > 0) && ((RedoCommandStack.Peek() as UndoableMove)?.GetMove().Equals(ref move) == true))
+            if ((RedoActionStack.Count > 0) && ((RedoActionStack.Peek() as UndoableMove)?.GetMove().Equals(ref move) == true))
             {
-                RedoLastCommand();
+                RedoLastAction();
             }
             else
             {
