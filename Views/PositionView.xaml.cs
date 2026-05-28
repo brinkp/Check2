@@ -448,14 +448,14 @@ namespace Check.Views
                             ea.Handled = true;
                             break;
                         case Key.N:
-                            Position.Initialize((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift);
-
-                            ResetStatus();
-
-                            IndicatePossibleFromFields();
-
-                            UndoActionStack.Clear();
-                            RedoActionStack.Clear();
+                            if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+                            {
+                                ToSpecialPosition();
+                            }
+                            else
+                            {
+                                ToStartPosition();
+                            }
 
                             ea.Handled = true;
                             break;
@@ -543,6 +543,30 @@ namespace Check.Views
                     }
                 }
             }
+        }
+
+        public void ToStartPosition()
+        {
+            Position.Initialize(true);
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+
+            UndoActionStack.Clear();
+            RedoActionStack.Clear();
+        }
+
+        public void ToSpecialPosition()
+        {
+            Position.Initialize(false);
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+
+            UndoActionStack.Clear();
+            RedoActionStack.Clear();
         }
 
         #endregion
@@ -941,9 +965,9 @@ namespace Check.Views
                     {
                         IUndoableAction undoableAction = UndoActionStack.Pop();
 
-                        undoableAction.Redo();
+                        UndoActionStack.Push(undoableAction);
 
-                      //UndoActionStack.Push(undoableAction);
+                        undoableAction.Redo();
                     }
               //}
               //finally
