@@ -2,9 +2,11 @@
 using Check.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +18,7 @@ using static Check.ViewModels.FieldViewModel;
 
 namespace Check.Views
 {
-    public partial class PositionView
+    public partial class PositionView : INotifyPropertyChanged
     {
         #region Enumerations
 
@@ -43,6 +45,25 @@ namespace Check.Views
         private const int NumberOfFields2       = NumberOfFields / 2;
 
         private const int DisplayOfIntermediatePositionsDelay = 1000;
+
+        #endregion
+
+        #region Delegates and events
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        //[NotifyPropertyChangedInvocator]
+        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            try
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+            catch
+            {
+                // Do nothing
+            }
+        }
 
         #endregion
 
@@ -256,6 +277,13 @@ namespace Check.Views
             ResetStatus();
 
             IndicatePossibleFromFields();
+
+            Loaded += (sender, ea) =>
+            {
+                OnPropertyChanged(nameof(AutomaticMoves              ));
+                OnPropertyChanged(nameof(GiveVisualFeedback          ));
+                OnPropertyChanged(nameof(DisplayIntermediatePositions));
+            } ;
         }
 
         #endregion
@@ -424,11 +452,11 @@ namespace Check.Views
                     {
                         case Key.A:
                             AutomaticMoves = ! AutomaticMoves;
+
+                            ea.Handled = true;
                             break;
                         case Key.F:
                             GiveVisualFeedback = ! GiveVisualFeedback;
-
-                            RefreshFields();
 
                             ea.Handled = true;
                             break;
@@ -573,6 +601,62 @@ namespace Check.Views
 
         #region Public properties
 
+        private bool _automaticMoves = Properties.Settings.Default.AutomaticMoves;
+        public  bool  AutomaticMoves
+        {
+            get => _automaticMoves;
+            set
+            {
+                if (_automaticMoves != value)
+                {
+                    _automaticMoves  = value;
+
+                    Properties.Settings.Default.AutomaticMoves = value;
+                    Properties.Settings.Default.Save();
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _giveVisualFeedback = Properties.Settings.Default.GiveVisualFeedback;
+        public  bool  GiveVisualFeedback
+        {
+            get =>  _giveVisualFeedback;
+            set
+            {
+                if (_giveVisualFeedback != value)
+                {
+                    _giveVisualFeedback  = value;
+
+                    Properties.Settings.Default.GiveVisualFeedback = value;
+                    Properties.Settings.Default.Save();
+
+                    RefreshFields();
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _displayIntermediatePositions = Properties.Settings.Default.DisplayIntermediatePositions;
+        public  bool  DisplayIntermediatePositions
+        {
+            get => _displayIntermediatePositions;
+            set
+            {
+                if (_displayIntermediatePositions != value)
+                {
+                    _displayIntermediatePositions = value;
+
+                    Properties.Settings.Default.DisplayIntermediatePositions = value;
+                    Properties.Settings.Default.Save();
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         internal SettingsEditingView  SettingsEditingView { get; set; }
 
         #endregion
@@ -630,54 +714,6 @@ namespace Check.Views
 
         private int   FromFieldIndex { get; set; }
 
-        private bool _automaticMoves = Properties.Settings.Default.AutomaticMoves;
-        private bool  AutomaticMoves
-        {
-            get => _automaticMoves;
-            set
-            {
-                if (_automaticMoves != value)
-                {
-                    _automaticMoves  = value;
-
-                    Properties.Settings.Default.AutomaticMoves = value;
-                    Properties.Settings.Default.Save();
-                }
-            }
-        }
-
-        private bool _giveVisualFeedback = Properties.Settings.Default.GiveVisualFeedback;
-        private bool  GiveVisualFeedback
-        {
-            get =>  _giveVisualFeedback;
-            set
-            {
-                if (_giveVisualFeedback != value)
-                {
-                    _giveVisualFeedback  = value;
-
-                    Properties.Settings.Default.GiveVisualFeedback = value;
-                    Properties.Settings.Default.Save();
-                }
-            }
-        }
-
-        private bool _displayIntermediatePositions = Properties.Settings.Default.DisplayIntermediatePositions;
-        private bool  DisplayIntermediatePositions
-        {
-            get => _displayIntermediatePositions;
-            set
-            {
-                if (_displayIntermediatePositions != value)
-                {
-                    _displayIntermediatePositions = value;
-
-                    Properties.Settings.Default.DisplayIntermediatePositions = value;
-                    Properties.Settings.Default.Save();
-                }
-            }
-        }
-
         private int _delayOfDisplayOfIntermediatePositions = Properties.Settings.Default.DelayOfDisplayOfIntermediatePositions;
         private int  DelayOfDisplayOfIntermediatePositions
         {
@@ -706,10 +742,6 @@ namespace Check.Views
 
 
         #region Actions
-
-        public void ToggleAutomaticMoves              () { AutomaticMoves               = ! AutomaticMoves              ; }
-        public void ToggleGiveVisualFeedback          () { GiveVisualFeedback           = ! GiveVisualFeedback          ; }
-        public void ToggleDisplayIntermediatePositions() { DisplayIntermediatePositions = ! DisplayIntermediatePositions; }
 
         public void LoadPosition()
         {
