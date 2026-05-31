@@ -45,6 +45,12 @@ namespace Check.Views
             Button   buttonFlipTurn         = new Button   { Content = new TextBlock { Text = "Flip whose turn it is" , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Flip whose turn it is"                                                                            } ; buttonFlipTurn         .Click += OnFlipTurn             ; Grid.SetRow(buttonFlipTurn         , 6); Grid.SetColumn(buttonFlipTurn         , 1); gridPlaying.Children.Add(buttonFlipTurn        );
             Button   buttonSolve            = new Button   { Content = new TextBlock { Text = "Solve combination"     , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Solve combination"                                                                                } ; buttonSolve            .Click += OnSolveCombination     ; Grid.SetRow(buttonSolve            , 7); Grid.SetColumn(buttonSolve            , 0); gridPlaying.Children.Add(buttonSolve           );
 
+            PositionView.UndoOrRedoChanged += () =>
+            {
+                buttonUndoMove.IsEnabled = PositionView.CanUndo;
+                buttonRedoMove.IsEnabled = PositionView.CanRedo;
+            } ;
+
             checkBoxAutomaticMoves.SetBinding(ToggleButton.IsCheckedProperty, new Binding { Source = PositionView, Path = new PropertyPath("AutomaticMoves"              ), Mode = BindingMode.TwoWay } );
             checkBoxFeedback      .SetBinding(ToggleButton.IsCheckedProperty, new Binding { Source = PositionView, Path = new PropertyPath("GiveVisualFeedback"          ), Mode = BindingMode.TwoWay } );
             checkBoxIntermediate  .SetBinding(ToggleButton.IsCheckedProperty, new Binding { Source = PositionView, Path = new PropertyPath("DisplayIntermediatePositions"), Mode = BindingMode.TwoWay } );

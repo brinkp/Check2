@@ -65,140 +65,12 @@ namespace Check.Views
             }
         }
 
-        #endregion
+        public delegate void UndoOrRedoChangedDelegate()                ;
+        public event         UndoOrRedoChangedDelegate UndoOrRedoChanged;
 
-        #region IUndoableAction
-
-        internal enum ActionIndexEnum
+        private void OnUndoOrRedoChanged()
         {
-            ClearBoard
-        }
-
-        internal enum SimpleActionIndexEnum
-        {
-            FlipBoard ,
-            FlipTurn
-        }
-
-        internal interface IUndoableAction
-        {
-            void Undo();
-            void Redo();
-        }
-
-        private abstract class UndoableBase : IUndoableAction
-        {
-            protected PositionView PositionView { get; set; }
-
-            public abstract void Undo();
-            public abstract void Redo();
-        }
-
-        private class UndoableMove : UndoableBase
-        {
-            public UndoableMove(PositionView positionView, Move move)
-            {
-                Debug.Assert(positionView != null);
-
-                PositionView = positionView;
-                Move         = move;
-            }
-
-            private Move Move { get; }
-
-            public override void Undo()
-            {
-                PositionView.UndoLastMove(Move);
-            }
-
-            public override void Redo()
-            {
-                PositionView.RedoLastMove(Move);
-            }
-
-            public Move GetMove() => Move;
-        }
-
-        private class UndoablePositionAction : UndoableBase
-        {
-            public UndoablePositionAction(PositionView positionView, ActionIndexEnum actionIndex, Position position = null)
-            {
-                Debug.Assert(positionView != null);
-
-                PositionView = positionView;
-                ActionIndex  = actionIndex ;
-                Position     = position    ;
-            }
-
-            private ActionIndexEnum ActionIndex { get; }
-            private Position        Position    { get; }
-
-            public override void Undo()
-            {
-                switch (ActionIndex)
-                {
-                    case ActionIndexEnum.ClearBoard:
-                        Debug.Assert(Position != null);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
-                }
-            }
-
-            public override void Redo()
-            {
-                switch (ActionIndex)
-                {
-                    case ActionIndexEnum.ClearBoard:
-                        Debug.Assert(Position != null);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
-                }
-            }
-        }
-
-        private class UndoableSimpleAction : UndoableBase
-        {
-            public UndoableSimpleAction(PositionView positionView, SimpleActionIndexEnum simpleActionIndex)
-            {
-                Debug.Assert(positionView != null);
-
-                PositionView      = positionView;
-                SimpleActionIndex = simpleActionIndex;
-            }
-
-            private SimpleActionIndexEnum SimpleActionIndex { get; }
-
-            public override void Undo()
-            {
-                switch (SimpleActionIndex)
-                {
-                    case SimpleActionIndexEnum.FlipBoard:
-                        PositionView.FlipBoard();
-                        break;
-                    case SimpleActionIndexEnum.FlipTurn:
-                        PositionView.FlipTurn();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
-                }
-            }
-
-            public override void Redo()
-            {
-                switch (SimpleActionIndex)
-                {
-                    case SimpleActionIndexEnum.FlipBoard:
-                        PositionView.FlipBoard();
-                        break;
-                    case SimpleActionIndexEnum.FlipTurn:
-                        PositionView.FlipTurn();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
-                }
-            }
+            UndoOrRedoChanged?.Invoke();
         }
 
         #endregion
@@ -240,10 +112,9 @@ namespace Check.Views
                     int      columnFieldView = columnIndex - delta + 1;
 
                     bool lastColumnBorder    = columnBorder    == NumberOfColumns1;
-                    bool lastColumnFieldView = columnFieldView == NumberOfColumns1;
 
                     Border       border1 =                           new Border { Background = Brushes.White     , BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnBorder    ? 1d : 0d, lastRow ? 1d : 0d) } ;
-                    Border       border2 = Borders[fieldIndex - 1] = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black, BorderThickness = new Thickness(1d, 1d, lastColumnFieldView ? 1d : 0d, lastRow ? 1d : 0d) } ;
+                    Border       border2 = Borders[fieldIndex - 1] = new Border { Background = Brushes.SandyBrown, BorderBrush = Brushes.Black                                                                                            } ;
 
                     FieldViewModel fieldViewModel = FieldViewModels[fieldIndex - 1] = new FieldViewModel(      positionViewModel, fieldIndex);
                     FieldView      fieldView      = FieldViews     [fieldIndex - 1] = new FieldView     (this,    fieldViewModel, fieldIndex);
@@ -270,6 +141,8 @@ namespace Check.Views
                 delta = 1 - delta;
             }
 
+            SetBorders();
+
             Content     = Grid;
 
             DataContext = positionViewModel;
@@ -280,6 +153,8 @@ namespace Check.Views
 
             Loaded += (sender, ea) =>
             {
+                OnUndoOrRedoChanged();
+
                 OnPropertyChanged(nameof(AutomaticMoves              ));
                 OnPropertyChanged(nameof(GiveVisualFeedback          ));
                 OnPropertyChanged(nameof(DisplayIntermediatePositions));
@@ -583,6 +458,8 @@ namespace Check.Views
 
             UndoActionStack.Clear();
             RedoActionStack.Clear();
+
+            OnUndoOrRedoChanged();
         }
 
         public void ToSpecialPosition()
@@ -595,6 +472,8 @@ namespace Check.Views
 
             UndoActionStack.Clear();
             RedoActionStack.Clear();
+
+            OnUndoOrRedoChanged();
         }
 
         #endregion
@@ -657,19 +536,22 @@ namespace Check.Views
             }
         }
 
+        internal bool CanUndo => UndoActionStack.Count > 0;
+        internal bool CanRedo => RedoActionStack.Count > 0;
+
         internal SettingsEditingView  SettingsEditingView { get; set; }
 
         #endregion
 
         #region Private properties
 
-        private  Grid                 Grid                { get;      }
-        private  PositionViewModel    PositionViewModel   { get;      }
-        private  FieldViewModel[]     FieldViewModels     { get;      }
-        private  FieldView     []     FieldViews          { get;      }
-        private  Border        []     Borders             { get;      }
+        private  Grid                 Grid              { get;      }
+        private  PositionViewModel    PositionViewModel { get;      }
+        private  FieldViewModel[]     FieldViewModels   { get;      }
+        private  FieldView     []     FieldViews        { get;      }
+        private  Border        []     Borders           { get;      }
 
-        private  bool                 Busy                { get; set; }
+        private  bool                 Busy              { get; set; }
 
         private  OperationStatusEnum _operationStatus = OperationStatusEnum.Playing;
         public   OperationStatusEnum  OperationStatus
@@ -735,11 +617,7 @@ namespace Check.Views
             }
         }
 
-        private Stack<IUndoableAction> UndoActionStack { get; } = new Stack<IUndoableAction>();
-        private Stack<IUndoableAction> RedoActionStack { get; } = new Stack<IUndoableAction>();
-
         #endregion
-
 
         #region Actions
 
@@ -759,6 +637,8 @@ namespace Check.Views
 
                     UndoActionStack.Clear();
                     RedoActionStack.Clear();
+
+                    OnUndoOrRedoChanged();
                 }
                 finally
                 {
@@ -801,6 +681,8 @@ namespace Check.Views
                         SetDefaultStatus();
 
                         UndoActionStack.Push(new UndoableMove(this, move));
+
+                        OnUndoOrRedoChanged();
                     }
                 }
                 finally
@@ -850,6 +732,8 @@ namespace Check.Views
                         RefreshFields();
 
                         UndoActionStack.Push(new UndoableMove(this, bestMove));
+
+                        OnUndoOrRedoChanged();
                     }
 
                     Position.GetMovesAndTakes();
@@ -874,6 +758,15 @@ namespace Check.Views
 
         public void FlipBoard()
         {
+            FlipBoardWork();
+
+            UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipBoard));
+
+            OnUndoOrRedoChanged();
+        }
+
+        private void FlipBoardWork()
+        {
             // This could also be done with a RenderTransform, maybe combined with an animation
 
             if (CanPlay)
@@ -889,8 +782,8 @@ namespace Check.Views
                         FieldView fieldView1  = FieldViews[fieldIndex1];
                         FieldView fieldView2  = FieldViews[fieldIndex2];
 
-                        Border    border21    = Borders[fieldIndex1];
-                        Border    border22    = Borders[fieldIndex2];
+                        Border    border21    = Borders  [fieldIndex1];
+                        Border    border22    = Borders  [fieldIndex2];
 
                         int       tempRow1    = Grid.GetRow   (fieldView1) ;
                         int       tempRow2    = Grid.GetRow   (fieldView2) ;
@@ -915,9 +808,9 @@ namespace Check.Views
                         Grid.Children.Add   (fieldView2);
                     }
 
-                    IndicatePossibleFromFields();
+                    SetBorders();
 
-                    //UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipBoard));
+                    IndicatePossibleFromFields();
                 }
                 finally
                 {
@@ -927,6 +820,15 @@ namespace Check.Views
         }
 
         public void FlipTurn()
+        {
+            FlipTurnWork();
+
+            UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipTurn));
+
+            OnUndoOrRedoChanged();
+        }
+
+        private void FlipTurnWork()
         {
             if (CanPlay)
             {
@@ -939,8 +841,6 @@ namespace Check.Views
                     Position.GetMovesAndTakes();
 
                     SetDefaultStatus();
-
-                    UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipTurn));
                 }
                 finally
                 {
@@ -955,76 +855,6 @@ namespace Check.Views
             {
                 fieldViewModel.StartEditingMode();
             }
-        }
-
-        #endregion
-
-        #region Undo and Redo
-
-        public void UndoLastAction()
-        {
-            if (! Busy)
-            {
-              //Busy = true;
-
-              //try
-              //{
-                    if (UndoActionStack.Count > 0)
-                    {
-                        IUndoableAction undoableAction = UndoActionStack.Pop();
-
-                        RedoActionStack.Push(undoableAction);
-
-                        undoableAction.Undo();
-                    }
-              //}
-              //finally
-              //{
-              //    Busy = false;
-              //}
-            }
-        }
-
-        public void RedoLastAction()
-        {
-            if (! Busy)
-            {
-              //Busy = true;
-
-              //try
-              //{
-                    if (RedoActionStack.Count > 0)
-                    {
-                        IUndoableAction undoableAction = UndoActionStack.Pop();
-
-                        UndoActionStack.Push(undoableAction);
-
-                        undoableAction.Redo();
-                    }
-              //}
-              //finally
-              //{
-              //    Busy = false;
-              //}
-            }
-        }
-
-        internal void UndoLastMove(Move move)
-        {
-            Position.UndoMoveInSitu(ref move);
-
-            Position.GetMovesAndTakes();
-
-            SetDefaultStatus();
-        }
-
-        internal void RedoLastMove(Move move)
-        {
-            Position.MoveInSitu(ref move);
-
-            Position.GetMovesAndTakes();
-
-            SetDefaultStatus();
         }
 
         #endregion
@@ -1123,11 +953,26 @@ namespace Check.Views
             await PauseIfRequired();
 
             UndoActionStack.Push(new UndoableMove(this, move));
+
+            OnUndoOrRedoChanged();
         }
 
         internal void PushUndoStack(IUndoableAction undoableAction)
         {
             UndoActionStack.Push(undoableAction);
+
+            OnUndoOrRedoChanged();
+        }
+
+        private void SetBorders()
+        {
+            foreach (Border border in Borders)
+            {
+                double bottom = (Grid.GetRow   (border) ==    NumberOfRows1) ? 1d : 0d;
+                double right  = (Grid.GetColumn(border) == NumberOfColumns1) ? 1d : 0d;
+
+                border.BorderThickness = new Thickness(1d, 1d, right, bottom);
+            }
         }
 
         #endregion
@@ -1154,6 +999,8 @@ namespace Check.Views
             UndoActionStack.Push(new UndoableMove(this, move));
 
             SetDefaultStatus();
+
+            OnUndoOrRedoChanged();
         }
 
         private async Task HandleMoveExt(Move move)
@@ -1304,6 +1151,243 @@ namespace Check.Views
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+        
+        #region Undo and Redo
+
+        private Stack<IUndoableAction> UndoActionStack { get; } = new Stack<IUndoableAction>();
+        private Stack<IUndoableAction> RedoActionStack { get; } = new Stack<IUndoableAction>();
+
+        private void PushUndoAction(IUndoableAction undoableAction)
+        {
+
+        }
+
+        private IUndoableAction PopUndoableAction()
+        {
+            IUndoableAction result = null;
+
+            return result;
+        }
+
+        private void PushRedoAction(IUndoableAction undoableAction)
+        {
+
+        }
+
+        private IUndoableAction PopRedoableAction()
+        {
+            IUndoableAction result = null;
+
+            return result;
+        }
+
+        public void UndoLastAction()
+        {
+            if (! Busy)
+            {
+                //Busy = true;
+
+                //try
+                //{
+                    if (UndoActionStack.Count > 0)
+                    {
+                        IUndoableAction undoableAction = UndoActionStack.Pop();
+                    
+                        RedoActionStack.Push(undoableAction);
+                    
+                        undoableAction.Undo();
+
+                        OnUndoOrRedoChanged();
+                    }
+                //}
+                //finally
+                //{
+                //    Busy = false;
+                //}
+            }
+        }
+
+        public void RedoLastAction()
+        {
+            if (! Busy)
+            {
+                //Busy = true;
+
+                //try
+                //{
+                if (RedoActionStack.Count > 0)
+                {
+                    IUndoableAction undoableAction = RedoActionStack.Pop();
+
+                    UndoActionStack.Push(undoableAction);
+
+                    undoableAction.Redo();
+
+                    OnUndoOrRedoChanged();
+                }
+                //}
+                //finally
+                //{
+                //    Busy = false;
+                //}
+            }
+        }
+
+        internal void UndoLastMove(Move move)
+        {
+            Position.UndoMoveInSitu(ref move);
+
+            Position.GetMovesAndTakes();
+
+            SetDefaultStatus();
+        }
+
+        internal void RedoLastMove(Move move)
+        {
+            Position.MoveInSitu(ref move);
+
+            Position.GetMovesAndTakes();
+
+            SetDefaultStatus();
+        }
+
+        #endregion
+
+        #region IUndoableAction
+
+        internal enum ActionIndexEnum
+        {
+            ClearBoard
+        }
+
+        internal enum SimpleActionIndexEnum
+        {
+            FlipBoard,
+            FlipTurn
+        }
+
+        internal interface IUndoableAction
+        {
+            void Undo();
+            void Redo();
+        }
+
+        private abstract class UndoableBase : IUndoableAction
+        {
+            protected PositionView PositionView { get; set; }
+
+            public abstract void Undo();
+            public abstract void Redo();
+        }
+
+        private class UndoableMove : UndoableBase
+        {
+            public UndoableMove(PositionView positionView, Move move)
+            {
+                Debug.Assert(positionView != null);
+
+                PositionView = positionView;
+                Move         = move;
+            }
+
+            private Move Move { get; }
+
+            public override void Undo()
+            {
+                PositionView.UndoLastMove(Move);
+            }
+
+            public override void Redo()
+            {
+                PositionView.RedoLastMove(Move);
+            }
+
+            public Move GetMove() => Move;
+        }
+
+        private class UndoablePositionAction : UndoableBase
+        {
+            public UndoablePositionAction(PositionView positionView, ActionIndexEnum actionIndex, Position position = null)
+            {
+                Debug.Assert(positionView != null);
+
+                PositionView = positionView;
+                ActionIndex  = actionIndex ;
+                Position     = position    ;
+            }
+
+            private ActionIndexEnum ActionIndex { get; }
+            private Position        Position    { get; }
+
+            public override void Undo()
+            {
+                switch (ActionIndex)
+                {
+                    case ActionIndexEnum.ClearBoard:
+                        Debug.Assert(Position != null);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
+                }
+            }
+
+            public override void Redo()
+            {
+                switch (ActionIndex)
+                {
+                    case ActionIndexEnum.ClearBoard:
+                        Debug.Assert(Position != null);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
+                }
+            }
+        }
+
+        private class UndoableSimpleAction : UndoableBase
+        {
+            public UndoableSimpleAction(PositionView positionView, SimpleActionIndexEnum simpleActionIndex)
+            {
+                Debug.Assert(positionView != null);
+
+                PositionView      = positionView;
+                SimpleActionIndex = simpleActionIndex;
+            }
+
+            private SimpleActionIndexEnum SimpleActionIndex { get; }
+
+            public override void Undo()
+            {
+                switch (SimpleActionIndex)
+                {
+                    case SimpleActionIndexEnum.FlipBoard:
+                        PositionView.FlipBoardWork();
+                        break;
+                    case SimpleActionIndexEnum.FlipTurn:
+                        PositionView.FlipTurnWork();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
+                }
+            }
+
+            public override void Redo()
+            {
+                switch (SimpleActionIndex)
+                {
+                    case SimpleActionIndexEnum.FlipBoard:
+                        PositionView.FlipBoardWork();
+                        break;
+                    case SimpleActionIndexEnum.FlipTurn:
+                        PositionView.FlipTurnWork();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
+                }
             }
         }
 
