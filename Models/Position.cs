@@ -49,19 +49,9 @@ namespace Check.Models
 
         #endregion
 
-        #region Fields
+        #region Static fields
 
-        private  int _numberOfMoves         ;
-        private  int _numberOfTakesInMove   ;
-        private  int _numberOfTakesInMoveMax;
-
-        [JsonInclude]
-        // ReSharper disable once InconsistentNaming
-        internal          byte[] _fields = new byte[MaxNumberOfFields];
-        private  readonly Move[] _moves  = new Move[MaxNumberOfMoves ];
-        private  readonly int [] _takes  = new int [MaxNumberOfTakes ];
-
-        private readonly int[] _upLefts    =
+        private static readonly int [] UpLefts =
         {
              0,
              0,  0,  0,  0,  0,
@@ -76,7 +66,7 @@ namespace Check.Models
              0, 41, 42, 43, 44
         } ;
 
-        private readonly int[] _upRights   =
+        private static readonly int[] UpRights =
         {
              0,
              0,  0,  0,  0,  0,
@@ -91,7 +81,7 @@ namespace Check.Models
             41, 42, 43, 44, 45
         } ;
 
-        private readonly int[] _downLefts  =
+        private static readonly int[] DownLefts =
         {
              0,
              6,  7,  8,  9, 10,
@@ -106,7 +96,7 @@ namespace Check.Models
              0,  0,  0,  0,  0
         } ;
 
-        private readonly int[] _downRights =
+        private static readonly int[] DownRights =
         {
              0,
              7,  8,  9, 10,  0,
@@ -120,6 +110,20 @@ namespace Check.Models
             47, 48, 49, 50,  0,
              0,  0,  0,  0,  0
         } ;
+
+        #endregion
+
+        #region Fields
+
+        private  int _numberOfMoves         ;
+        private  int _numberOfTakesInMove   ;
+        private  int _numberOfTakesInMoveMax;
+
+        [JsonInclude]
+        // ReSharper disable once InconsistentNaming
+        internal readonly byte[] _fields = new byte[MaxNumberOfFields];
+        private  readonly Move[] _moves  = new Move[MaxNumberOfMoves ];
+        private  readonly int [] _takes  = new int [MaxNumberOfTakes ];
 
         #endregion
 
@@ -544,10 +548,10 @@ namespace Check.Models
             bool result = false;
 
             // ReSharper disable once ConvertIfToOrExpression
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   _upLefts )) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   _upRights)) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, _downLefts )) result = true;
-            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, _downRights)) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   UpLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom,   UpRights)) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, DownLefts )) result = true;
+            if (GetTakesForKing(manToTake, kingToTake, fieldIndexStart, fieldIndexFrom, DownRights)) result = true;
 
             return result;
         }
@@ -738,7 +742,7 @@ namespace Check.Models
                 {
                     int tryFieldIndex = fieldIndexFrom;
 
-                    while ((tryFieldIndex = _upLefts[tryFieldIndex]) != 0)
+                    while ((tryFieldIndex = UpLefts[tryFieldIndex]) != 0)
                     {
                         if (_fields[tryFieldIndex] == (byte) FieldContentEnum.Empty)
                         {
@@ -752,7 +756,7 @@ namespace Check.Models
 
                     tryFieldIndex = fieldIndexFrom;
 
-                    while ((tryFieldIndex = _upRights[tryFieldIndex]) != 0)
+                    while ((tryFieldIndex = UpRights[tryFieldIndex]) != 0)
                     {
                         if (_fields[tryFieldIndex] == (byte) FieldContentEnum.Empty)
                         {
@@ -766,7 +770,7 @@ namespace Check.Models
 
                     tryFieldIndex = fieldIndexFrom;
 
-                    while ((tryFieldIndex = _downLefts[tryFieldIndex]) != 0)
+                    while ((tryFieldIndex = DownLefts[tryFieldIndex]) != 0)
                     {
                         if (_fields[tryFieldIndex] == (byte) FieldContentEnum.Empty)
                         {
@@ -780,7 +784,7 @@ namespace Check.Models
 
                     tryFieldIndex = fieldIndexFrom;
 
-                    while ((tryFieldIndex = _downRights[tryFieldIndex]) != 0)
+                    while ((tryFieldIndex = DownRights[tryFieldIndex]) != 0)
                     {
                         if (_fields[tryFieldIndex] == (byte) FieldContentEnum.Empty)
                         {

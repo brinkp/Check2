@@ -451,30 +451,6 @@ namespace Check.Views
             }
         }
 
-        public void ToStartPosition()
-        {
-            Position.Initialize(true);
-
-            ResetStatus();
-
-            IndicatePossibleFromFields();
-
-            UndoActionStack.Clear();
-            RedoActionStack.Clear();
-        }
-
-        public void ToSpecialPosition()
-        {
-            Position.Initialize(false);
-
-            ResetStatus();
-
-            IndicatePossibleFromFields();
-
-            UndoActionStack.Clear();
-            RedoActionStack.Clear();
-        }
-
         #endregion
 
         #region Public properties
@@ -620,6 +596,30 @@ namespace Check.Views
 
         #region Actions
 
+        public void ToStartPosition()
+        {
+            Position.Initialize(true);
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+
+            UndoActionStack.Clear();
+            RedoActionStack.Clear();
+        }
+
+        public void ToSpecialPosition()
+        {
+            Position.Initialize(false);
+
+            ResetStatus();
+
+            IndicatePossibleFromFields();
+
+            UndoActionStack.Clear();
+            RedoActionStack.Clear();
+        }
+
         public void LoadPosition()
         {
             if (CanPlay)
@@ -732,6 +732,8 @@ namespace Check.Views
                     Position.GetMovesAndTakes();
 
                     SetDefaultStatus();
+
+                    await CheckAutomaticMoves();
                 }
                 finally
                 {
@@ -871,9 +873,9 @@ namespace Check.Views
                     {
                         result = true;
 
-                        HandleMove(move);
-
                         await PauseIfRequired();
+
+                        HandleMove(move);
 
                         numberOfMoves = Position.NumberOfMoves                 ;
                         move          = Position.PossibleMoves.FirstOrDefault();
@@ -1167,8 +1169,8 @@ namespace Check.Views
             }
         }
 
-        private StackExt<IUndoableAction> UndoActionStack { get; } = new StackExt<IUndoableAction>();
-        private StackExt<IUndoableAction> RedoActionStack { get; } = new StackExt<IUndoableAction>();
+        private StackExt<IUndoableAction> UndoActionStack { get; }
+        private StackExt<IUndoableAction> RedoActionStack { get; }
 
         public void UndoLastAction()
         {
