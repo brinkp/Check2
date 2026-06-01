@@ -559,7 +559,19 @@ namespace Check.Views
         private bool CanPlay => (OperationStatus == OperationStatusEnum.Playing) && (! Busy);
         private bool CanEdit => (OperationStatus == OperationStatusEnum.Editing) && (! Busy);
 
-        private Position                             Position       => PositionViewModel?.Position;
+        private Position Position
+        {
+            get => PositionViewModel?.Position;
+            set
+            {
+                PositionViewModel.Position = value;
+
+                ResetStatus();
+
+                IndicatePossibleFromFields();
+            }
+        }
+
         private PositionViewModel.PositionStatusEnum PositionStatus
         {
             get =>  PositionViewModel?.PositionStatus ?? PositionViewModel.PositionStatusEnum.Default;
@@ -598,26 +610,24 @@ namespace Check.Views
 
         public void ToStartPosition()
         {
+            UndoActionStack.Push(new UndoablePositionAction(this, Position.Copy(), PositionActionIndexEnum.ClearBoard));
+
             Position.Initialize(true);
 
             ResetStatus();
 
             IndicatePossibleFromFields();
-
-            UndoActionStack.Clear();
-            RedoActionStack.Clear();
         }
 
         public void ToSpecialPosition()
         {
+            UndoActionStack.Push(new UndoablePositionAction(this, Position.Copy(), PositionActionIndexEnum.ClearBoard));
+
             Position.Initialize(false);
 
             ResetStatus();
 
             IndicatePossibleFromFields();
-
-            UndoActionStack.Clear();
-            RedoActionStack.Clear();
         }
 
         public void LoadPosition()
@@ -628,14 +638,15 @@ namespace Check.Views
 
                 try
                 {
+                    Position positionCopy = Position.Copy();
+
                     Position.Load();
 
                     ResetStatus();
 
                     IndicatePossibleFromFields();
 
-                    UndoActionStack.Clear();
-                    RedoActionStack.Clear();
+                    UndoActionStack.Push(new UndoablePositionAction(this, positionCopy, PositionActionIndexEnum.ClearBoard));
                 }
                 finally
                 {
@@ -962,6 +973,11 @@ namespace Check.Views
             }
         }
 
+        private void SetPosition(Position position)
+        {
+            Position = position;
+        }
+
         #endregion
 
         #region User interface update methods
@@ -1044,98 +1060,6 @@ namespace Check.Views
             foreach (FieldViewModel fieldViewModel in FieldViewModels)
             {
                 fieldViewModel.Refresh();
-            }
-        }
-
-        #endregion
-
-        #region FieldToBackgroundColorConverterFill
-
-        internal class FieldToBackgroundColorConverterFill : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                Brush result;
-
-                Debug.Assert(targetType   == typeof(Brush));
-
-                PositionView positionView  = parameter as PositionView;
-
-                Debug.Assert(positionView != null);
-
-                FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
-
-                if (value is FieldViewModel fieldViewModel)
-                {
-                    Debugger.Break();
-
-                    fieldStatusEnum = fieldViewModel.FieldStatus;
-                }
-                else if (value is FieldStatusEnum @enum)
-                {
-                    fieldStatusEnum = @enum;
-                }
-
-                if (positionView.GiveVisualFeedback)
-                {
-                    switch (fieldStatusEnum)
-                    {
-                        case FieldStatusEnum.Default:
-                            result = Brushes.SandyBrown;
-                            break;
-                        case FieldStatusEnum.CanBeFrom:
-                        case FieldStatusEnum.CanBeTo:
-                            result = Brushes.LightSeaGreen;
-                            break;
-                        case FieldStatusEnum.MouseOverCanBeFrom:
-                        case FieldStatusEnum.MouseOverCanBeTo:
-                        case FieldStatusEnum.FromGiven:
-                            result = Brushes.Green;
-                            break;
-                        case FieldStatusEnum.CanBeTaken:
-                            result = Brushes.Red;
-                            break;
-                        case FieldStatusEnum.Editing:
-                            result = Brushes.LightSteelBlue;
-                            break;
-                        case FieldStatusEnum.EditingMouseOver:
-                            result = Brushes.Green;
-                            break;
-                        case FieldStatusEnum.EditingSelected:
-                            result = Brushes.Red;
-                            break;
-                        default:
-                            result = Brushes.Transparent;
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (fieldStatusEnum)
-                    {
-                        case FieldStatusEnum.Default:
-                        case FieldStatusEnum.CanBeFrom:
-                        case FieldStatusEnum.CanBeTo:
-                        case FieldStatusEnum.CanBeTaken:
-                            result = Brushes.SandyBrown;
-                            break;
-                        case FieldStatusEnum.MouseOverCanBeFrom:
-                        case FieldStatusEnum.MouseOverCanBeTo:
-                        case FieldStatusEnum.FromGiven:
-                            result = Brushes.Green;
-                            break;
-                        default:
-                            result = Brushes.Transparent;
-                            break;
-                    }
-                }
-
-                return result;
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotImplementedException();
             }
         }
 
@@ -1242,8 +1166,10 @@ namespace Check.Views
 
         #region IUndoableAction
 
-        internal enum ActionIndexEnum
+        internal enum PositionActionIndexEnum
         {
+            NormalPosition,
+            SpecialPosition,
             ClearBoard
         }
 
@@ -1294,39 +1220,44 @@ namespace Check.Views
 
         private class UndoablePositionAction : UndoableBase
         {
-            public UndoablePositionAction(PositionView positionView, ActionIndexEnum actionIndex, Position position = null)
+            public UndoablePositionAction(PositionView positionView, Position positionCopy, PositionActionIndexEnum actionIndex)
             {
                 Debug.Assert(positionView != null);
+                Debug.Assert(positionCopy     != null);
 
-                PositionView = positionView;
-                ActionIndex  = actionIndex ;
-                Position     = position    ;
+                PositionView        = positionView;
+                PositionCopy        = positionCopy;
+                PositionActionIndex = actionIndex ;
             }
 
-            private ActionIndexEnum ActionIndex { get; }
-            private Position        Position    { get; }
+            private Position                PositionCopy        { get; }
+            private PositionActionIndexEnum PositionActionIndex { get; }
 
             public override void Undo()
             {
-                switch (ActionIndex)
+                switch (PositionActionIndex)
                 {
-                    case ActionIndexEnum.ClearBoard:
-                        Debug.Assert(Position != null);
+                    case PositionActionIndexEnum. NormalPosition:
+                    case PositionActionIndexEnum.SpecialPosition:
+                    case PositionActionIndexEnum.ClearBoard     :
+                        PositionView.SetPosition(PositionCopy);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(PositionActionIndex), "Invalid switch value");
                 }
             }
 
             public override void Redo()
             {
-                switch (ActionIndex)
+                switch (PositionActionIndex)
                 {
-                    case ActionIndexEnum.ClearBoard:
-                        Debug.Assert(Position != null);
+                    case PositionActionIndexEnum. NormalPosition:
+                    case PositionActionIndexEnum.SpecialPosition:
+                    case PositionActionIndexEnum.ClearBoard     :
+                        Debug.Assert(PositionCopy != null);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(ActionIndex), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(PositionActionIndex), "Invalid switch value");
                 }
             }
         }
@@ -1371,6 +1302,98 @@ namespace Check.Views
                     default:
                         throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
                 }
+            }
+        }
+
+        #endregion
+
+        #region FieldToBackgroundColorConverterFill
+
+        internal class FieldToBackgroundColorConverterFill : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                Brush result;
+
+                Debug.Assert(targetType   == typeof(Brush));
+
+                PositionView positionView  = parameter as PositionView;
+
+                Debug.Assert(positionView != null);
+
+                FieldStatusEnum fieldStatusEnum = FieldStatusEnum.Default;
+
+                if (value is FieldViewModel fieldViewModel)
+                {
+                    Debugger.Break();
+
+                    fieldStatusEnum = fieldViewModel.FieldStatus;
+                }
+                else if (value is FieldStatusEnum @enum)
+                {
+                    fieldStatusEnum = @enum;
+                }
+
+                if (positionView.GiveVisualFeedback)
+                {
+                    switch (fieldStatusEnum)
+                    {
+                        case FieldStatusEnum.Default:
+                            result = Brushes.SandyBrown;
+                            break;
+                        case FieldStatusEnum.CanBeFrom:
+                        case FieldStatusEnum.CanBeTo:
+                            result = Brushes.LightSeaGreen;
+                            break;
+                        case FieldStatusEnum.MouseOverCanBeFrom:
+                        case FieldStatusEnum.MouseOverCanBeTo:
+                        case FieldStatusEnum.FromGiven:
+                            result = Brushes.Green;
+                            break;
+                        case FieldStatusEnum.CanBeTaken:
+                            result = Brushes.Red;
+                            break;
+                        case FieldStatusEnum.Editing:
+                            result = Brushes.LightSteelBlue;
+                            break;
+                        case FieldStatusEnum.EditingMouseOver:
+                            result = Brushes.Green;
+                            break;
+                        case FieldStatusEnum.EditingSelected:
+                            result = Brushes.Red;
+                            break;
+                        default:
+                            result = Brushes.Transparent;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (fieldStatusEnum)
+                    {
+                        case FieldStatusEnum.Default:
+                        case FieldStatusEnum.CanBeFrom:
+                        case FieldStatusEnum.CanBeTo:
+                        case FieldStatusEnum.CanBeTaken:
+                            result = Brushes.SandyBrown;
+                            break;
+                        case FieldStatusEnum.MouseOverCanBeFrom:
+                        case FieldStatusEnum.MouseOverCanBeTo:
+                        case FieldStatusEnum.FromGiven:
+                            result = Brushes.Green;
+                            break;
+                        default:
+                            result = Brushes.Transparent;
+                            break;
+                    }
+                }
+
+                return result;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
             }
         }
 

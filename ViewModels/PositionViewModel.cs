@@ -43,7 +43,7 @@ namespace Check.ViewModels
 
         #region Public properties
 
-        public Position Position { get; }
+        public Position Position { get; internal set; }
 
         public PositionStatusEnum PositionStatus { get; set; } = PositionStatusEnum.Default;
 

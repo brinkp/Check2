@@ -134,6 +134,11 @@ namespace Check.Models
             Initialize(startPosition);
         }
 
+        public Position(byte[] fields)
+        {
+            CopyBackFields(fields);
+        }
+
         public void Initialize(bool startPosition)
         {
             if (startPosition)
@@ -973,6 +978,8 @@ namespace Check.Models
 
             return result;
         }
+
+        public Position Copy() => new Position(CopyFields());
 
         public byte[] CopyFields()
         {
