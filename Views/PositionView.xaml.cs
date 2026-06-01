@@ -85,6 +85,9 @@ namespace Check.Views
 
             PositionViewModel = positionViewModel;
 
+            UndoActionStack   = new StackExt<IUndoableAction>(); UndoActionStack.UndoOrRedoChanged += OnUndoOrRedoChanged;
+            RedoActionStack   = new StackExt<IUndoableAction>(); RedoActionStack.UndoOrRedoChanged += OnUndoOrRedoChanged;
+
             Grid = new Grid();
 
             for (int index = 0; index < NumberOfRowsOrColumns; index += 1)
@@ -458,8 +461,6 @@ namespace Check.Views
 
             UndoActionStack.Clear();
             RedoActionStack.Clear();
-
-            OnUndoOrRedoChanged();
         }
 
         public void ToSpecialPosition()
@@ -472,8 +473,6 @@ namespace Check.Views
 
             UndoActionStack.Clear();
             RedoActionStack.Clear();
-
-            OnUndoOrRedoChanged();
         }
 
         #endregion
@@ -637,8 +636,6 @@ namespace Check.Views
 
                     UndoActionStack.Clear();
                     RedoActionStack.Clear();
-
-                    OnUndoOrRedoChanged();
                 }
                 finally
                 {
@@ -681,8 +678,6 @@ namespace Check.Views
                         SetDefaultStatus();
 
                         UndoActionStack.Push(new UndoableMove(this, move));
-
-                        OnUndoOrRedoChanged();
                     }
                 }
                 finally
@@ -732,8 +727,6 @@ namespace Check.Views
                         RefreshFields();
 
                         UndoActionStack.Push(new UndoableMove(this, bestMove));
-
-                        OnUndoOrRedoChanged();
                     }
 
                     Position.GetMovesAndTakes();
@@ -761,8 +754,6 @@ namespace Check.Views
             FlipBoardWork();
 
             UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipBoard));
-
-            OnUndoOrRedoChanged();
         }
 
         private void FlipBoardWork()
@@ -824,8 +815,6 @@ namespace Check.Views
             FlipTurnWork();
 
             UndoActionStack.Push(new UndoableSimpleAction(this, SimpleActionIndexEnum.FlipTurn));
-
-            OnUndoOrRedoChanged();
         }
 
         private void FlipTurnWork()
@@ -953,15 +942,11 @@ namespace Check.Views
             await PauseIfRequired();
 
             UndoActionStack.Push(new UndoableMove(this, move));
-
-            OnUndoOrRedoChanged();
         }
 
         internal void PushUndoStack(IUndoableAction undoableAction)
         {
             UndoActionStack.Push(undoableAction);
-
-            OnUndoOrRedoChanged();
         }
 
         private void SetBorders()
@@ -999,8 +984,6 @@ namespace Check.Views
             UndoActionStack.Push(new UndoableMove(this, move));
 
             SetDefaultStatus();
-
-            OnUndoOrRedoChanged();
         }
 
         private async Task HandleMoveExt(Move move)
@@ -1158,32 +1141,34 @@ namespace Check.Views
         
         #region Undo and Redo
 
-        private Stack<IUndoableAction> UndoActionStack { get; } = new Stack<IUndoableAction>();
-        private Stack<IUndoableAction> RedoActionStack { get; } = new Stack<IUndoableAction>();
-
-        private void PushUndoAction(IUndoableAction undoableAction)
+        private class StackExt<T> : Stack<T>
         {
+            public event UndoOrRedoChangedDelegate UndoOrRedoChanged;
 
+            private void OnUndoOrRedoChanged()
+            {
+                UndoOrRedoChanged?.Invoke();
+            }
+
+            public new void Push(T t)
+            {
+                base.Push(t);
+
+                OnUndoOrRedoChanged();
+            }
+
+            public new T Pop()
+            {
+                T t = base.Pop();
+
+                OnUndoOrRedoChanged();
+
+                return t;
+            }
         }
 
-        private IUndoableAction PopUndoableAction()
-        {
-            IUndoableAction result = null;
-
-            return result;
-        }
-
-        private void PushRedoAction(IUndoableAction undoableAction)
-        {
-
-        }
-
-        private IUndoableAction PopRedoableAction()
-        {
-            IUndoableAction result = null;
-
-            return result;
-        }
+        private StackExt<IUndoableAction> UndoActionStack { get; } = new StackExt<IUndoableAction>();
+        private StackExt<IUndoableAction> RedoActionStack { get; } = new StackExt<IUndoableAction>();
 
         public void UndoLastAction()
         {
@@ -1200,8 +1185,6 @@ namespace Check.Views
                         RedoActionStack.Push(undoableAction);
                     
                         undoableAction.Undo();
-
-                        OnUndoOrRedoChanged();
                     }
                 //}
                 //finally
@@ -1226,8 +1209,6 @@ namespace Check.Views
                     UndoActionStack.Push(undoableAction);
 
                     undoableAction.Redo();
-
-                    OnUndoOrRedoChanged();
                 }
                 //}
                 //finally
