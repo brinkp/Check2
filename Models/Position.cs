@@ -933,7 +933,7 @@ namespace Check.Models
         {
             StreamWriter sw = new StreamWriter(filename);
 
-            sw.WriteLine(JsonSerializer.Serialize(_fields));
+            sw.WriteLine(JsonSerializer.Serialize<byte[]>(_fields));
 
             sw.Close  ();
             sw.Dispose();
@@ -948,7 +948,7 @@ namespace Check.Models
             sr.Close  ();
             sr.Dispose();
 
-            FieldContentEnum[] fields = JsonSerializer.Deserialize<FieldContentEnum[]>(json);
+            byte[] fields = JsonSerializer.Deserialize<byte[]>(json);
 
             Debug.Assert(fields.Length == _fields.Length);
 
