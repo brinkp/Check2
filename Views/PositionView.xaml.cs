@@ -1223,7 +1223,7 @@ namespace Check.Views
             public UndoablePositionAction(PositionView positionView, Position positionCopy, PositionActionIndexEnum actionIndex)
             {
                 Debug.Assert(positionView != null);
-                Debug.Assert(positionCopy     != null);
+                Debug.Assert(positionCopy != null);
 
                 PositionView        = positionView;
                 PositionCopy        = positionCopy;
@@ -1289,20 +1289,7 @@ namespace Check.Views
                 }
             }
 
-            public override void Redo()
-            {
-                switch (SimpleActionIndex)
-                {
-                    case SimpleActionIndexEnum.FlipBoard:
-                        PositionView.FlipBoardWork();
-                        break;
-                    case SimpleActionIndexEnum.FlipTurn:
-                        PositionView.FlipTurnWork();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(SimpleActionIndex), "Invalid switch value");
-                }
-            }
+            public override void Redo() => Undo();
         }
 
         #endregion

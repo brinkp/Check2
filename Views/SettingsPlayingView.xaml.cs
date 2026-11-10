@@ -27,8 +27,8 @@ namespace Check.Views
             gridPlaying.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength( 40D) } );
             gridPlaying.   RowDefinitions.Add(new    RowDefinition { Height = new GridLength( 40D) } );
 
-            gridPlaying.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(200d) } );
-            gridPlaying.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(200d) } );
+            gridPlaying.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(210d) } );
+            gridPlaying.ColumnDefinitions.Add(new ColumnDefinition { Width  = new GridLength(210d) } );
 
             Button   buttonUndoMove         = new Button   { Content = new TextBlock { Text = "Undo last action"      , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Undo last action <Ctrl+Z>"                                                                        } ; buttonUndoMove         .Click += OnUndoMove             ; Grid.SetRow(buttonUndoMove         , 0); Grid.SetColumn(buttonUndoMove         , 0); gridPlaying.Children.Add(buttonUndoMove        );
             Button   buttonRedoMove         = new Button   { Content = new TextBlock { Text = "Redo last action"      , VerticalAlignment = VerticalAlignment.Center }, Height = 28d, Margin = new Thickness(4d), ToolTip="Redo last action <Ctrl+Y>"                                                                        } ; buttonRedoMove         .Click += OnRedoMove             ; Grid.SetRow(buttonRedoMove         , 0); Grid.SetColumn(buttonRedoMove         , 1); gridPlaying.Children.Add(buttonRedoMove        );
