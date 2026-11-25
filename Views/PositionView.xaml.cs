@@ -159,7 +159,7 @@ namespace Check.Views
                 OnUndoOrRedoChanged();
 
                 OnPropertyChanged(nameof(AutomaticMoves              ));
-                OnPropertyChanged(nameof(GiveVisualFeedback          ));
+                OnPropertyChanged(nameof(ShowAvailableMoves          ));
                 OnPropertyChanged(nameof(DisplayIntermediatePositions));
             } ;
         }
@@ -334,7 +334,7 @@ namespace Check.Views
                             ea.Handled = true;
                             break;
                         case Key.F:
-                            GiveVisualFeedback = ! GiveVisualFeedback;
+                            ShowAvailableMoves = ! ShowAvailableMoves;
 
                             ea.Handled = true;
                             break;
@@ -473,17 +473,17 @@ namespace Check.Views
             }
         }
 
-        private bool _giveVisualFeedback = Properties.Settings.Default.GiveVisualFeedback;
-        public  bool  GiveVisualFeedback
+        private bool _showAvailableMoves = Properties.Settings.Default.ShowAvailableMoves;
+        public  bool  ShowAvailableMoves
         {
-            get =>  _giveVisualFeedback;
+            get =>  _showAvailableMoves;
             set
             {
-                if (_giveVisualFeedback != value)
+                if (_showAvailableMoves != value)
                 {
-                    _giveVisualFeedback  = value;
+                    _showAvailableMoves  = value;
 
-                    Properties.Settings.Default.GiveVisualFeedback = value;
+                    Properties.Settings.Default.ShowAvailableMoves = value;
                     Properties.Settings.Default.Save();
 
                     RefreshFields();
@@ -1321,7 +1321,7 @@ namespace Check.Views
                     fieldStatusEnum = @enum;
                 }
 
-                if (positionView.GiveVisualFeedback)
+                if (positionView.ShowAvailableMoves)
                 {
                     switch (fieldStatusEnum)
                     {
