@@ -88,7 +88,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\Position.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
-    <Compile Include="ViewModels\Field.cs" />
+    <Compile Include="Models\Field.cs" />
     <Compile Include="ViewModels\Move.cs" />
     <Compile Include="ViewModels\FieldViewModel.cs" />
     <Compile Include="ViewModels\PositionViewModel.cs" />

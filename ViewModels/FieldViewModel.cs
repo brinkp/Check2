@@ -50,9 +50,9 @@ namespace Check.ViewModels
 
         #region Public properties
 
-        public FieldContentEnum FieldContent
+        public Field.FieldContentEnum FieldContent
         {
-            get => (FieldContentEnum) _fields[_fieldIndex]               ;
+            get => (Field.FieldContentEnum) _fields[_fieldIndex]               ;
             set =>                    _fields[_fieldIndex] = (byte) value;
         }
 

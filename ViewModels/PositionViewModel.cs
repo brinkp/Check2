@@ -43,7 +43,25 @@ namespace Check.ViewModels
 
         #region Public properties
 
-        public Position Position { get; internal set; }
+        public Dictionary<Position, Position> Positions { get; } = new Dictionary<Position, Position>();
+
+        private Position _position;
+        public  Position  Position
+        {
+                     get => _position;
+            internal set
+            {
+                if (_position != value)
+                {
+                    _position  = value;
+
+                    if (! Positions.ContainsKey(_position))
+                    {
+                          Positions.Add        (_position, _position);
+                    }
+                }
+            }
+        }
 
         public PositionStatusEnum PositionStatus { get; set; } = PositionStatusEnum.Default;
 

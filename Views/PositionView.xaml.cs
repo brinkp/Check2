@@ -243,12 +243,12 @@ namespace Check.Views
 
                         switch (fieldViewModel.FieldContent)
                         {
-                            case Position.FieldContentEnum.Empty    : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.Empty    ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
-                            case Position.FieldContentEnum.WhiteMan : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.WhiteMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
-                            case Position.FieldContentEnum.BlackMan : if (SettingsEditingView.FieldContent == Position.FieldContentEnum.BlackMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
-                            case Position.FieldContentEnum.WhiteKing: if (SettingsEditingView.FieldContent == Position.FieldContentEnum.WhiteKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
-                            case Position.FieldContentEnum.BlackKing: if (SettingsEditingView.FieldContent == Position.FieldContentEnum.BlackKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
-                            case Position.FieldContentEnum.Taken    :
+                            case Field.FieldContentEnum.Empty    : if (SettingsEditingView.FieldContent == Field.FieldContentEnum.Empty    ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Field.FieldContentEnum.WhiteMan : if (SettingsEditingView.FieldContent == Field.FieldContentEnum.WhiteMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Field.FieldContentEnum.BlackMan : if (SettingsEditingView.FieldContent == Field.FieldContentEnum.BlackMan ) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Field.FieldContentEnum.WhiteKing: if (SettingsEditingView.FieldContent == Field.FieldContentEnum.WhiteKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Field.FieldContentEnum.BlackKing: if (SettingsEditingView.FieldContent == Field.FieldContentEnum.BlackKing) fieldViewModel.FieldStatus = FieldStatusEnum.EditingSelected; break;
+                            case Field.FieldContentEnum.Taken    :
                             default:
                                 throw new ArgumentOutOfRangeException(nameof(fieldViewModel.FieldContent), "Invalid switch value");
                         }

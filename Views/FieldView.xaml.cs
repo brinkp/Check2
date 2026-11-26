@@ -114,23 +114,23 @@ namespace Check.Views
 
                 Debug.Assert(targetType == typeof(Brush));
 
-                if (value is Position.FieldContentEnum fieldContent)
+                if (value is Field.FieldContentEnum fieldContent)
                 {
                     switch (fieldContent)
                     {
-                        case Position.FieldContentEnum.Empty:
+                        case Field.FieldContentEnum.Empty:
                             result = Brushes.Transparent;
                             break;
-                        case Position.FieldContentEnum.WhiteMan:
+                        case Field.FieldContentEnum.WhiteMan:
                             result = Brushes.White;
                             break;
-                        case Position.FieldContentEnum.BlackMan:
+                        case Field.FieldContentEnum.BlackMan:
                             result = Brushes.Black;
                             break;
-                        case Position.FieldContentEnum.WhiteKing:
+                        case Field.FieldContentEnum.WhiteKing:
                             result = Brushes.White;
                             break;
-                        case Position.FieldContentEnum.BlackKing:
+                        case Field.FieldContentEnum.BlackKing:
                             result = Brushes.Black;
                             break;
                         default:
@@ -163,11 +163,11 @@ namespace Check.Views
 
                 Debug.Assert(targetType == typeof(Brush));
 
-                if (value is Position.FieldContentEnum fieldContent)
+                if (value is Field.FieldContentEnum fieldContent)
                 {
                     switch (fieldContent)
                     {
-                        case Position.FieldContentEnum.Empty:
+                        case Field.FieldContentEnum.Empty:
                             result = Brushes.Transparent;
                             break;
                         default:
@@ -201,19 +201,19 @@ namespace Check.Views
 
                 Debug.Assert(targetType == typeof(Brush));
 
-                if (value is Position.FieldContentEnum fieldContent)
+                if (value is Field.FieldContentEnum fieldContent)
                 {
                     switch (fieldContent)
                     {
-                        case Position.FieldContentEnum.Empty:
-                        case Position.FieldContentEnum.WhiteMan:
-                        case Position.FieldContentEnum.BlackMan:
+                        case Field.FieldContentEnum.Empty:
+                        case Field.FieldContentEnum.WhiteMan:
+                        case Field.FieldContentEnum.BlackMan:
                             result = Brushes.Transparent;
                             break;
-                        case Position.FieldContentEnum.WhiteKing:
+                        case Field.FieldContentEnum.WhiteKing:
                             result = Brushes.Black;
                             break;
-                        case Position.FieldContentEnum.BlackKing:
+                        case Field.FieldContentEnum.BlackKing:
                             result = Brushes.White;
                             break;
                         default:

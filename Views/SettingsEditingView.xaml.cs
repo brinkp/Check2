@@ -36,11 +36,11 @@ namespace Check.Views
             PositionViewModel positionViewModelEditing = new PositionViewModel(positionEditing);
             PositionView      positionViewEditing      = new PositionView     (positionViewModelEditing) { SettingsEditingView = this, OperationStatus = OperationStatusEnum.Selecting } ;
 
-            positionEditing._fields[1]   = (byte) Position.FieldContentEnum.Empty    ;
-            positionEditing._fields[2]   = (byte) Position.FieldContentEnum.WhiteMan ;
-            positionEditing._fields[3]   = (byte) Position.FieldContentEnum.BlackMan ;
-            positionEditing._fields[4]   = (byte) Position.FieldContentEnum.WhiteKing;
-            positionEditing._fields[5]   = (byte) Position.FieldContentEnum.BlackKing;
+            positionEditing._fields[1]   = (byte) Field.FieldContentEnum.Empty    ;
+            positionEditing._fields[2]   = (byte) Field.FieldContentEnum.WhiteMan ;
+            positionEditing._fields[3]   = (byte) Field.FieldContentEnum.BlackMan ;
+            positionEditing._fields[4]   = (byte) Field.FieldContentEnum.WhiteKing;
+            positionEditing._fields[5]   = (byte) Field.FieldContentEnum.BlackKing;
 
             FieldViewModelEmpty          = new FieldViewModel(positionViewModelEditing, 1) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
             FieldViewModelWhiteMan       = new FieldViewModel(positionViewModelEditing, 2) { FieldStatus = FieldViewModel.FieldStatusEnum.Editing } ;
@@ -87,7 +87,7 @@ namespace Check.Views
 
             Content      = gridEditing;
 
-            FieldContent = Position.FieldContentEnum.Empty;
+            FieldContent = Field.FieldContentEnum.Empty;
 
             void OnClearPosition(object sender, RoutedEventArgs e)
             {
@@ -122,8 +122,8 @@ namespace Check.Views
 
         #region Public properties
 
-        private  Position.FieldContentEnum _fieldContent = Position.FieldContentEnum.Taken; // Force initial update
-        internal Position.FieldContentEnum  FieldContent
+        private  Field.FieldContentEnum _fieldContent = Field.FieldContentEnum.Taken; // Force initial update
+        internal Field.FieldContentEnum  FieldContent
         {
             get => _fieldContent;
             set
@@ -162,12 +162,12 @@ namespace Check.Views
                                                           FieldViewModelBlackKing.FieldStatus = FieldViewModel.FieldStatusEnum.Editing;
             switch (FieldContent)
             {
-                case Position.FieldContentEnum.Empty    : FieldViewModelEmpty    .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
-                case Position.FieldContentEnum.WhiteMan : FieldViewModelWhiteMan .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
-                case Position.FieldContentEnum.BlackMan : FieldViewModelBlackMan .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
-                case Position.FieldContentEnum.WhiteKing: FieldViewModelWhiteKing.FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
-                case Position.FieldContentEnum.BlackKing: FieldViewModelBlackKing.FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
-                case Position.FieldContentEnum.Taken    :
+                case Field.FieldContentEnum.Empty    : FieldViewModelEmpty    .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Field.FieldContentEnum.WhiteMan : FieldViewModelWhiteMan .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Field.FieldContentEnum.BlackMan : FieldViewModelBlackMan .FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Field.FieldContentEnum.WhiteKing: FieldViewModelWhiteKing.FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Field.FieldContentEnum.BlackKing: FieldViewModelBlackKing.FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
+                case Field.FieldContentEnum.Taken    :
                 default:
                     throw new ArgumentOutOfRangeException(nameof(FieldContent), "Invalid switch value");
             }

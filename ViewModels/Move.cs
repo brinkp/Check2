@@ -44,7 +44,7 @@ namespace Check.ViewModels
 
             TakeFields         = new List<int>(takeFields.Take(numberOfTakes));
           // ViaFields         = new List<int>( viaFields.Take(numberOfTakes));
-            FieldContentsTaken = new List<Position.FieldContentEnum>();
+            FieldContentsTaken = new List<Field.FieldContentEnum>();
 
             Promoted           = false;
         }
@@ -59,7 +59,7 @@ namespace Check.ViewModels
         public      int                             NumberOfTakes { get; private set; }
 
         public List<int                      >         TakeFields { get; private set; }
-        public List<Position.FieldContentEnum> FieldContentsTaken { get;         set; }
+        public List<Field.FieldContentEnum> FieldContentsTaken { get;         set; }
       //public List<int                      >          ViaFields { get; private set; }
 
         public      bool                                 Promoted { get;         set; }
@@ -133,7 +133,7 @@ namespace Check.ViewModels
 
                 if (FieldContentsTaken != null)
                 {
-                    result.FieldContentsTaken = new List<Position.FieldContentEnum>(FieldContentsTaken);
+                    result.FieldContentsTaken = new List<Field.FieldContentEnum>(FieldContentsTaken);
                 }
 
                 result.Promoted               = Promoted;
