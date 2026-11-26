@@ -30,7 +30,7 @@ namespace Check.Views
                         positionView.OperationStatus = PositionView.OperationStatusEnum.Playing;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(tabControl.SelectedContent), "Invalid switch value");
+                        throw new ArgumentOutOfRangeException(nameof(tabControl.SelectedContent), @"Invalid switch value");
                 }
             } ;
 

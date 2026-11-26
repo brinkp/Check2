@@ -89,7 +89,7 @@
     <Compile Include="Models\Position.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="Models\Field.cs" />
-    <Compile Include="ViewModels\Move.cs" />
+    <Compile Include="Models\Move.cs" />
     <Compile Include="ViewModels\FieldViewModel.cs" />
     <Compile Include="ViewModels\PositionViewModel.cs" />
     <Compile Include="Views\SettingsEditingView.xaml.cs">

@@ -169,7 +169,7 @@ namespace Check.Views
                 case Field.FieldContentEnum.BlackKing: FieldViewModelBlackKing.FieldStatus = FieldViewModel.FieldStatusEnum.EditingSelected; break;
                 case Field.FieldContentEnum.Taken    :
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(FieldContent), "Invalid switch value");
+                    throw new ArgumentOutOfRangeException(nameof(FieldContent), @"Invalid switch value");
             }
                                                           FieldViewModelEmpty    .Refresh();
                                                           FieldViewModelWhiteMan .Refresh();

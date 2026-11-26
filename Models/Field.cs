@@ -1,4 +1,4 @@
-﻿namespace Check.ViewModels
+﻿namespace Check.Models
 {
     internal class Field
     {

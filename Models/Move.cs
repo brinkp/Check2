@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Check.Models;
 
-namespace Check.ViewModels
+namespace Check.Models
 {
     internal struct Move
     {

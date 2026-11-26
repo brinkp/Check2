@@ -1,5 +1,4 @@
-﻿using Check.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -923,7 +922,7 @@ namespace Check.Models
         {
             StreamWriter sw = new StreamWriter(filename);
 
-            sw.WriteLine(JsonSerializer.Serialize<byte[]>(_fields));
+            sw.WriteLine(JsonSerializer.Serialize(_fields));
 
             sw.Close  ();
             sw.Dispose();
@@ -944,7 +943,7 @@ namespace Check.Models
 
             for (int fieldIndex = 0; fieldIndex < fields.Length; fieldIndex++)
             {
-                _fields[fieldIndex] = (byte) fields[fieldIndex];
+                _fields[fieldIndex] = fields[fieldIndex];
             }
 
             WhiteOrBlacksTurn = (TurnEnum) _fields[0];
@@ -986,16 +985,16 @@ namespace Check.Models
         {
             string result = string.Empty;
 
-            for (int index =  0; index <  5; index += 1) { result += " " + _fields[index].ToString()      ; } result += "\n"; // Environment.NewLine;
-            for (int index =  5; index < 10; index += 1) { result +=       _fields[index].ToString() + " "; } result += "\n"; // Environment.NewLine;
-            for (int index = 10; index < 15; index += 1) { result += " " + _fields[index].ToString()      ; } result += "\n"; // Environment.NewLine;
-            for (int index = 15; index < 20; index += 1) { result +=       _fields[index].ToString() + " "; } result += "\n"; // Environment.NewLine;
-            for (int index = 20; index < 25; index += 1) { result += " " + _fields[index].ToString()      ; } result += "\n"; // Environment.NewLine;
-            for (int index = 25; index < 30; index += 1) { result +=       _fields[index].ToString() + " "; } result += "\n"; // Environment.NewLine;
-            for (int index = 30; index < 35; index += 1) { result += " " + _fields[index].ToString()      ; } result += "\n"; // Environment.NewLine;
-            for (int index = 35; index < 40; index += 1) { result +=       _fields[index].ToString() + " "; } result += "\n"; // Environment.NewLine;
-            for (int index = 40; index < 45; index += 1) { result += " " + _fields[index].ToString()      ; } result += "\n"; // Environment.NewLine;
-            for (int index = 45; index < 50; index += 1) { result +=       _fields[index].ToString()      ; }                              ;
+            for (int index =  0; index <  5; index += 1) { result += " " + _fields[index].ToString()      ; } result += Environment.NewLine;
+            for (int index =  5; index < 10; index += 1) { result +=       _fields[index].ToString() + " "; } result += Environment.NewLine;
+            for (int index = 10; index < 15; index += 1) { result += " " + _fields[index].ToString()      ; } result += Environment.NewLine;
+            for (int index = 15; index < 20; index += 1) { result +=       _fields[index].ToString() + " "; } result += Environment.NewLine;
+            for (int index = 20; index < 25; index += 1) { result += " " + _fields[index].ToString()      ; } result += Environment.NewLine;
+            for (int index = 25; index < 30; index += 1) { result +=       _fields[index].ToString() + " "; } result += Environment.NewLine;
+            for (int index = 30; index < 35; index += 1) { result += " " + _fields[index].ToString()      ; } result += Environment.NewLine;
+            for (int index = 35; index < 40; index += 1) { result +=       _fields[index].ToString() + " "; } result += Environment.NewLine;
+            for (int index = 40; index < 45; index += 1) { result += " " + _fields[index].ToString()      ; } result += Environment.NewLine;
+            for (int index = 45; index < 50; index += 1) { result +=       _fields[index].ToString()      ; }
 
             return result;
         }

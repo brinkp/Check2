@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using static Check.Models.Position;
+using Check.Models;
 
 namespace Check.ViewModels
 {
